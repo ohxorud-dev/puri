@@ -1,0 +1,125 @@
+syntax = "proto3";
+package puri.submission.v1;
+option go_package = "github.com/puri-cp/puri/gen/submission/v1;submissionv1";
+
+import "buf/validate/validate.proto";
+import "google/protobuf/timestamp.proto";
+import "common/v1/types.proto";
+import "common/v1/endpoint_security.proto";
+
+service SubmissionService {
+  rpc CreateSubmission(CreateSubmissionRequest) returns (CreateSubmissionResponse) {
+    option (puri.common.v1.endpoint_rule) = { isPublic: false };
+  }
+  rpc RunTest(RunTestRequest) returns (RunTestResponse) {
+    option (puri.common.v1.endpoint_rule) = { isPublic: false };
+  }
+  rpc RunExamples(RunExamplesRequest) returns (RunExamplesResponse) {
+    option (puri.common.v1.endpoint_rule) = { isPublic: false };
+  }
+  rpc GetSubmission(GetSubmissionRequest) returns (GetSubmissionResponse) {
+    option (puri.common.v1.endpoint_rule) = { isPublic: true };
+  }
+  rpc ListSubmissions(ListSubmissionsRequest) returns (ListSubmissionsResponse) {
+    option (puri.common.v1.endpoint_rule) = { isPublic: true };
+  }
+  rpc StreamSubmissionStatus(StreamSubmissionStatusRequest) returns (stream StreamSubmissionStatusResponse) {
+    option (puri.common.v1.endpoint_rule) = { isPublic: true };
+  }
+}
+
+message Submission {
+  int64 id = 1 [(buf.validate.field).int64.gte = 1000];
+  int64 user_id = 2 [(buf.validate.field).int64.gte = 1];
+  string username = 11;
+  int32 problem_id = 3 [(buf.validate.field).int32.gte = 1];
+  string problem_title = 12;
+  puri.common.v1.Language language = 4 [(buf.validate.field).enum.defined_only = true];
+  string source_code = 5;
+  puri.common.v1.SubmissionStatus status = 6 [(buf.validate.field).enum.defined_only = true];
+  string result = 7;
+  int32 execution_time_ms = 8 [(buf.validate.field).int32.gte = 0];
+  int32 memory_usage_kb = 9 [(buf.validate.field).int32.gte = 0];
+  google.protobuf.Timestamp created_at = 10;
+}
+
+message CreateSubmissionRequest {
+  int32 problem_id = 1 [(buf.validate.field).int32.gte = 1];
+  puri.common.v1.Language language = 2 [(buf.validate.field).enum.defined_only = true];
+  string source_code = 3 [(buf.validate.field).string.max_bytes = 65536];
+}
+
+message CreateSubmissionResponse {
+  Submission submission = 1;
+}
+
+message RunTestRequest {
+  int32 problem_id = 1 [(buf.validate.field).int32.gte = 1];
+  puri.common.v1.Language language = 2 [(buf.validate.field).enum.defined_only = true];
+  string source_code = 3 [(buf.validate.field).string.max_bytes = 65536];
+}
+
+message TestCaseResult {
+  int32 index = 1;
+  bool passed = 2;
+  string actual_output = 3;
+  string expected_output = 4;
+  string result = 5;
+  int32 execution_time_ms = 6 [(buf.validate.field).int32.gte = 0];
+}
+
+message RunTestResponse {
+  bool passed = 1;
+  string result = 2;
+  repeated TestCaseResult test_cases = 3;
+}
+
+message ExamplePair {
+  string input = 1;
+  string output = 2;
+}
+
+message RunExamplesRequest {
+  puri.common.v1.Language language = 1 [(buf.validate.field).enum.defined_only = true];
+  string source_code = 2 [(buf.validate.field).string.max_bytes = 65536];
+  repeated ExamplePair examples = 3;
+  string time_limit = 4 [(buf.validate.field).string.max_len = 16];
+  string memory_limit = 5 [(buf.validate.field).string.max_len = 16];
+}
+
+message RunExamplesResponse {
+  bool passed = 1;
+  repeated TestCaseResult test_cases = 2;
+}
+
+message GetSubmissionRequest {
+  int64 submission_id = 1 [(buf.validate.field).int64.gte = 1000];
+}
+
+message GetSubmissionResponse {
+  Submission submission = 1;
+}
+
+message ListSubmissionsRequest {
+  int32 page_size = 1 [(buf.validate.field).int32.gte = 1, (buf.validate.field).int32.lte = 100];
+  string page_token = 2;
+  optional int64 user_id = 3 [(buf.validate.field).int64.gte = 1];
+  optional int32 problem_id = 4 [(buf.validate.field).int32.gte = 1];
+}
+
+message ListSubmissionsResponse {
+  repeated Submission submissions = 1;
+  string next_page_token = 2;
+}
+
+message StreamSubmissionStatusRequest {
+  int64 submission_id = 1 [(buf.validate.field).int64.gte = 1000];
+}
+
+message StreamSubmissionStatusResponse {
+  int64 submission_id = 1 [(buf.validate.field).int64.gte = 1000];
+  puri.common.v1.SubmissionStatus status = 2 [(buf.validate.field).enum.defined_only = true];
+  string result = 3;
+  int32 execution_time_ms = 4 [(buf.validate.field).int32.gte = 0];
+  int32 memory_usage_kb = 5 [(buf.validate.field).int32.gte = 0];
+}

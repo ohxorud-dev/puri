@@ -1,0 +1,371 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+<BaseLayout title="문제 출제 - Puri">
+  <div class="propose-container">
+    <header class="propose-header">
+      <div>
+        <h1>문제 출제</h1>
+        <p class="propose-desc">검토 후 관리자 승인을 거쳐 게시됩니다.</p>
+      </div>
+      <a href="/proposals/my" class="btn-list">내 제안 목록 →</a>
+    </header>
+
+    <div id="login-required" class="login-required" style="display:none;">
+      <p>로그인이 필요합니다.</p>
+      <a href="/login" class="btn-primary">로그인</a>
+    </div>
+
+    <form id="propose-form" class="propose-form" style="display:none;">
+      <section class="form-section">
+        <h2>기본 정보</h2>
+        <div class="field">
+          <label for="title">제목</label>
+          <input type="text" id="title" name="title" required maxlength="200" />
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="time_limit">시간 제한</label>
+            <input type="text" id="time_limit" name="time_limit" value="1초" required maxlength="16" />
+          </div>
+          <div class="field">
+            <label for="memory_limit">메모리 제한</label>
+            <input type="text" id="memory_limit" name="memory_limit" value="128MB" required maxlength="16" />
+          </div>
+        </div>
+      </section>
+
+      <section class="form-section">
+        <h2>문제 설명</h2>
+        <p class="hint">Markdown 지원. 특별한 경우가 아니라면 입력/출력/제한 섹션을 포함하고 템플릿을 유지하세요.</p>
+        <textarea id="statement_md" name="statement_md" rows="16" required>## 문제
+
+
+## 입력
+
+
+## 출력
+
+</textarea>
+      </section>
+
+      <section class="form-section">
+        <div class="section-head">
+          <h2>예제</h2>
+          <button type="button" id="add-example" class="btn-ghost">+ 예제 추가</button>
+        </div>
+        <div id="examples-list"></div>
+      </section>
+
+      <section class="form-section">
+        <h2>전체 테스트케이스</h2>
+        <p class="hint"><code>testcases.json</code> 업로드. 형식: <code>{`[{"input":"...","output":"..."}, ...]`}</code>. gzip 압축되어 전송됩니다.</p>
+        <input type="file" id="testcases_file" accept="application/json,.json" />
+        <div id="testcases_status" class="hint"></div>
+      </section>
+
+      <section class="form-section">
+        <h2>레퍼런스 솔루션</h2>
+        <div class="field-row">
+          <div class="field">
+            <label for="ref_lang">언어</label>
+            <select id="ref_lang">
+              <option value="1">C++</option>
+              <option value="2">Python</option>
+              <option value="3">Java</option>
+              <option value="4">Go</option>
+              <option value="5">JavaScript</option>
+              <option value="6">Rust</option>
+            </select>
+          </div>
+        </div>
+        <textarea id="ref_source" rows="12" placeholder="정답 솔루션 소스코드" required></textarea>
+      </section>
+
+      <div class="actions">
+        <button type="button" id="save-draft" class="btn-secondary">초안 저장</button>
+        <button type="button" id="submit-btn" class="btn-primary">제출 (예제 검증)</button>
+      </div>
+
+      <div id="status-msg" class="status-msg" style="display:none;"></div>
+      <div id="validation-panel" class="validation-panel" style="display:none;"></div>
+    </form>
+
+  </div>
+</BaseLayout>
+
+<script>
+  import { proposalClient } from '../../lib/api';
+  import { isLoggedIn } from '../../lib/auth';
+
+  const loginRequired = document.getElementById('login-required')!;
+  const form = document.getElementById('propose-form')!;
+
+  (async () => {
+    if (!(await isLoggedIn())) {
+      loginRequired.style.display = 'block';
+      return;
+    }
+    form.style.display = '';
+    init();
+  })();
+
+  function init() {
+
+  let proposalId: bigint | null = null;
+  const urlParams = new URLSearchParams(window.location.search);
+  const idParam = urlParams.get('id');
+  if (idParam) proposalId = BigInt(idParam);
+
+  let testcasesGz: Uint8Array | null = null;
+
+  const titleEl = document.getElementById('title') as HTMLInputElement;
+  const stmtEl = document.getElementById('statement_md') as HTMLTextAreaElement;
+  const tlEl = document.getElementById('time_limit') as HTMLInputElement;
+  const mlEl = document.getElementById('memory_limit') as HTMLInputElement;
+  const langEl = document.getElementById('ref_lang') as HTMLSelectElement;
+  const srcEl = document.getElementById('ref_source') as HTMLTextAreaElement;
+  const tcFileEl = document.getElementById('testcases_file') as HTMLInputElement;
+  const tcStatusEl = document.getElementById('testcases_status')!;
+  const examplesList = document.getElementById('examples-list')!;
+  const statusMsg = document.getElementById('status-msg')!;
+  const validationPanel = document.getElementById('validation-panel')!;
+  const addExBtn = document.getElementById('add-example') as HTMLButtonElement;
+  const saveBtn = document.getElementById('save-draft') as HTMLButtonElement;
+  const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement;
+
+  function escapeHtml(s: string) {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function renderExampleRow(input = '', output = '') {
+    const row = document.createElement('div');
+    row.className = 'example-row';
+    row.innerHTML = `
+      <div class="ex-cols">
+        <div><label>입력</label><textarea class="ex-input" rows="4">${escapeHtml(input)}</textarea></div>
+        <div><label>출력</label><textarea class="ex-output" rows="4">${escapeHtml(output)}</textarea></div>
+      </div>
+      <button type="button" class="btn-ghost btn-del">삭제</button>
+    `;
+    row.querySelector('.btn-del')!.addEventListener('click', () => row.remove());
+    examplesList.appendChild(row);
+  }
+
+  function collectExamples() {
+    return Array.from(examplesList.querySelectorAll('.example-row')).map(row => ({
+      input: (row.querySelector('.ex-input') as HTMLTextAreaElement).value,
+      output: (row.querySelector('.ex-output') as HTMLTextAreaElement).value,
+    })).filter(ex => ex.input || ex.output);
+  }
+
+  addExBtn.addEventListener('click', () => renderExampleRow());
+  renderExampleRow();
+
+  async function gzipJson(text: string) {
+    const cs = new (window as any).CompressionStream('gzip');
+    const blob = new Blob([text]);
+    const stream = blob.stream().pipeThrough(cs);
+    const buf = await new Response(stream).arrayBuffer();
+    return new Uint8Array(buf);
+  }
+
+  tcFileEl.addEventListener('change', async () => {
+    const file = tcFileEl.files?.[0];
+    if (!file) { testcasesGz = null; tcStatusEl.textContent = ''; return; }
+    try {
+      const text = await file.text();
+      const parsed = JSON.parse(text);
+      if (!Array.isArray(parsed)) throw new Error('배열이 아닙니다');
+      testcasesGz = await gzipJson(text);
+      tcStatusEl.textContent = `${parsed.length}개 케이스, 압축 후 ${(testcasesGz.byteLength / 1024).toFixed(1)}KB`;
+    } catch (err: any) {
+      testcasesGz = null;
+      tcStatusEl.textContent = `파싱 실패: ${err.message}`;
+    }
+  });
+
+  function showStatus(type: 'ok' | 'err' | 'info', msg: string) {
+    statusMsg.style.display = 'block';
+    statusMsg.className = `status-msg status-${type}`;
+    statusMsg.textContent = msg;
+  }
+
+  async function ensureProposal(): Promise<bigint> {
+    if (proposalId) return proposalId;
+    const title = titleEl.value.trim() || '제목 없는 제안';
+    const resp = await proposalClient.createProposal({ title });
+    proposalId = resp.proposalId;
+    const newUrl = new URL(window.location.href);
+    newUrl.searchParams.set('id', proposalId.toString());
+    window.history.replaceState({}, '', newUrl);
+    return proposalId;
+  }
+
+  async function pushUpdate(includeTestcases: boolean) {
+    const id = await ensureProposal();
+    const examples = collectExamples();
+    const update: any = {
+      proposalId: id,
+      title: titleEl.value,
+      statementMd: stmtEl.value,
+      timeLimit: tlEl.value,
+      memoryLimit: mlEl.value,
+      referenceSolutionLanguage: parseInt(langEl.value, 10),
+      referenceSolutionSource: srcEl.value,
+      examples,
+    };
+    if (includeTestcases && testcasesGz) update.testcasesGz = testcasesGz;
+    await proposalClient.updateProposal(update);
+  }
+
+  saveBtn.addEventListener('click', async () => {
+    saveBtn.disabled = true;
+    validationPanel.style.display = 'none';
+    try {
+      await pushUpdate(true);
+      showStatus('ok', '초안 저장됨');
+    } catch (err: any) {
+      showStatus('err', `저장 실패: ${err.message}`);
+    } finally {
+      saveBtn.disabled = false;
+    }
+  });
+
+  submitBtn.addEventListener('click', async () => {
+    submitBtn.disabled = true;
+    validationPanel.style.display = 'none';
+    try {
+      await pushUpdate(true);
+      const id = await ensureProposal();
+      showStatus('info', '레퍼런스 솔루션 실행 중...');
+      const resp = await proposalClient.submitProposal({ proposalId: id });
+      renderValidation(resp);
+    } catch (err: any) {
+      showStatus('err', `제출 실패: ${err.message}`);
+    } finally {
+      submitBtn.disabled = false;
+    }
+  });
+
+  function statusLabel(n: number) {
+    return ['미정','draft','submitted','reviewing','approved','rejected','published'][n] || 'unknown';
+  }
+
+  function renderValidation(resp: any) {
+    const label = statusLabel(resp.status);
+    const ok = label === 'submitted';
+    showStatus(ok ? 'ok' : 'err', ok ? '제출 완료 — 모든 예제 통과' : `제출 실패 — 상태: ${label}`);
+    let html = '';
+    if (resp.reviewNotes) html += `<div class="notes">${escapeHtml(resp.reviewNotes)}</div>`;
+    html += '<div class="val-list">';
+    for (const v of resp.exampleValidationResult || []) {
+      html += `<div class="val-item ${v.passed ? 'val-pass' : 'val-fail'}">
+        <div class="val-head">
+          <span class="val-badge">${v.passed ? '통과' : '실패'}</span>
+          <span>예제 ${v.index}</span>
+          <span class="val-time">${v.executionTimeMs}ms</span>
+        </div>
+        ${v.passed ? '' : `<div class="val-diff">
+          <div><strong>기대</strong><pre>${escapeHtml(v.expectedOutput)}</pre></div>
+          <div><strong>실제</strong><pre>${escapeHtml(v.actualOutput)}</pre></div>
+        </div>`}
+      </div>`;
+    }
+    html += '</div>';
+    validationPanel.innerHTML = html;
+    validationPanel.style.display = 'block';
+  }
+
+  async function loadExisting() {
+    if (!proposalId) return;
+    try {
+      const resp = await proposalClient.getProposal({ proposalId });
+      const p = resp.proposal!;
+      titleEl.value = p.title;
+      stmtEl.value = p.statementMd;
+      tlEl.value = p.timeLimit;
+      mlEl.value = p.memoryLimit;
+      langEl.value = String(p.referenceSolutionLanguage || 1);
+      srcEl.value = p.referenceSolutionSource;
+      examplesList.innerHTML = '';
+      for (const ex of p.examples || []) renderExampleRow(ex.input, ex.output);
+      if (!p.examples?.length) renderExampleRow();
+      if (p.exampleValidationResult?.length) renderValidation({
+        status: p.status,
+        reviewNotes: p.reviewNotes,
+        exampleValidationResult: p.exampleValidationResult,
+      });
+    } catch (err: any) {
+      showStatus('err', `불러오기 실패: ${err.message}`);
+    }
+  }
+  loadExisting();
+  }
+</script>
+
+<style is:global>
+  .propose-container { max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+  .propose-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 2rem; }
+  .propose-header h1 { font-size: 2rem; margin: 0 0 0.3rem; letter-spacing: -0.02em; }
+  .propose-desc { color: var(--color-text-muted); margin: 0; }
+  .btn-list {
+    padding: 0.6rem 1rem; border: 1.5px solid var(--color-border); border-radius: 8px;
+    color: var(--color-text); font-weight: 600; text-decoration: none; font-size: 0.9rem;
+    white-space: nowrap;
+  }
+  .btn-list:hover { background: var(--color-surface); }
+  .propose-form { display: flex; flex-direction: column; gap: 1.5rem; }
+  .form-section {
+    background: var(--color-surface); border: 1px solid var(--color-border);
+    border-radius: 12px; padding: 1.5rem;
+  }
+  .form-section h2 { font-size: 1.15rem; margin: 0 0 1rem; font-weight: 700; }
+  .section-head { display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem; }
+  .section-head h2 { margin: 0; }
+  .hint { font-size: 0.88rem; color: var(--color-text-muted); margin: 0.2rem 0 0.8rem; }
+  .hint code { background: var(--color-bg); padding: 0.1em 0.4em; border-radius: 4px; font-size: 0.9em; }
+  .field { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 0.8rem; }
+  .field label { font-weight: 600; font-size: 0.92rem; }
+  .field input, .field select, textarea {
+    width: 100%; box-sizing: border-box; padding: 0.7rem 0.9rem;
+    border: 1.5px solid var(--color-border); border-radius: 8px;
+    background: var(--color-bg); color: var(--color-text); font-size: 0.95rem;
+    font-family: inherit;
+  }
+  textarea { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.9rem; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .example-row { border: 1px solid var(--color-border); border-radius: 8px; padding: 1rem; margin-bottom: 0.8rem; background: var(--color-bg); }
+  .ex-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-bottom: 0.6rem; }
+  .ex-cols label { font-size: 0.85rem; font-weight: 600; display: block; margin-bottom: 0.3rem; }
+  .actions { display: flex; gap: 0.8rem; justify-content: flex-end; }
+  .btn-primary, .btn-secondary, .btn-ghost {
+    padding: 0.7rem 1.3rem; border-radius: 8px; font-weight: 600; cursor: pointer;
+    font-size: 0.95rem; border: 1.5px solid var(--color-border); transition: all 0.15s;
+  }
+  .btn-primary { background: var(--color-btn-1-bg); color: var(--color-btn-1-text); border-color: transparent; }
+  .btn-primary:hover { background: var(--color-btn-1-hover); }
+  .btn-secondary { background: var(--color-surface); color: var(--color-text); }
+  .btn-ghost { background: transparent; color: var(--color-text-muted); font-size: 0.85rem; padding: 0.4rem 0.8rem; }
+  .btn-ghost:hover { color: var(--color-text); }
+  .status-msg { padding: 0.9rem 1rem; border-radius: 8px; font-size: 0.95rem; margin-top: 0.5rem; }
+  .status-ok { background: rgba(34,197,94,0.12); color: #16a34a; border: 1px solid rgba(34,197,94,0.3); }
+  .status-err { background: rgba(239,68,68,0.12); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+  .status-info { background: rgba(59,130,246,0.12); color: #3b82f6; border: 1px solid rgba(59,130,246,0.3); }
+  .validation-panel { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 12px; padding: 1.2rem; }
+  .val-list { display: flex; flex-direction: column; gap: 0.6rem; }
+  .val-item { border: 1px solid var(--color-border); border-radius: 8px; padding: 0.8rem; background: var(--color-bg); }
+  .val-pass { border-left: 4px solid #16a34a; }
+  .val-fail { border-left: 4px solid #ef4444; }
+  .val-head { display:flex; gap: 0.8rem; align-items:center; font-size: 0.9rem; }
+  .val-badge { font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 4px; background: var(--color-surface); }
+  .val-pass .val-badge { color: #16a34a; }
+  .val-fail .val-badge { color: #ef4444; }
+  .val-time { margin-left: auto; color: var(--color-text-muted); font-size: 0.85rem; }
+  .val-diff { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-top: 0.6rem; }
+  .val-diff pre { background: var(--color-surface); padding: 0.5rem 0.7rem; border-radius: 6px; font-size: 0.85rem; margin: 0.2rem 0 0; white-space: pre-wrap; word-break: break-all; }
+  .notes { margin-bottom: 0.8rem; color: var(--color-text-muted); font-size: 0.9rem; }
+  .login-required { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 12px; padding: 2.5rem; text-align: center; }
+  .login-required p { margin: 0 0 1rem; color: var(--color-text-muted); font-size: 1rem; }
+  .login-required .btn-primary { display: inline-block; text-decoration: none; }
+</style>

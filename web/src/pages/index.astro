@@ -1,0 +1,361 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+// 임시 로그인 상태 (차후 전역 로그인 상태로 교체)
+const isLoggedIn = false;
+---
+
+<BaseLayout title="Puri" description="새로운 코딩의 시작, Puri. 알고리즘을 체계적인 단계별로 학습하고, 세상에 내 실력을 객관적으로 증명하세요.">
+  <div class="hero-container">
+    <div class="hero-content">
+      <h1 class="hero-title">새로운 코딩의 시작,<br /><span class="brand-text">Puri</span></h1>
+      <p class="hero-desc">알고리즘을 체계적인 단계별로 학습하고, 세상에 내 실력을 객관적으로 증명하세요. 누구나 코딩 마스터가 될 수 있습니다.</p>
+      
+      <div id="logged-in-cta" class="cta-buttons" style="display: none;">
+        <a href="/steps" class="btn btn-primary">단계별 학습 시작하기</a>
+        <a href="/problems" class="btn btn-secondary">모든 문제 보기</a>
+      </div>
+      
+      <form id="logged-out-cta" class="hero-auth-form" action="/signup">
+        <input type="text" name="username" placeholder="사용자 이름을 입력하세요" required class="hero-email-input" />
+        <button type="submit" class="btn-auth-hero">Puri 시작하기</button>
+      </form>
+    </div>
+    
+    <div class="hero-visual">
+      <!-- Decorative background blobs to enhance glassmorphism -->
+      <div class="visual-blob blob-1"></div>
+      <div class="visual-blob blob-2"></div>
+      
+      <div class="code-window">
+        <div class="window-header">
+          <span class="dot dot-red"></span>
+          <span class="dot dot-yellow"></span>
+          <span class="dot dot-green"></span>
+          <span class="window-title">solution.cpp</span>
+        </div>
+        <div class="window-body">
+<pre><code><span class="keyword">#include</span> &lt;iostream&gt;
+<span class="keyword">#include</span> &lt;vector&gt;
+
+<span class="keyword">using</span> <span class="keyword">namespace</span> std;
+
+<span class="keyword">int</span> <span class="function">main</span>() {"{"}
+    ios_base::sync_with_stdio(<span class="keyword">false</span>);
+    cin.tie(<span class="keyword">NULL</span>);
+    
+    <span class="keyword">int</span> n;
+    cin >> n;
+    
+    <span class="comment">// Puri에서 최적화된 풀이를</span>
+    <span class="comment">// 직접 고민하고 제출해보세요.</span>
+    cout &lt;&lt; <span class="string">"Hello, Puri!"</span> &lt;&lt; <span class="string">"\n"</span>;
+    
+    <span class="keyword">return</span> <span class="number">0</span>;
+{"}"}</code></pre>
+        </div>
+      </div>
+      
+      <!-- Floating decorative elements -->
+      <div class="floating-badge badge-1">🚀 1ms 빠른 채점</div>
+      <div class="floating-badge badge-2">💡 체계적인 학습</div>
+    </div>
+  </div>
+</BaseLayout>
+
+<style is:global>
+  .hero-container {
+    max-width: 1250px;
+    margin: 8rem auto;
+    padding: 0 2rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5rem;
+    align-items: center;
+    min-height: 60vh;
+  }
+  
+  /* Left Content */
+  .hero-content {
+    text-align: left;
+  }
+  .hero-title {
+    font-size: 3.8rem;
+    font-weight: 800;
+    color: var(--color-text);
+    margin-bottom: 1.5rem;
+    line-height: 1.25;
+    letter-spacing: -0.03em;
+  }
+  .brand-text {
+    background: linear-gradient(135deg, var(--color-btn-1-bg), #8b5cf6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .hero-desc {
+    font-size: 1.25rem;
+    color: var(--color-text-muted);
+    margin-bottom: 3.5rem;
+    line-height: 1.6;
+    max-width: 90%;
+  }
+  .cta-buttons {
+    display: flex;
+    gap: 1.2rem;
+    justify-content: flex-start;
+  }
+  
+  .hero-auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    max-width: 520px; /* 이메일 창을 가로로 살짝 늘림 */
+    background: var(--color-surface);
+    padding: 1.5rem 1.8rem;
+    border-radius: 16px;
+    border: 1px solid var(--color-border);
+    box-shadow: 0 15px 35px -10px rgba(0,0,0,0.1);
+  }
+  :root[data-theme='dark'] .hero-auth-form {
+    box-shadow: 0 15px 35px -10px rgba(0,0,0,0.5);
+  }
+  .btn-auth-hero {
+    width: 100%;
+    padding: 1.05rem;
+    font-size: 1.05rem;
+    font-weight: 800;
+    border-radius: 12px;
+    border: 1px solid var(--color-border);
+    background-color: #ffffff;
+    color: #0f172a;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .btn-auth-hero:hover {
+    background-color: #f8fafc;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+  }
+  :root[data-theme='dark'] .btn-auth-hero {
+    background-color: #f1f5f9;
+    color: #0f172a;
+    border-color: transparent;
+  }
+  :root[data-theme='dark'] .btn-auth-hero:hover {
+    background-color: #e2e8f0;
+  }
+  .hero-email-input {
+    width: 100%;
+    padding: 1.1rem 1.2rem;
+    border: 1.5px solid var(--color-border);
+    border-radius: 12px;
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-size: 1.05rem;
+    transition: all 0.2s ease;
+  }
+  .hero-email-input:focus {
+    outline: none;
+    border-color: var(--color-btn-1-bg);
+    box-shadow: 0 0 0 4px rgba(0, 102, 204, 0.15);
+  }
+  :root[data-theme='dark'] .hero-email-input:focus {
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.25);
+  }
+
+  .btn {
+    padding: 1.1rem 2rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    border-radius: 12px;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  }
+  .btn-primary {
+    background-color: var(--color-btn-1-bg);
+    color: var(--color-btn-1-text);
+    border: none;
+  }
+  .btn-primary:hover {
+    background-color: var(--color-btn-1-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 102, 204, 0.2);
+  }
+  .btn-secondary {
+    background-color: var(--color-surface);
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+  }
+  .btn-secondary:hover {
+    background-color: var(--color-border);
+    transform: translateY(-2px);
+  }
+
+  /* Right Visual */
+  .hero-visual {
+    position: relative;
+    width: 100%;
+  }
+  
+  @keyframes float {
+    0% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-20px) rotate(1deg); }
+    100% { transform: translateY(0px) rotate(0deg); }
+  }
+
+  @keyframes float-opposite {
+    0% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(20px) rotate(-1deg); }
+    100% { transform: translateY(0px) rotate(0deg); }
+  }
+
+  .code-window {
+    background: rgba(15, 15, 20, 0.55);
+    border-radius: 24px;
+    box-shadow: 
+      0 25px 50px -12px rgba(0,0,0,0.5),
+      inset 0 0 0 1px rgba(255,255,255,0.1);
+    backdrop-filter: blur(25px) saturate(180%);
+    -webkit-backdrop-filter: blur(25px) saturate(180%);
+    position: relative;
+    z-index: 5;
+    animation: float 6s ease-in-out infinite;
+  }
+  
+  :root[data-theme='light'] .code-window {
+    background: rgba(30, 30, 35, 0.6);
+    box-shadow: 
+      0 25px 50px -12px rgba(0,0,0,0.2),
+      inset 0 0 0 1px rgba(255,255,255,0.2);
+  }
+  
+  .window-header {
+    background: rgba(0, 0, 0, 0.4);
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    border-radius: 24px 24px 0 0;
+  }
+  .dot { width: 12px; height: 12px; border-radius: 50%; }
+  .dot-red { background: #ff5f56; }
+  .dot-yellow { background: #ffbd2e; }
+  .dot-green { background: #27c93f; }
+  
+  .window-title {
+    margin-left: auto;
+    margin-right: auto;
+    color: #888;
+    font-size: 0.9rem;
+    font-family: monospace;
+  }
+  
+  .window-body {
+    padding: 1.5rem;
+    color: #e0e0e0;
+    font-family: 'JetBrains Mono', Consolas, monospace;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    overflow-x: auto;
+    text-align: left;
+  }
+  
+  .window-body pre { margin: 0; }
+  .keyword { color: #c678dd; }
+  .function { color: #61afef; }
+  .string { color: #98c379; }
+  .comment { color: #5c6370; font-style: italic; }
+  .number { color: #d19a66; }
+  
+  .floating-badge {
+    position: absolute;
+    background: var(--color-surface);
+    color: var(--color-text);
+    padding: 0.8rem 1.2rem;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    border: 1px solid var(--color-border);
+    backdrop-filter: blur(16px) saturate(120%);
+    -webkit-backdrop-filter: blur(16px) saturate(120%);
+    z-index: 10;
+    border: 1px solid rgba(255,255,255,0.2);
+    background: rgba(255, 255, 255, 0.05);
+  }
+  :root[data-theme='light'] .floating-badge {
+    background: rgba(255, 255, 255, 0.6);
+    border-color: rgba(255, 255, 255, 0.8);
+  }
+  
+  :root[data-theme='dark'] .floating-badge {
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+  }
+  
+  .badge-1 {
+    top: -30px;
+    left: -40px;
+    animation: float 6s ease-in-out infinite;
+  }
+  .badge-2 {
+    bottom: 20px;
+    right: -40px;
+    animation: float 6s ease-in-out infinite;
+  }
+  
+  /* Decorative Blobs */
+  .visual-blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    z-index: 1;
+    opacity: 0.4;
+    animation: float-opposite 10s ease-in-out infinite;
+  }
+  .blob-1 {
+    width: 250px;
+    height: 250px;
+    background: var(--color-btn-1-bg);
+    top: -20px;
+    right: 20px;
+  }
+  .blob-2 {
+    width: 200px;
+    height: 200px;
+    background: #8b5cf6;
+    bottom: -20px;
+    left: 20px;
+    animation-delay: -2s;
+  }
+  
+  @media (max-width: 900px) {
+    .hero-container { grid-template-columns: 1fr; text-align: center; gap: 4rem; margin: 4rem auto; }
+    .hero-content { text-align: center; }
+    .hero-desc { margin: 0 auto 3.5rem auto; }
+    .cta-buttons { justify-content: center; }
+    .hero-auth-form { margin: 0 auto; flex-direction: column; width: 100%; }
+    .hero-auth-form button { width: 100%; }
+    .floating-badge { display: none; }
+  }
+</style>
+
+<script>
+  import { isLoggedIn } from '../lib/auth';
+
+  window.addEventListener('DOMContentLoaded', () => {
+    isLoggedIn().then((isLogged) => {
+      const loggedInCta = document.getElementById('logged-in-cta');
+      const loggedOutCta = document.getElementById('logged-out-cta');
+      
+      if (isLogged) {
+        if (loggedInCta) loggedInCta.style.display = 'flex';
+        if (loggedOutCta) loggedOutCta.style.display = 'none';
+      } else {
+        if (loggedInCta) loggedInCta.style.display = 'none';
+        if (loggedOutCta) loggedOutCta.style.display = 'flex';
+      }
+    });
+  });
+</script>

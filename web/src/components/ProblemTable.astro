@@ -1,0 +1,99 @@
+---
+import TierBadge from './TierBadge.astro';
+import { getStepName } from '../lib/steps';
+const { problems = [] } = Astro.props;
+---
+
+<div class="table-container">
+  <table class="problem-table">
+    <thead>
+      <tr>
+        <th class="col-id">번호</th>
+        <th class="col-title">문제 제목</th>
+        <th class="col-tier">티어</th>
+        <th class="col-step">분류/단계</th>
+        <th class="col-limit">시간 제한</th>
+        <th class="col-mem">메모리 제한</th>
+      </tr>
+    </thead>
+    <tbody>
+      {problems.map(p => (
+        <tr class="problem-row">
+          <td class="col-id">
+            <span class="problem-id">{p.id}</span>
+          </td>
+          <td class="col-title">
+            <a href={p.url} class="problem-link">{p.frontmatter?.title}</a>
+          </td>
+          <td class="col-tier">
+            <TierBadge tier={p.frontmatter?.tier} />
+          </td>
+          <td class="col-step">
+            <span class="step-badge">{p.frontmatter?.step ? getStepName(p.frontmatter.step) : "미분류"}</span>
+          </td>
+          <td class="col-limit">{p.frontmatter?.time_limit || '-'}</td>
+          <td class="col-mem">{p.frontmatter?.memory_limit || '-'}</td>
+        </tr>
+      ))}
+      {problems.length === 0 && (
+        <tr>
+          <td colspan="6" class="empty-state">아직 등록된 문제가 없습니다.</td>
+        </tr>
+      )}
+    </tbody>
+  </table>
+</div>
+
+<style>
+  .table-container { width: 100%; overflow-x: auto; padding-bottom: 2rem; }
+  .problem-table { 
+    width: 100%; border-collapse: collapse; 
+    text-align: left; 
+  }
+  .problem-table th { 
+    padding: 1rem 1.5rem;
+    color: var(--color-text-muted); font-weight: 600; font-size: 0.95rem;
+    border-bottom: 2px solid var(--color-border);
+    white-space: nowrap;
+  }
+  
+  .problem-row { 
+    transition: background-color 0.2s ease; 
+  }
+  .problem-row:hover { 
+    background-color: var(--color-surface);
+  }
+  
+  .problem-table td { 
+    padding: 1.2rem 1.5rem; 
+    color: var(--color-text); 
+    border-bottom: 1px solid var(--color-border);
+  }
+  
+  .col-id { width: 80px; text-align: center; }
+  .problem-id { 
+    color: var(--color-text-muted); 
+    font-weight: 700; 
+    font-family: 'JetBrains Mono', Consolas, monospace;
+    font-size: 0.95rem;
+  }
+  .col-title { width: 40%; }
+  
+  .problem-link { 
+    color: var(--color-text); font-weight: 600; font-size: 1.1rem; 
+    text-decoration: none; transition: color 0.2s; 
+  }
+  .problem-link:hover { color: var(--color-btn-1-bg); text-decoration: underline; }
+  
+  .step-badge {
+    background-color: var(--color-bg);
+    border: 1px solid var(--color-border);
+    color: var(--color-text);
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+  
+  .empty-state { text-align: center !important; color: var(--color-text-muted); padding: 5rem 2rem !important; }
+</style>

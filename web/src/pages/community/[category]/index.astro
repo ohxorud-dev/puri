@@ -1,0 +1,349 @@
+---
+export function getStaticPaths() {
+  return [
+    { params: { category: "notice" } },
+    { params: { category: "general" } },
+    { params: { category: "qna" } },
+    { params: { category: "tips" } }
+  ];
+}
+
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+
+const { category } = Astro.params;
+
+const categoryMeta: Record<string, { name: string; desc: string }> = {
+  notice: { name: "공지사항", desc: "Puri의 새로운 소식과 운영 안내를 확인하세요." },
+  general: { name: "자유게시판", desc: "자유롭게 소통하고 개발 이야기를 나누는 공간입니다." },
+  qna: { name: "질문/답변", desc: "코딩 중 막히는 부분을 질문하고 함께 해결해보세요." },
+  tips: { name: "알고리즘 팁", desc: "자신만의 풀이 노하우와 코딩 꿀팁을 공유하세요." }
+};
+const meta = categoryMeta[category!];
+---
+
+<BaseLayout title={`${meta.name} - 커뮤니티 - Puri`}>
+  <div class="page-container">
+    <div class="page-header">
+      <h2 class="page-title">커뮤니티</h2>
+      <p class="page-desc">함께 성장하는 Puri 개발자 커뮤니티입니다.</p>
+    </div>
+    
+    <div class="category-tabs">
+      <a href="/community/notice" class={`tab-item ${category === 'notice' ? 'active' : ''}`}>공지사항</a>
+      <a href="/community/general" class={`tab-item ${category === 'general' ? 'active' : ''}`}>자유게시판</a>
+      <a href="/community/qna" class={`tab-item ${category === 'qna' ? 'active' : ''}`}>질문/답변</a>
+      <a href="/community/tips" class={`tab-item ${category === 'tips' ? 'active' : ''}`}>알고리즘 팁</a>
+    </div>
+
+    <div class="board-header">
+      <h3 class="board-title">{meta.name}</h3>
+      <p class="board-desc">{meta.desc}</p>
+    </div>
+
+    <div class="board-actions">
+      <div class="search-bar">
+        <input type="text" placeholder={`${meta.name} 내 검색...`} class="search-input" />
+        <button class="search-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        </button>
+      </div>
+      {category !== 'notice' && (
+        <a href={`/community/${category}/write`} class="write-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+          새 글 쓰기
+        </a>
+      )}
+    </div>
+
+    <div class="table-container">
+      <table class="board-table">
+        <thead>
+          <tr>
+            <th class="col-id">번호</th>
+            <th class="col-title">제목</th>
+            <th class="col-author">작성자</th>
+            <th class="col-date">작성일</th>
+            <th class="col-views">조회</th>
+            <th class="col-likes">추천</th>
+          </tr>
+        </thead>
+        <tbody id="posts-body">
+          <tr><td colspan="6" style="text-align:center; padding:2rem; color:var(--color-text-muted);">불러오는 중...</td></tr>
+        </tbody>
+      </table>
+    </div>
+    
+    <div id="pagination" class="pagination"></div>
+  </div>
+</BaseLayout>
+
+<script define:vars={{ category }}>
+  window.__category = category;
+</script>
+
+<script>
+  import { communityClient } from '../../../lib/api';
+  import { Category } from '../../../gen/community/v1/community_pb';
+
+  const categoryMap: Record<string, Category> = {
+    notice: Category.NOTICE,
+    general: Category.GENERAL,
+    qna: Category.QNA,
+    tips: Category.TIPS,
+  };
+
+  const category = (window as any).__category as string;
+  const tbody = document.getElementById('posts-body')!;
+  const paginationEl = document.getElementById('pagination')!;
+
+  let currentPageToken = "";
+
+  async function loadPosts(pageToken: string) {
+    try {
+      const resp = await communityClient.listPosts({
+        category: categoryMap[category] ?? Category.GENERAL,
+        pageSize: 20,
+        pageToken,
+      });
+
+      if (resp.posts.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:2rem; color:var(--color-text-muted);">게시글이 없습니다.</td></tr>`;
+        paginationEl.innerHTML = '';
+        return;
+      }
+
+      tbody.innerHTML = resp.posts.map(post => {
+        const date = post.createdAt ? new Date(Number(post.createdAt.seconds) * 1000).toISOString().slice(0, 10) : '';
+        return `<tr class="board-row">
+          <td class="col-id">${post.id}</td>
+          <td class="col-title">
+            <a href="/community/${category}/${post.id}" class="post-link">
+              ${post.title}
+              ${post.commentCount > 0 ? `<span class="comment-count">[${post.commentCount}]</span>` : ''}
+            </a>
+          </td>
+          <td class="col-author"><a href="/profile" class="author-link">${post.authorName}</a></td>
+          <td class="col-date">${date}</td>
+          <td class="col-views">${post.viewCount}</td>
+          <td class="col-likes">${post.likeCount}</td>
+        </tr>`;
+      }).join('');
+
+      // Pagination
+      if (resp.nextPageToken) {
+        paginationEl.innerHTML = `<button class="page-btn next" id="next-page">다음</button>`;
+        document.getElementById('next-page')?.addEventListener('click', () => {
+          loadPosts(resp.nextPageToken);
+        });
+      } else {
+        paginationEl.innerHTML = '';
+      }
+    } catch (err: any) {
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:2rem; color:#ef4444;">불러오기 실패: ${err.message}</td></tr>`;
+    }
+  }
+
+  loadPosts(currentPageToken);
+</script>
+
+<style is:global>
+  .page-container { max-width: 1200px; margin: 4rem auto; padding: 0 1.5rem; }
+  .page-header { margin-bottom: 2rem; text-align: left; }
+  .page-title { font-size: 2.6rem; font-weight: 800; margin-bottom: 0.8rem; color: var(--color-text); letter-spacing: -0.02em; }
+  .page-desc { color: var(--color-text-muted); font-size: 1.15rem; margin: 0; line-height: 1.6; }
+
+  .category-tabs {
+    display: flex;
+    gap: 1.5rem;
+    border-bottom: 2px solid var(--color-border);
+    margin-bottom: 2.5rem;
+    flex-wrap: wrap;
+  }
+  .tab-item {
+    padding: 1rem 1.5rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--color-text-muted);
+    text-decoration: none;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+  }
+  .tab-item:hover {
+    color: var(--color-text);
+  }
+  .tab-item.active {
+    color: var(--color-btn-1-bg);
+    border-bottom-color: var(--color-btn-1-bg);
+  }
+
+  .board-header { margin-bottom: 2.5rem; }
+  .board-title { font-size: 1.8rem; font-weight: 800; color: var(--color-text); margin: 0 0 0.5rem 0; }
+  .board-desc { font-size: 1.05rem; color: var(--color-text-muted); margin: 0; }
+
+  .board-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  
+  .search-bar {
+    display: flex;
+    align-items: center;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    overflow: hidden;
+    width: 320px;
+    max-width: 100%;
+    transition: border-color 0.2s;
+  }
+  .search-bar:focus-within {
+    border-color: var(--color-btn-1-bg);
+  }
+  
+  .search-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    padding: 0.7rem 1rem;
+    color: var(--color-text);
+    font-size: 0.95rem;
+    outline: none;
+  }
+  .search-input::placeholder {
+    color: var(--color-text-muted);
+  }
+  
+  .search-btn {
+    background: transparent;
+    border: none;
+    padding: 0 1rem;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: color 0.2s;
+  }
+  .search-btn:hover {
+    color: var(--color-btn-1-bg);
+  }
+  
+  .write-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--color-btn-1-bg);
+    color: white;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 0.95rem;
+    padding: 0.7rem 1.2rem;
+    border-radius: 8px;
+    transition: opacity 0.2s, transform 0.1s;
+  }
+  .write-btn:hover {
+    opacity: 0.9;
+  }
+  .write-btn:active {
+    transform: translateY(1px);
+  }
+
+  .table-container { width: 100%; overflow-x: auto; padding-bottom: 2rem; }
+  .board-table { 
+    width: 100%; border-collapse: collapse; 
+    text-align: left; 
+  }
+  .board-table th { 
+    padding: 1.2rem 1.5rem; 
+    color: var(--color-text-muted); font-weight: 600; font-size: 0.95rem; 
+    border-bottom: 2px solid var(--color-border);
+    white-space: nowrap;
+    background: var(--color-surface);
+  }
+  
+  .board-row { 
+    transition: background-color 0.2s ease; 
+  }
+  .board-row:hover { 
+    background-color: var(--color-surface);
+  }
+  
+  .board-table td { 
+    padding: 1.3rem 1.5rem; 
+    color: var(--color-text); 
+    border-bottom: 1px solid var(--color-border);
+  }
+  
+  .col-id { width: 80px; color: var(--color-text-muted); font-weight: 500; }
+  .col-title { width: auto; max-width: 500px; }
+  .col-author { width: 150px; }
+  .col-date { width: 120px; color: var(--color-text-muted); font-size: 0.95rem; white-space: nowrap; }
+  .col-views, .col-likes { width: 80px; color: var(--color-text-muted); text-align: center; }
+  .board-table th.col-views, .board-table th.col-likes { text-align: center; }
+  
+  .post-link { 
+    color: var(--color-text); font-weight: 600; font-size: 1.1rem; 
+    text-decoration: none; transition: color 0.2s; 
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .post-link:hover { color: var(--color-btn-1-bg); text-decoration: underline; }
+  
+  .comment-count {
+    color: var(--color-btn-1-bg);
+    margin-left: 0.4rem;
+    font-size: 0.9rem;
+    font-weight: 800;
+  }
+  
+  .author-link {
+    color: var(--color-text);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .author-link:hover {
+    text-decoration: underline;
+  }
+  
+  .pagination {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    margin-bottom: 3rem;
+  }
+  
+  .page-btn {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    color: var(--color-text);
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .page-btn.next {
+    width: auto;
+    padding: 0 1rem;
+  }
+  .page-btn:hover:not(.active) {
+    border-color: var(--color-text-muted);
+  }
+  .page-btn.active {
+    background: var(--color-btn-1-bg);
+    color: white;
+    border-color: var(--color-btn-1-bg);
+  }
+</style>

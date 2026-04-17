@@ -1,0 +1,147 @@
+---
+import ProblemTable from './ProblemTable.astro';
+import { getStepName } from '../lib/steps';
+
+interface Props {
+  problems: any[];
+}
+const { problems } = Astro.props;
+
+const tiers = [...new Set(problems.map(p => p.data?.tier || p.frontmatter?.tier).filter(Boolean))].sort();
+const stepIds = [...new Set(problems.map(p => p.data?.step || p.frontmatter?.step).filter(Boolean))].sort();
+const steps = stepIds.map(id => ({ id, name: getStepName(id as string) }));
+---
+
+<div class="filter-bar">
+  <div class="filter-group">
+    <input type="text" id="filter-search" placeholder="문제 제목 검색..." class="filter-input" />
+  </div>
+  <div class="filter-group">
+    <select id="filter-tier" class="filter-select">
+      <option value="">전체 티어</option>
+      {tiers.map(t => <option value={t as string}>{t}</option>)}
+    </select>
+  </div>
+  <div class="filter-group">
+    <select id="filter-step" class="filter-select">
+      <option value="">전체 분류</option>
+      {steps.map(s => <option value={s.name}>{s.name}</option>)}
+    </select>
+  </div>
+  <div class="filter-group">
+    <select id="filter-sort" class="filter-select">
+      <option value="id-asc">번호 오름차순</option>
+      <option value="id-desc">번호 내림차순</option>
+      <option value="title-asc">제목 오름차순</option>
+      <option value="title-desc">제목 내림차순</option>
+    </select>
+  </div>
+</div>
+
+<ProblemTable problems={problems} />
+
+<script>
+  const searchInput = document.getElementById('filter-search') as HTMLInputElement;
+  const tierSelect = document.getElementById('filter-tier') as HTMLSelectElement;
+  const stepSelect = document.getElementById('filter-step') as HTMLSelectElement;
+  const sortSelect = document.getElementById('filter-sort') as HTMLSelectElement;
+  const rows = Array.from(document.querySelectorAll('.problem-row')) as HTMLTableRowElement[];
+
+  function applyFilters() {
+    const search = searchInput?.value.toLowerCase() || '';
+    const tier = tierSelect?.value || '';
+    const step = stepSelect?.value || '';
+
+    rows.forEach(row => {
+      const title = row.querySelector('.problem-link')?.textContent?.toLowerCase() ?? '';
+      const rowTier = row.querySelector('.tier-badge')?.textContent ?? '';
+      const rowStep = row.querySelector('.step-badge')?.textContent ?? '';
+
+      const matchSearch = !search || title.includes(search);
+      const matchTier = !tier || rowTier === tier;
+      const matchStep = !step || rowStep === step;
+
+      row.style.display = (matchSearch && matchTier && matchStep) ? '' : 'none';
+    });
+  }
+
+  function applySort() {
+    if(!sortSelect) return;
+    const [field, dir] = sortSelect.value.split('-');
+    const tbody = rows[0]?.parentElement;
+    if (!tbody) return;
+
+    const sorted = [...rows].sort((a, b) => {
+      let valA: string | number = '';
+      let valB: string | number = '';
+
+      if (field === 'id') {
+        valA = parseInt(a.querySelector('.problem-id')?.textContent ?? '0');
+        valB = parseInt(b.querySelector('.problem-id')?.textContent ?? '0');
+      } else if (field === 'title') {
+        valA = a.querySelector('.problem-link')?.textContent?.toLowerCase() ?? '';
+        valB = b.querySelector('.problem-link')?.textContent?.toLowerCase() ?? '';
+      }
+
+      if (valA < valB) return dir === 'asc' ? -1 : 1;
+      if (valA > valB) return dir === 'asc' ? 1 : -1;
+      return 0;
+    });
+
+    sorted.forEach(row => tbody.appendChild(row));
+  }
+
+  searchInput?.addEventListener('input', applyFilters);
+  tierSelect?.addEventListener('change', applyFilters);
+  stepSelect?.addEventListener('change', applyFilters);
+  sortSelect?.addEventListener('change', () => { applySort(); applyFilters(); });
+</script>
+
+<style is:global>
+  .filter-bar {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .filter-input {
+    padding: 0.7rem 1rem;
+    border: 1.5px solid var(--color-border);
+    border-radius: 8px;
+    background: var(--color-surface);
+    color: var(--color-text);
+    font-size: 0.95rem;
+    width: 250px;
+    max-width: 100%;
+    transition: border-color 0.2s;
+  }
+  .filter-input:focus {
+    outline: none;
+    border-color: var(--color-btn-1-bg);
+  }
+  .filter-input::placeholder { color: var(--color-text-muted); }
+
+  .filter-select {
+    padding: 0.7rem 1rem;
+    border: 1.5px solid var(--color-border);
+    border-radius: 8px;
+    background: var(--color-surface);
+    color: var(--color-text);
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.8rem center;
+    padding-right: 2.2rem;
+  }
+  .filter-select:focus {
+    outline: none;
+    border-color: var(--color-btn-1-bg);
+  }
+</style>

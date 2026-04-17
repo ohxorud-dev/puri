@@ -1,0 +1,225 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProblemTable from '../../components/ProblemTable.astro';
+
+const allProblems = await getCollection('problems');
+
+// Build tree
+interface SourceNode {
+  name: string;
+  children: Map<string, SourceNode>;
+  problems: any[];
+}
+
+function buildTree(problems: any[]): SourceNode {
+  const root: SourceNode = { name: '', children: new Map(), problems: [] };
+  for (const p of problems) {
+    const rawSource = p.data.source; const source = rawSource ? (Array.isArray(rawSource) ? rawSource : [rawSource]) : undefined;
+    if (!source || source.length === 0) continue;
+    let node = root;
+    for (const segment of source) {
+      if (!node.children.has(segment)) {
+        node.children.set(segment, { name: segment, children: new Map(), problems: [] });
+      }
+      node = node.children.get(segment)!;
+    }
+    node.problems.push({
+      data: p.data, frontmatter: p.data,
+      url: `/problems/${p.id.split('/')[0]}`,
+      id: p.id.split('/')[0] || '',
+    });
+  }
+  return root;
+}
+
+function getAllPaths(node: SourceNode, prefix: string[] = []): string[][] {
+  const paths: string[][] = [];
+  for (const [key, child] of node.children) {
+    const p = [...prefix, key];
+    paths.push(p);
+    paths.push(...getAllPaths(child, p));
+  }
+  return paths;
+}
+
+function getNodeCounts(node: SourceNode): number {
+  let count = node.problems.length;
+  for (const child of node.children.values()) count += getNodeCounts(child);
+  return count;
+}
+
+function getAllProblemsUnder(node: SourceNode): any[] {
+  const result = [...node.problems];
+  for (const child of node.children.values()) result.push(...getAllProblemsUnder(child));
+  return result;
+}
+
+const tree = buildTree(allProblems);
+const allPaths = getAllPaths(tree);
+
+export async function getStaticPaths() {
+  const { getCollection } = await import('astro:content');
+  const allProblems = await getCollection('problems');
+
+  // Collect all unique source path prefixes
+  const pathSet = new Set<string>();
+  for (const p of allProblems) {
+    const rawSource = p.data.source; const source = rawSource ? (Array.isArray(rawSource) ? rawSource : [rawSource]) : undefined;
+    if (!source) continue;
+    for (let i = 1; i <= source.length; i++) {
+      pathSet.add(source.slice(0, i).join('/'));
+    }
+  }
+
+  return [...pathSet].map(path => ({ params: { path } }));
+}
+
+// Since getStaticPaths returns [], use prerender = false approach
+// Actually for SSG, we need to generate all paths
+// Let's use a different approach: generate from the tree
+
+const pathStr = Astro.params.path || '';
+const segments = pathStr.split('/').filter(Boolean);
+
+// Navigate to the node
+let currentNode = tree;
+let valid = true;
+for (const seg of segments) {
+  if (currentNode.children.has(seg)) {
+    currentNode = currentNode.children.get(seg)!;
+  } else {
+    valid = false;
+    break;
+  }
+}
+
+const children = valid ? [...currentNode.children.entries()]
+  .sort((a, b) => a[0].localeCompare(b[0]))
+  .map(([key, child]) => ({
+    name: key,
+    slug: [...segments, key].join('/'),
+    count: getNodeCounts(child),
+    hasChildren: child.children.size > 0,
+  })) : [];
+
+const problems = valid ? currentNode.problems.sort((a: any, b: any) => parseInt(a.id) - parseInt(b.id)) : [];
+const allSubProblems = valid && children.length > 0 ? getAllProblemsUnder(currentNode).sort((a: any, b: any) => parseInt(a.id) - parseInt(b.id)) : [];
+
+const breadcrumbs = segments.map((seg, i) => ({
+  name: seg,
+  path: '/source/' + segments.slice(0, i + 1).join('/'),
+}));
+
+const pageTitle = segments.length > 0 ? segments[segments.length - 1] : '출처';
+---
+
+<BaseLayout title={`${pageTitle} - 출처 - Puri`}>
+  <div class="page-container">
+    <div class="page-header">
+      <h2 class="page-title">{pageTitle}</h2>
+    </div>
+
+    <div class="breadcrumb">
+      <a href="/source" class="breadcrumb-item">전체</a>
+      {breadcrumbs.map((bc, i) => (
+        <>
+          <span class="breadcrumb-sep">/</span>
+          {i === breadcrumbs.length - 1 ? (
+            <span class="breadcrumb-item active">{bc.name}</span>
+          ) : (
+            <a href={bc.path} class="breadcrumb-item">{bc.name}</a>
+          )}
+        </>
+      ))}
+    </div>
+
+    {children.length > 0 && (
+      <div class="source-list">
+        {children.map(item => (
+          <a href={`/source/${item.slug}`} class="source-card">
+            <div class="source-info">
+              <span class="source-name">{item.name}</span>
+              {item.hasChildren && <span class="source-arrow">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+              </span>}
+            </div>
+            <span class="source-count">{item.count}문제</span>
+          </a>
+        ))}
+      </div>
+    )}
+
+    {problems.length > 0 && (
+      <div style="margin-top: 2rem;">
+        <h3 class="section-title">이 출처의 문제</h3>
+        <ProblemTable problems={problems} />
+      </div>
+    )}
+
+    {children.length > 0 && allSubProblems.length > 0 && (
+      <div style="margin-top: 2rem;">
+        <h3 class="section-title">전체 하위 문제 ({allSubProblems.length})</h3>
+        <ProblemTable problems={allSubProblems} />
+      </div>
+    )}
+
+    {!valid && (
+      <p class="empty-state">존재하지 않는 출처입니다.</p>
+    )}
+
+    {valid && children.length === 0 && problems.length === 0 && (
+      <p class="empty-state">이 출처에 등록된 문제가 없습니다.</p>
+    )}
+  </div>
+</BaseLayout>
+
+<style is:global>
+  .section-title {
+    font-size: 1.3rem; font-weight: 700; color: var(--color-text);
+    margin: 0 0 1.5rem 0;
+  }
+
+  .page-container { max-width: 1200px; margin: 4rem auto; padding: 0 1.5rem; }
+  .page-header { margin-bottom: 2rem; }
+  .page-title { font-size: 2.6rem; font-weight: 800; margin-bottom: 0.8rem; color: var(--color-text); letter-spacing: -0.02em; }
+  .page-desc { color: var(--color-text-muted); font-size: 1.15rem; }
+
+  .breadcrumb {
+    display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;
+    margin-bottom: 2rem; font-size: 0.95rem;
+  }
+  .breadcrumb-item {
+    color: var(--color-btn-1-bg); font-weight: 600; text-decoration: none;
+    cursor: pointer;
+  }
+  .breadcrumb-item:hover { text-decoration: underline; }
+  .breadcrumb-item.active { color: var(--color-text); cursor: default; }
+  .breadcrumb-item.active:hover { text-decoration: none; }
+  .breadcrumb-sep { color: var(--color-text-muted); }
+
+  .source-list {
+    display: flex; flex-direction: column; gap: 0.5rem;
+  }
+
+  .source-card {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 1.2rem 1.5rem;
+    background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 10px;
+    text-decoration: none; transition: all 0.2s;
+  }
+  .source-card:hover {
+    border-color: var(--color-btn-1-bg); background: var(--color-bg);
+  }
+
+  .source-info { display: flex; align-items: center; gap: 0.5rem; }
+  .source-name { font-weight: 700; font-size: 1.1rem; color: var(--color-text); }
+  .source-arrow { color: var(--color-text-muted); display: flex; align-items: center; }
+  .source-count {
+    font-size: 0.9rem; font-weight: 600; color: var(--color-text-muted);
+    background: var(--color-bg); padding: 0.3rem 0.8rem; border-radius: 20px;
+    border: 1px solid var(--color-border);
+  }
+
+  .empty-state { text-align: center; color: var(--color-text-muted); padding: 3rem; }
+</style>

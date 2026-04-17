@@ -1,0 +1,80 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProblemList from '../../components/ProblemList.astro';
+import { steps, stepMap } from '../../lib/steps';
+
+export function getStaticPaths() {
+  return steps.map(s => ({ params: { id: s.id } }));
+}
+
+const { id } = Astro.params;
+
+const allProblemsDocs = await getCollection('problems');
+
+const problems = allProblemsDocs
+  .filter(p => p.data.step === id)
+  .map(p => ({
+    frontmatter: p.data,
+    data: p.data,
+    url: `/problems/${p.id.split('/')[0]}`,
+    id: p.id.split('/')[0] || ''
+  }))
+  .sort((a, b) => parseInt(a.id) - parseInt(b.id));
+
+const step = stepMap[id!];
+const stepIndex = steps.findIndex(s => s.id === id);
+---
+
+<BaseLayout title={`단계 ${stepIndex + 1}: ${step?.name} - Puri`}>
+  <div class="steps-detail-container">
+    <div class="page-header">
+      <a href="/steps" class="back-link">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-back"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+        단계 목록으로 돌아가기
+      </a>
+      <h2 class="page-title">단계 {stepIndex + 1}: {step?.name}</h2>
+      <p class="page-desc">{step?.desc}</p>
+    </div>
+
+    <ProblemList problems={problems} />
+  </div>
+</BaseLayout>
+
+<style>
+  .steps-detail-container {
+    max-width: 1200px;
+    margin: 4rem auto;
+    padding: 0 1.5rem;
+  }
+  .page-header {
+    margin-bottom: 3rem;
+  }
+  .back-link {
+    color: var(--color-btn-1-bg);
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .icon-back {
+    width: 20px;
+    height: 20px;
+  }
+  .back-link:hover {
+    text-decoration: underline;
+  }
+  .page-title {
+    font-size: 2.4rem;
+    font-weight: 800;
+    margin-bottom: 0.8rem;
+    color: var(--color-text);
+  }
+  .page-desc {
+    color: var(--color-text-muted);
+    font-size: 1.15rem;
+    line-height: 1.6;
+  }
+</style>

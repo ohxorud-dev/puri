@@ -1,0 +1,253 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+<BaseLayout title="프로필 - Puri">
+  <div class="profile-container">
+    <div id="profile-loading" style="text-align:center; padding:4rem; color:var(--color-text-muted);">불러오는 중...</div>
+    <div id="profile-content" style="display:none;">
+      <div class="profile-header">
+        <div class="profile-avatar">
+          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide-user"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+        <div class="profile-info">
+          <h1 class="profile-username"><span id="profile-username"></span></h1>
+          <p class="profile-bio"><span id="profile-email"></span></p>
+        </div>
+        <div class="profile-actions">
+          <button class="btn-edit-profile" id="btn-logout">로그아웃</button>
+        </div>
+      </div>
+
+      <div class="profile-grid">
+        <div class="stats-card">
+          <h2 class="card-title">프로필 정보</h2>
+          <div class="stats-row">
+            <div class="stat-item">
+              <span class="stat-label">아이디</span>
+              <span class="stat-value" id="stat-username" style="font-size:1.3rem;"></span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">이메일</span>
+              <span class="stat-value" id="stat-email" style="font-size:1.3rem;"></span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">표시 이름</span>
+              <span class="stat-value" id="stat-displayname" style="font-size:1.3rem;">-</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">BOJ 핸들</span>
+              <span class="stat-value" id="stat-bojhandle" style="font-size:1.3rem;">-</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  import { getUser, clearAuthCache } from '../../lib/auth';
+  import { userClient } from '../../lib/api';
+
+  async function loadProfile() {
+    const user = await getUser();
+    if (!user) {
+      document.getElementById('profile-loading')!.innerHTML = '<p style="color:var(--color-text-muted);">로그인이 필요합니다. <a href="/login" style="color:var(--color-btn-1-bg); font-weight:600;">로그인</a></p>';
+      return;
+    }
+
+    document.getElementById('profile-loading')!.style.display = 'none';
+    document.getElementById('profile-content')!.style.display = '';
+
+    document.getElementById('profile-username')!.textContent = user.username;
+    document.getElementById('profile-email')!.textContent = user.email;
+    document.getElementById('stat-username')!.textContent = user.username;
+    document.getElementById('stat-email')!.textContent = user.email;
+    document.getElementById('stat-displayname')!.textContent = user.displayName || '-';
+    document.getElementById('stat-bojhandle')!.textContent = user.bojHandle || '-';
+  }
+
+  document.getElementById('btn-logout')?.addEventListener('click', async () => {
+    try {
+      await userClient.logout({});
+    } catch {}
+    clearAuthCache();
+    window.location.href = '/';
+  });
+
+  loadProfile();
+</script>
+
+<style>
+  .profile-container {
+    max-width: 1200px;
+    margin: 4rem auto;
+    padding: 0 1.5rem;
+  }
+  
+  /* Header Setup */
+  .profile-header {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    padding-bottom: 2.5rem;
+    border-bottom: 1px solid var(--color-border);
+    margin-bottom: 3rem;
+  }
+  
+  .profile-avatar {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background: var(--color-surface);
+    border: 2px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-muted);
+  }
+  
+  .profile-info {
+    flex: 1;
+  }
+  
+  .profile-username {
+    font-size: 2.2rem;
+    font-weight: 800;
+    margin: 0 0 0.5rem 0;
+    color: var(--color-text);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .profile-level {
+    font-size: 1rem;
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    color: white;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-weight: 700;
+  }
+  
+  .profile-bio {
+    font-size: 1.05rem;
+    color: var(--color-text-muted);
+    margin: 0;
+  }
+  
+  .btn-edit-profile {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    color: var(--color-text);
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-edit-profile:hover {
+    background: var(--color-border);
+  }
+  
+  /* Grid Layout Setup */
+  .profile-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 2rem;
+  }
+  @media (max-width: 800px) {
+    .profile-grid { grid-template-columns: 1fr; }
+    .profile-header { flex-direction: column; text-align: center; }
+  }
+  
+  /* Card Design */
+  .stats-card, .recent-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 2rem;
+    height: fit-content;
+  }
+  
+  .card-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin: 0 0 1.5rem 0;
+    color: var(--color-text);
+  }
+  
+  /* Stats styling */
+  .stats-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+  
+  .stat-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    background: var(--color-bg);
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid var(--color-border);
+  }
+  
+  .stat-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+  }
+  
+  .stat-value {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--color-text);
+  }
+  .text-blue { color: #3b82f6 !important; }
+  .text-orange { color: #f97316 !important; }
+  
+  /* Activity List */
+  .activity-list {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .activity-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .activity-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+  
+  .activity-left {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+  
+  .status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+  .status-dot.success { background: #4ade80; box-shadow: 0 0 8px rgba(74, 222, 128, 0.4); }
+  .status-dot.fail { background: #f87171; }
+  
+  .activity-problem {
+    font-weight: 600;
+    color: var(--color-text);
+    font-size: 1rem;
+  }
+  
+  .activity-time {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+  }
+</style>

@@ -1,0 +1,107 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { steps } from '../../lib/steps';
+
+const title = "단계별 학습 - Puri";
+---
+
+<BaseLayout title={title}>
+  <div class="page-container">
+    <div class="page-header">
+      <h2 class="page-title">단계별 학습</h2>
+      <p class="page-desc">자신의 실력에 꼭 맞는 단계부터 차근차근 시작해 알고리즘 마스터로 거듭나세요.</p>
+    </div>
+    
+    <div class="steps-list">
+      {steps.map((step, index) => (
+        <a href={`/steps/${step.id}`} class="step-card">
+          <div class="step-header">
+            <span class="step-level">단계 {index + 1}</span>
+          </div>
+          <div class="step-content">
+            <h3 class="step-name">{step.name}</h3>
+            <p class="step-info">{step.desc}</p>
+            <div class="step-tags">
+              {step.tags.map(tag => (
+                <span class="tag">#{tag}</span>
+              ))}
+            </div>
+          </div>
+          <div class="step-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+          </div>
+        </a>
+      ))}
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .page-container { max-width: 1200px; margin: 4rem auto; padding: 0 1.5rem; }
+  
+  .page-header { margin-bottom: 3.5rem; text-align: left; }
+  .page-title { font-size: 2.8rem; font-weight: 800; margin-bottom: 1rem; color: var(--color-text); letter-spacing: -0.02em; }
+  .page-desc { color: var(--color-text-muted); font-size: 1.15rem; max-width: 600px; margin: 0; line-height: 1.6; }
+  
+  .steps-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+  }
+  
+  .step-card {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 2rem 2.5rem;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    gap: 3rem;
+  }
+  
+  .step-card:hover { 
+    background-color: var(--color-bg); 
+    border-color: var(--color-btn-1-bg);
+  }
+  
+  .step-header { 
+    flex-shrink: 0;
+    width: 100px;
+  }
+  .step-level { 
+    font-size: 1.2rem; font-weight: 800; color: var(--color-btn-1-bg); 
+    background: rgba(59, 130, 246, 0.1); padding: 0.6rem 1.2rem; border-radius: 8px; 
+    display: inline-block;
+  }
+  
+  .step-content { 
+    flex: 1; 
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  .step-name { font-size: 1.7rem; font-weight: 800; color: var(--color-text); margin: 0; letter-spacing: -0.02em; }
+  .step-info { color: var(--color-text-muted); font-size: 1.1rem; line-height: 1.6; margin: 0; }
+  
+  .step-tags { 
+    display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 0.3rem; margin-bottom: -0.3rem;
+  }
+  .tag { font-size: 0.9rem; font-weight: 700; padding: 0.4rem 0.8rem; border-radius: 8px; background: var(--color-bg); color: var(--color-text-muted); border: 1px solid var(--color-border); }
+  
+  .step-icon { 
+    width: 48px; height: 48px; border-radius: 50%;
+    display: flex; justify-content: center; align-items: center; 
+    color: var(--color-text-muted); transition: all 0.2s ease;
+    flex-shrink: 0;
+  }
+  .step-card:hover .step-icon { color: white; background: var(--color-btn-1-bg); transform: translateX(6px); }
+  
+  @media (max-width: 800px) {
+    .step-card { flex-direction: column; align-items: flex-start; gap: 1.5rem; padding: 2rem; }
+    .step-header { width: auto; }
+    .step-icon { display: none; }
+  }
+</style>

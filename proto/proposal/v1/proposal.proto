@@ -1,0 +1,121 @@
+syntax = "proto3";
+package puri.proposal.v1;
+option go_package = "github.com/puri-cp/puri/gen/proposal/v1;proposalv1";
+
+import "buf/validate/validate.proto";
+import "google/protobuf/timestamp.proto";
+import "common/v1/types.proto";
+import "common/v1/endpoint_security.proto";
+
+service ProposalService {
+  rpc CreateProposal(CreateProposalRequest) returns (CreateProposalResponse) {
+    option (puri.common.v1.endpoint_rule) = { isPublic: false };
+  }
+  rpc UpdateProposal(UpdateProposalRequest) returns (UpdateProposalResponse) {
+    option (puri.common.v1.endpoint_rule) = { isPublic: false };
+  }
+  rpc SubmitProposal(SubmitProposalRequest) returns (SubmitProposalResponse) {
+    option (puri.common.v1.endpoint_rule) = { isPublic: false };
+  }
+  rpc GetProposal(GetProposalRequest) returns (GetProposalResponse) {
+    option (puri.common.v1.endpoint_rule) = { isPublic: false };
+  }
+  rpc ListMyProposals(ListMyProposalsRequest) returns (ListMyProposalsResponse) {
+    option (puri.common.v1.endpoint_rule) = { isPublic: false };
+  }
+}
+
+enum ProposalStatus {
+  PROPOSAL_STATUS_UNSPECIFIED = 0;
+  PROPOSAL_STATUS_DRAFT = 1;
+  PROPOSAL_STATUS_SUBMITTED = 2;
+  PROPOSAL_STATUS_REVIEWING = 3;
+  PROPOSAL_STATUS_APPROVED = 4;
+  PROPOSAL_STATUS_REJECTED = 5;
+  PROPOSAL_STATUS_PUBLISHED = 6;
+}
+
+message Example {
+  string input = 1;
+  string output = 2;
+}
+
+message ExampleValidation {
+  int32 index = 1;
+  bool passed = 2;
+  string expected_output = 3;
+  string actual_output = 4;
+  string result = 5;
+  int32 execution_time_ms = 6 [(buf.validate.field).int32.gte = 0];
+}
+
+message Proposal {
+  int64 id = 1 [(buf.validate.field).int64.gte = 1];
+  int64 author_user_id = 2 [(buf.validate.field).int64.gte = 1];
+  string title = 3 [(buf.validate.field).string.max_len = 200];
+  string statement_md = 4;
+  string time_limit = 5 [(buf.validate.field).string.max_len = 16];
+  string memory_limit = 6 [(buf.validate.field).string.max_len = 16];
+  repeated Example examples = 7;
+  puri.common.v1.Language reference_solution_language = 8 [(buf.validate.field).enum.defined_only = true];
+  string reference_solution_source = 9 [(buf.validate.field).string.max_bytes = 65536];
+  ProposalStatus status = 10 [(buf.validate.field).enum.defined_only = true];
+  string review_notes = 11;
+  repeated ExampleValidation example_validation_result = 12;
+  optional int32 published_problem_id = 13;
+  google.protobuf.Timestamp created_at = 14;
+  google.protobuf.Timestamp updated_at = 15;
+}
+
+message CreateProposalRequest {
+  string title = 1 [(buf.validate.field).string.min_len = 1, (buf.validate.field).string.max_len = 200];
+}
+
+message CreateProposalResponse {
+  int64 proposal_id = 1;
+}
+
+message UpdateProposalRequest {
+  int64 proposal_id = 1 [(buf.validate.field).int64.gte = 1];
+  optional string title = 2 [(buf.validate.field).string.max_len = 200];
+  optional string statement_md = 3;
+  optional string time_limit = 4 [(buf.validate.field).string.max_len = 16];
+  optional string memory_limit = 5 [(buf.validate.field).string.max_len = 16];
+  repeated Example examples = 6;
+  optional puri.common.v1.Language reference_solution_language = 7 [(buf.validate.field).enum.defined_only = true];
+  optional string reference_solution_source = 8 [(buf.validate.field).string.max_bytes = 65536];
+  // gzipped JSON bytes of full testcases array [{input,output},...]
+  optional bytes testcases_gz = 9 [(buf.validate.field).bytes.max_len = 104857600];
+}
+
+message UpdateProposalResponse {
+  Proposal proposal = 1;
+}
+
+message SubmitProposalRequest {
+  int64 proposal_id = 1 [(buf.validate.field).int64.gte = 1];
+}
+
+message SubmitProposalResponse {
+  ProposalStatus status = 1;
+  repeated ExampleValidation example_validation_result = 2;
+  string review_notes = 3;
+}
+
+message GetProposalRequest {
+  int64 proposal_id = 1 [(buf.validate.field).int64.gte = 1];
+}
+
+message GetProposalResponse {
+  Proposal proposal = 1;
+}
+
+message ListMyProposalsRequest {
+  int32 page_size = 1 [(buf.validate.field).int32.gte = 1, (buf.validate.field).int32.lte = 100];
+  string page_token = 2;
+}
+
+message ListMyProposalsResponse {
+  repeated Proposal proposals = 1;
+  string next_page_token = 2;
+}

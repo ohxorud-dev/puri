@@ -1,0 +1,1000 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import TierBadge from '../components/TierBadge.astro';
+const { frontmatter } = Astro.props;
+const problemDesc = `${frontmatter.title} - 시간 제한: ${frontmatter.time_limit}, 메모리 제한: ${frontmatter.memory_limit}`;
+---
+<BaseLayout title={`${frontmatter.title} - Puri`} description={problemDesc} ogType="article" fullWidth={true}>
+  <div class="workspace-layout">
+    <div class="problem-panel">
+      <div class="problem-header">
+        <h1 class="problem-title">
+          <span class="problem-id-label">{Astro.url.pathname.split('/').filter(Boolean).pop()}</span>
+          {frontmatter.title}
+          {frontmatter.tier && <TierBadge tier={frontmatter.tier} />}
+        </h1>
+        <div class="problem-meta">
+          <span class="meta-badge">
+            시간 제한: {frontmatter.time_limit}
+          </span>
+          <span class="meta-badge">
+            메모리 제한: {frontmatter.memory_limit}
+          </span>
+        </div>
+      </div>
+      <div class="content markdown-body">
+        <slot />
+
+        {frontmatter.examples && frontmatter.examples.length > 0 && (
+          <div class="examples-section">
+            <h2 class="examples-title">예제 입출력</h2>
+            {frontmatter.examples.map((ex, index) => (
+              <div class="example-container">
+                <div class="example-row">
+                  <div class="example-box">
+                    <div class="example-label">예제 입력 {index + 1}</div>
+                    <pre class="example-code"><code>{ex.input}</code></pre>
+                  </div>
+                  <div class="example-box">
+                    <div class="example-label">예제 출력 {index + 1}</div>
+                    <pre class="example-code"><code>{ex.output}</code></pre>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {frontmatter.source && (
+          <div class="source-section">
+            <h2 class="source-title">출처</h2>
+            <div class="source-path">
+              {(Array.isArray(frontmatter.source) ? frontmatter.source : [frontmatter.source]).map((part, i, arr) => (
+                <>
+                  <span class="source-part">{part}</span>
+                  {i < arr.length - 1 && <span class="source-sep">›</span>}
+                </>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+    
+    <div class="ide-panel">
+      <div class="ide-header">
+        <div class="ide-tabs">
+          <div class="ide-tab active">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"/><path d="m6 8-4 4 4 4"/><path d="m14.5 4-5 16"/></svg>
+            <span id="ide-filename">solution.cpp</span>
+          </div>
+        </div>
+        <div class="ide-actions">
+          <select class="ide-lang-select" id="language-select">
+            <option value="1">C++20 (GCC Latest)</option>
+            <option value="2">Python 3.12</option>
+            <option value="3">Java 21</option>
+            <option value="4">Go 1.22</option>
+            <option value="5">Node.js 22</option>
+            <option value="6">Rust (Latest)</option>
+          </select>
+          <button class="btn-ide-tool" title="초기화">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="ide-editor" id="monaco-editor-container">
+        <!-- Monaco Editor will mount here -->
+        <div class="editor-loading">에디터 불러오는 중...</div>
+      </div>
+      <div id="result-panel" class="result-panel" style="display:none;">
+        <div class="result-header">
+          <span id="result-title" class="result-title"></span>
+          <button id="result-close" class="result-close" title="닫기"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+        </div>
+        <div id="result-body" class="result-body"></div>
+      </div>
+      <div class="ide-footer">
+        <button class="btn-run">코드 실행</button>
+        <button class="btn-submit">제출하기</button>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<script is:inline src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js"></script>
+<script is:inline>
+  document.addEventListener('DOMContentLoaded', () => {
+    // Monaco Editor 인스턴스 생성
+    if (window.require) {
+      require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs' }});
+      require(['vs/editor/editor.main'], function() {
+        const container = document.getElementById('monaco-editor-container');
+        if (container) {
+          container.innerHTML = ''; // Remove loading text
+          const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+          
+          const snippets = {
+            '1': { lang: 'cpp', file: 'solution.cpp', code: '#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << "Hello, World!\\n";\n    return 0;\n}' },
+            '2': { lang: 'python', file: 'solution.py', code: 'print("Hello, World!")' },
+            '3': { lang: 'java', file: 'Main.java', code: 'import java.util.Scanner;\n\npublic class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello, World!");\n    }\n}' },
+            '4': { lang: 'go', file: 'main.go', code: 'package main\n\nimport "fmt"\n\nfunc main() {\n    fmt.Println("Hello, World!")\n}' },
+            '5': { lang: 'javascript', file: 'solution.js', code: 'const fs = require("fs");\nconst input = fs.readFileSync("/dev/stdin").toString().trim().split("\\n");\n\nfunction main() {\n    console.log("Hello, World!");\n}\n\nmain();' },
+            '6': { lang: 'rust', file: 'main.rs', code: 'fn main() {\n    println!("Hello, World!");\n}' }
+          };
+
+          window.monacoEditor = monaco.editor.create(container, {
+            value: snippets['1'].code,
+            language: 'cpp',
+            theme: isDark ? 'vs-dark' : 'vs',
+            automaticLayout: true,
+            minimap: { enabled: false },
+            fontSize: 15,
+            fontFamily: "'JetBrains Mono', Consolas, monospace",
+            scrollBeyondLastLine: false,
+            padding: { top: 16 }
+          });
+
+          // 테마 변경 실시간 감지하여 에디터 테마 동기화
+          const observer = new MutationObserver(() => {
+            const currentDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            monaco.editor.setTheme(currentDark ? 'vs-dark' : 'vs');
+          });
+          observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+          
+          // 언어 드롭다운 변경 연동
+          const langSelect = document.getElementById('language-select');
+          const ideFilename = document.getElementById('ide-filename');
+          if (langSelect) {
+            langSelect.addEventListener('change', (e) => {
+              const val = e.target.value;
+              const config = snippets[val];
+              if (config) {
+                const oldModel = window.monacoEditor.getModel();
+                const newModel = monaco.editor.createModel(config.code, config.lang);
+                window.monacoEditor.setModel(newModel);
+                if (oldModel) oldModel.dispose();
+                if (ideFilename) ideFilename.textContent = config.file;
+              }
+            });
+          }
+        }
+      });
+    }
+
+    // Markdown `pre` 블록 입출력 디자인 처리
+    document.querySelectorAll('.markdown-body pre').forEach((pre) => {
+      // Create a clean container for line numbers and code
+      const wrapper = document.createElement('div');
+      wrapper.className = 'clean-code-wrapper';
+      
+      const codeBlock = pre.querySelector('code');
+      if (!codeBlock) return;
+      
+      const copyBtn = document.createElement('button');
+      copyBtn.className = 'clean-copy-btn';
+      copyBtn.title = '복사하기';
+      const iconCopy = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>`;
+      const iconCheck = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>`;
+      
+      copyBtn.innerHTML = iconCopy;
+      copyBtn.onclick = () => {
+        const code = codeBlock.innerText;
+        if (code) {
+          navigator.clipboard.writeText(code).then(() => {
+            copyBtn.innerHTML = iconCheck;
+            copyBtn.classList.add('copied');
+            setTimeout(() => {
+              copyBtn.innerHTML = iconCopy;
+              copyBtn.classList.remove('copied');
+            }, 2000);
+          });
+        }
+      };
+      
+      const lines = codeBlock.innerText.split('\n');
+      if (lines[lines.length - 1] === '') lines.pop(); // Remove empty last newline
+      
+      const gutter = document.createElement('div');
+      gutter.className = 'clean-gutter';
+      let gutterHtml = '';
+      lines.forEach((_, idx) => {
+        gutterHtml += `<span>${idx + 1}</span>`;
+      });
+      gutter.innerHTML = gutterHtml;
+      
+      pre.parentNode.insertBefore(wrapper, pre);
+      wrapper.appendChild(gutter);
+      wrapper.appendChild(pre);
+      
+      // Do not add copy button if the content is empty or only whitespace
+      if (codeBlock.innerText.trim() !== '') {
+        wrapper.appendChild(copyBtn);
+      }
+    });
+  });
+</script>
+
+<script>
+  import { submissionClient } from '../lib/api';
+  import { Language } from '../gen/common/v1/types_pb';
+
+  window.addEventListener('DOMContentLoaded', () => {
+    // 코드 실행 및 제출 연동
+    const btnRun = document.querySelector('.btn-run') as HTMLButtonElement;
+    const btnSubmit = document.querySelector('.btn-submit') as HTMLButtonElement;
+    const problemIdString = window.location.pathname.split('/').filter(Boolean).pop();
+    const problemId = parseInt(problemIdString || '0', 10);
+
+    const resultPanel = document.getElementById('result-panel')!;
+    const resultTitle = document.getElementById('result-title')!;
+    const resultBody = document.getElementById('result-body')!;
+    const resultClose = document.getElementById('result-close')!;
+
+    function showResult(type: 'success' | 'fail', title: string, bodyHtml: string) {
+      resultPanel.style.display = '';
+      resultPanel.className = `result-panel result-${type}`;
+      resultTitle.textContent = title;
+      resultBody.innerHTML = bodyHtml;
+    }
+
+    function escapeHtml(s: string) {
+      return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    resultClose?.addEventListener('click', () => {
+      resultPanel.style.display = 'none';
+    });
+
+    btnRun?.addEventListener('click', async () => {
+      const sourceCode = (window as any).monacoEditor?.getValue();
+      if (!sourceCode) return;
+
+      const langSelect = document.getElementById('language-select') as HTMLSelectElement;
+      const selectedLanguage = parseInt(langSelect?.value || '1', 10);
+
+      btnRun.disabled = true;
+      btnRun.textContent = '실행 중...';
+
+      try {
+        const response = await submissionClient.runTest({
+          problemId,
+          language: selectedLanguage,
+          sourceCode
+        });
+        const allPassed = response.passed;
+        const passCount = response.testCases.filter(tc => tc.passed).length;
+        const total = response.testCases.length;
+
+        let html = `<div class="result-summary ${allPassed ? 'summary-pass' : 'summary-fail'}">
+          <span class="summary-icon">${allPassed ? '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>' : '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>'}</span>
+          <span class="summary-text">${allPassed ? '모든 테스트 통과' : '일부 테스트 실패'}</span>
+          <span class="summary-count">${passCount}/${total}</span>
+        </div>`;
+
+        html += '<div class="testcase-list">';
+        for (const tc of response.testCases) {
+          html += `<div class="testcase-item ${tc.passed ? 'tc-pass' : 'tc-fail'}">
+            <div class="tc-header">
+              <span class="tc-badge ${tc.passed ? 'badge-pass' : 'badge-fail'}">${tc.passed ? '통과' : '실패'}</span>
+              <span class="tc-name">예제 ${tc.index}</span>
+              <span class="tc-time">${tc.executionTimeMs}ms</span>
+            </div>
+            <div class="tc-content">
+              <div class="tc-col">
+                <div class="tc-col-label">예상 출력</div>
+                <pre class="tc-output">${escapeHtml(tc.expectedOutput)}</pre>
+              </div>
+              <div class="tc-col">
+                <div class="tc-col-label">실제 출력</div>
+                <pre class="tc-output ${tc.passed ? '' : 'tc-output-wrong'}">${escapeHtml(tc.actualOutput)}</pre>
+              </div>
+            </div>
+          </div>`;
+        }
+        html += '</div>';
+
+        showResult(allPassed ? 'success' : 'fail', allPassed ? '모든 테스트 통과' : '테스트 실패', html);
+      } catch (err: any) {
+        showResult('fail', '실행 실패', `<div class="result-error">${escapeHtml(err.message)}</div>`);
+      } finally {
+        btnRun.disabled = false;
+        btnRun.textContent = '코드 실행';
+      }
+    });
+
+    btnSubmit?.addEventListener('click', async () => {
+      const sourceCode = (window as any).monacoEditor?.getValue();
+      if (!sourceCode) return;
+
+      if (!confirm('정말로 제출하시겠습니까?')) return;
+
+      const langSelect = document.getElementById('language-select') as HTMLSelectElement;
+      const selectedLanguage = parseInt(langSelect?.value || '1', 10);
+
+      btnSubmit.disabled = true;
+      btnSubmit.textContent = '제출 중...';
+
+      try {
+        const response = await submissionClient.createSubmission({
+          problemId,
+          language: selectedLanguage,
+          sourceCode
+        });
+        showResult('success', '제출 완료', `<div class="result-summary summary-pass"><span class="summary-icon">&#10003;</span><span class="summary-text">채점 현황 페이지로 이동합니다...</span></div>`);
+        setTimeout(() => { window.location.href = '/status'; }, 1500);
+      } catch (err: any) {
+        showResult('fail', '제출 실패', `<div class="result-error">${escapeHtml(err.message)}</div>`);
+      } finally {
+        btnSubmit.disabled = false;
+        btnSubmit.textContent = '제출하기';
+      }
+    });
+  });
+</script>
+
+<style>
+  :global(.footer) { display: none !important; }
+
+  .workspace-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 5fr);
+    height: calc(100vh - 64px); /* assuming 64px header height */
+    width: 100%;
+    margin: 0;
+    overflow: hidden;
+  }
+  
+  .problem-panel {
+    padding: 2.5rem 3rem;
+    overflow-y: auto;
+    overflow-x: hidden;
+    border-right: 1px solid var(--color-border);
+    background: var(--color-bg);
+    min-height: 0; /* CSS Grid Overflow 버그 방지 */
+    min-width: 0;
+  }
+  
+  .problem-header {
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .problem-title {
+    margin: 0 0 1rem 0;
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: var(--color-text);
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+  }
+  .problem-id-label {
+    color: var(--color-btn-1-bg);
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 800;
+    font-size: 1.8rem;
+    padding-right: 0.5rem;
+    position: relative;
+  }
+  .problem-id-label::after {
+    content: '';
+    position: absolute;
+    right: -4px;
+    top: 25%;
+    height: 50%;
+    width: 2px;
+    background: var(--color-border);
+  }
+  .problem-tier-badge {
+    font-size: 1.1rem;
+    padding: 0.3rem 0.8rem;
+    border-radius: 8px;
+    font-weight: 800;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  }
+  .problem-meta {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .meta-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: var(--color-surface);
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 0.4rem 0.8rem;
+    border-radius: 8px;
+    border: 1px solid var(--color-border);
+  }
+  .lucide-icon { color: var(--color-btn-1-bg); }
+
+  /* Example Sections */
+  .examples-section {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px dashed var(--color-border);
+  }
+  .examples-title {
+    font-size: 1.6rem;
+    font-weight: 800;
+    margin-bottom: 2rem;
+    color: var(--color-text);
+  }
+  .example-container {
+    margin-bottom: 2rem;
+  }
+  .example-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+  .example-box {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  .example-label {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--color-text-muted);
+    padding-left: 0.2rem;
+  }
+  .example-code {
+    margin: 0 !important;
+  }
+
+  /* Source Section */
+  .source-section {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px dashed var(--color-border);
+  }
+  .source-title {
+    font-size: 1.6rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    color: var(--color-text);
+  }
+  .source-path {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.95rem;
+  }
+  .source-part {
+    background: var(--color-surface);
+    color: var(--color-text);
+    padding: 0.35rem 0.75rem;
+    border-radius: 6px;
+    border: 1px solid var(--color-border);
+    font-weight: 600;
+  }
+  .source-sep {
+    color: var(--color-text-muted);
+    font-weight: 700;
+  }
+
+  /* IDE Panel Styles */
+  .ide-panel {
+    --ide-bg: #ffffff;
+    --ide-header-bg: #f8fafc;
+    --ide-border: #e2e8f0;
+    --ide-text: #475569;
+    --ide-text-hover: #0f172a;
+    --ide-tab-bg: #ffffff;
+    --ide-tab-text: #0ea5e9;
+    --ide-tab-border: #0ea5e9;
+    --ide-input-bg: #ffffff;
+    
+    display: flex;
+    flex-direction: column;
+    background: var(--ide-bg);
+    height: 100%;
+    min-height: 0;
+    min-width: 0;
+  }
+  
+  :global(:root[data-theme='dark']) .ide-panel {
+    --ide-bg: #1e1e1e;
+    --ide-header-bg: #252526;
+    --ide-border: #333333;
+    --ide-text: #cccccc;
+    --ide-text-hover: #ffffff;
+    --ide-tab-bg: #1e1e1e;
+    --ide-tab-text: #9cdcfe;
+    --ide-tab-border: #007acc;
+    --ide-input-bg: #1e1e1e;
+  }
+  
+  .ide-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--ide-header-bg);
+    border-bottom: 1px solid var(--ide-border);
+    padding-right: 1rem;
+    min-height: 40px;
+  }
+  .ide-tabs { display: flex; height: 100%; }
+  .ide-tab {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 1.2rem;
+    color: var(--ide-tab-text);
+    font-size: 0.85rem;
+    background: var(--ide-tab-bg);
+    border-top: 2px solid var(--ide-tab-border);
+    font-family: monospace;
+    cursor: pointer;
+  }
+  .ide-actions { display: flex; align-items: center; gap: 0.5rem; }
+  .ide-lang-select {
+    background: var(--ide-input-bg);
+    color: var(--ide-text);
+    border: 1px solid var(--ide-border);
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    outline: none;
+  }
+  .btn-ide-tool {
+    background: transparent;
+    border: none;
+    color: var(--ide-text);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding: 4px;
+    transition: color 0.2s;
+  }
+  .btn-ide-tool:hover { color: var(--ide-text-hover); }
+  
+  .ide-editor {
+    flex: 1;
+    display: flex;
+    position: relative;
+    overflow: hidden;
+  }
+  .editor-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    color: var(--ide-text);
+    font-size: 0.95rem;
+  }
+  
+  #monaco-editor-container {
+    width: 100%;
+    height: 100%;
+    background: transparent;
+  }
+  
+  .ide-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    background: var(--ide-header-bg);
+    border-top: 1px solid var(--ide-border);
+  }
+  .btn-run {
+    background: var(--color-surface);
+    color: var(--color-text);
+    border: 1px solid var(--ide-border);
+    padding: 0.5rem 1.5rem;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-run:hover { background: var(--color-bg); }
+  .btn-submit {
+    background: var(--color-btn-1-bg);
+    color: #ffffff;
+    border: none;
+    padding: 0.5rem 1.5rem;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-submit:hover { background: var(--color-btn-1-hover); }
+
+  .result-panel {
+    border-top: 1px solid var(--ide-border);
+    background: var(--ide-header-bg);
+    max-height: 280px;
+    overflow-y: auto;
+  }
+  .result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid var(--ide-border);
+    position: sticky;
+    top: 0;
+    background: var(--ide-header-bg);
+    z-index: 1;
+  }
+  .result-title { font-weight: 700; font-size: 0.9rem; }
+  .result-success .result-title { color: #4ade80; }
+  .result-fail .result-title { color: #ef4444; }
+  .result-close {
+    background: transparent; border: none;
+    color: var(--ide-text); font-size: 1.2rem;
+    cursor: pointer; padding: 0 0.3rem; line-height: 1;
+  }
+  .result-close:hover { color: var(--ide-text-hover); }
+  .result-body { padding: 0.6rem 1rem; }
+
+  .result-summary {
+    display: flex; align-items: center; gap: 0.6rem;
+    padding: 0.6rem 1rem; border-radius: 8px; margin-bottom: 0.8rem;
+    font-weight: 600; font-size: 0.9rem;
+  }
+  .summary-pass { background: rgba(74, 222, 128, 0.1); color: #4ade80; }
+  .summary-fail { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+  .summary-icon { font-size: 1.1rem; }
+  .summary-count {
+    margin-left: auto; font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem; opacity: 0.8;
+  }
+
+  .testcase-list { display: flex; flex-direction: column; gap: 0.6rem; }
+  .testcase-item {
+    border: 1px solid var(--ide-border); border-radius: 8px;
+    overflow: hidden;
+  }
+  .tc-pass { border-left: 3px solid #4ade80; }
+  .tc-fail { border-left: 3px solid #ef4444; }
+  .tc-header {
+    display: flex; align-items: center; gap: 0.6rem;
+    padding: 0.5rem 0.8rem;
+    background: rgba(0,0,0,0.03);
+  }
+  :root[data-theme='dark'] .tc-header { background: rgba(255,255,255,0.03); }
+  .tc-badge {
+    font-size: 0.75rem; font-weight: 700;
+    padding: 0.15rem 0.5rem; border-radius: 4px;
+  }
+  .badge-pass { background: rgba(74, 222, 128, 0.15); color: #4ade80; }
+  .badge-fail { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+  .tc-name { font-weight: 600; font-size: 0.85rem; color: var(--color-text); }
+  .tc-time { margin-left: auto; font-size: 0.8rem; color: var(--ide-text); font-family: monospace; }
+
+  .tc-content { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; padding: 0.5rem 0.8rem; }
+  .tc-col-label { font-size: 0.75rem; font-weight: 600; color: var(--ide-text); margin-bottom: 0.2rem; }
+  .tc-output {
+    margin: 0; padding: 0.4rem 0.6rem;
+    background: var(--ide-bg); border: 1px solid var(--ide-border); border-radius: 4px;
+    font-family: 'JetBrains Mono', Consolas, monospace; font-size: 0.8rem;
+    color: var(--color-text); white-space: pre-wrap;
+    max-height: 60px; overflow-y: auto;
+  }
+  .tc-output-wrong { border-color: rgba(239, 68, 68, 0.4); }
+
+  .result-error {
+    padding: 0.6rem 1rem; border-radius: 8px;
+    background: rgba(239, 68, 68, 0.1); color: #ef4444;
+    font-size: 0.9rem;
+  }
+
+  @media (max-width: 1000px) {
+    .workspace-layout {
+      grid-template-columns: 1fr;
+      height: auto;
+      overflow: visible;
+    }
+    .problem-panel { padding: 1.5rem; }
+    .ide-panel { height: 60vh; }
+  }
+</style>
+
+<style is:global>
+  /* Markdown styling inside problem page */
+  .markdown-body h2 {
+    color: var(--color-text);
+    margin-top: 2.5rem;
+    margin-bottom: 1rem;
+    font-weight: 800;
+    font-size: 1.4rem;
+    display: flex;
+    align-items: center;
+    letter-spacing: -0.01em;
+  }
+  .markdown-body h2::before {
+    content: ''; display: inline-block; width: 5px; height: 1.2rem;
+    background: var(--color-btn-1-bg); margin-right: 0.6rem; border-radius: 4px;
+  }
+  .markdown-body p {
+    color: var(--color-text);
+    font-size: 1.05rem;
+    line-height: 1.7;
+    margin-bottom: 1.5rem;
+  }
+  
+  /* Clean Code Wrappers with line numbers */
+  .clean-code-wrapper {
+    position: relative;
+    display: flex;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    overflow: hidden;
+  }
+  
+  .clean-gutter {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem 0.5rem;
+    background: rgba(0,0,0,0.03);
+    border-right: 1px solid var(--color-border);
+    color: var(--color-text-muted);
+    font-family: 'JetBrains Mono', Consolas, monospace;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    text-align: right;
+    user-select: none;
+    min-width: 2.5rem;
+  }
+  :root[data-theme='dark'] .clean-gutter {
+    background: rgba(255,255,255,0.02);
+  }
+  
+  .clean-code-wrapper pre {
+    margin: 0 !important;
+    padding: 1rem 1.2rem !important;
+    background: transparent !important;
+    border-radius: 0 !important;
+    border: none !important;
+    flex: 1;
+    overflow-x: auto;
+  }
+  .clean-code-wrapper code {
+    font-family: 'JetBrains Mono', Consolas, monospace;
+    font-size: 0.9rem;
+    color: var(--color-text);
+    line-height: 1.5;
+  }
+  
+  .clean-copy-btn {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    color: var(--color-text-muted);
+    padding: 0.4rem;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    transition: all 0.2s;
+  }
+  .clean-copy-btn:hover {
+    background: var(--color-border);
+    color: var(--color-text);
+  }
+  .clean-copy-btn.copied {
+    color: #4ade80;
+    border-color: #4ade80;
+  }
+  
+  /* Inline code styling */
+  .markdown-body p code, .markdown-body li code {
+    background: var(--color-surface);
+    color: var(--color-btn-1-bg);
+    padding: 0.2rem 0.4rem;
+    border-radius: 6px;
+    font-size: 0.9em;
+    font-weight: 600;
+    border: 1px solid var(--color-border);
+  }
+
+  /* Execution Result Panel Styles */
+  .result-panel {
+    background: var(--color-surface);
+    border-top: 1px solid var(--color-border);
+    max-height: 48vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 -10px 20px rgba(0,0,0,0.05);
+    z-index: 10;
+    transition: all 0.3s ease;
+  }
+  
+  :global([data-theme='dark']) .result-panel {
+    box-shadow: 0 -10px 20px rgba(0,0,0,0.3);
+  }
+
+  .result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.8rem 1.5rem;
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-bg);
+    position: sticky;
+    top: 0;
+    z-index: 2;
+  }
+
+  .result-title {
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: var(--color-text);
+  }
+
+  .result-close {
+    background: none;
+    border: none;
+    color: var(--color-text-muted);
+    font-size: 1.5rem;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.2s;
+  }
+  .result-close:hover { color: #ff5f56; }
+
+  .result-body {
+    padding: 1.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+  }
+
+  .result-summary {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 1.1rem;
+  }
+  .summary-pass {
+    background: rgba(39, 201, 63, 0.1);
+    color: #27c93f;
+    border: 1px solid rgba(39, 201, 63, 0.2);
+  }
+  .summary-fail {
+    background: rgba(255, 95, 86, 0.1);
+    color: #ff5f56;
+    border: 1px solid rgba(255, 95, 86, 0.2);
+  }
+  .summary-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .summary-count {
+    margin-left: auto;
+    font-family: 'JetBrains Mono', Consolas, monospace;
+    font-size: 1.15rem;
+    opacity: 0.9;
+    background: rgba(0,0,0,0.1);
+    padding: 0.2rem 0.6rem;
+    border-radius: 6px;
+  }
+  :global([data-theme='dark']) .summary-count {
+    background: rgba(255,255,255,0.1);
+  }
+
+  .testcase-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .testcase-item {
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--color-bg);
+  }
+  .testcase-item.tc-pass { border-left: 4px solid #27c93f; }
+  .testcase-item.tc-fail { border-left: 4px solid #ff5f56; }
+
+  .tc-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.8rem 1.2rem;
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+  }
+  
+  .tc-badge {
+    padding: 0.25rem 0.6rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+  }
+  .badge-pass { background: rgba(39, 201, 63, 0.15); color: #27c93f; }
+  .badge-fail { background: rgba(255, 95, 86, 0.15); color: #ff5f56; }
+
+  .tc-name {
+    font-weight: 600;
+    color: var(--color-text);
+  }
+  
+  .tc-time {
+    margin-left: auto;
+    color: var(--color-text-muted);
+    font-family: 'JetBrains Mono', Consolas, monospace;
+    font-size: 0.85rem;
+    background: var(--color-bg);
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px;
+    border: 1px solid var(--color-border);
+  }
+
+  .tc-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--color-border);
+  }
+
+  .tc-col {
+    background: var(--color-bg);
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  .tc-col-label {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .tc-output {
+    margin: 0;
+    font-family: 'JetBrains Mono', Consolas, monospace;
+    font-size: 0.9rem;
+    color: var(--color-text);
+    white-space: pre-wrap;
+    word-break: break-all;
+    flex: 1;
+    border-radius: 8px;
+    padding: 0.8rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  .tc-output-wrong {
+    background: rgba(255, 95, 86, 0.05);
+    border-color: rgba(255, 95, 86, 0.3);
+    color: #ff5f56;
+  }
+
+  .result-error {
+    background: rgba(255, 95, 86, 0.1);
+    border: 1px solid rgba(255, 95, 86, 0.2);
+    color: #ff5f56;
+    padding: 1rem;
+    border-radius: 12px;
+    font-family: 'JetBrains Mono', Consolas, monospace;
+    white-space: pre-wrap;
+    line-height: 1.5;
+  }
+</style>

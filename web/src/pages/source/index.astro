@@ -1,0 +1,144 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProblemTable from '../../components/ProblemTable.astro';
+
+const allProblems = await getCollection('problems');
+
+// Build tree from source paths
+interface SourceNode {
+  name: string;
+  children: Map<string, SourceNode>;
+  problems: any[];
+}
+
+function buildTree(problems: any[]): SourceNode {
+  const root: SourceNode = { name: '', children: new Map(), problems: [] };
+
+  for (const p of problems) {
+    const rawSource = p.data.source; const source = rawSource ? (Array.isArray(rawSource) ? rawSource : [rawSource]) : undefined;
+    if (!source || source.length === 0) continue;
+
+    let node = root;
+    for (const segment of source) {
+      if (!node.children.has(segment)) {
+        node.children.set(segment, { name: segment, children: new Map(), problems: [] });
+      }
+      node = node.children.get(segment)!;
+    }
+    node.problems.push({
+      data: p.data,
+      frontmatter: p.data,
+      url: `/problems/${p.id.split('/')[0]}`,
+      id: p.id.split('/')[0] || '',
+    });
+  }
+
+  return root;
+}
+
+const tree = buildTree(allProblems);
+
+// Parse current path from query (will be handled client-side)
+// Server renders the full tree for static generation
+function getNodeCounts(node: SourceNode): number {
+  let count = node.problems.length;
+  for (const child of node.children.values()) {
+    count += getNodeCounts(child);
+  }
+  return count;
+}
+
+function treeToList(node: SourceNode, path: string[] = []): { name: string; path: string[]; count: number; children: any[] }[] {
+  const result: any[] = [];
+  for (const [key, child] of [...node.children.entries()].sort((a, b) => a[0].localeCompare(b[0]))) {
+    const childPath = [...path, key];
+    result.push({
+      name: key,
+      path: childPath,
+      slug: childPath.join('/'),
+      count: getNodeCounts(child),
+      hasChildren: child.children.size > 0,
+      problems: child.problems,
+    });
+  }
+  return result;
+}
+
+const topLevel = treeToList(tree);
+---
+
+<BaseLayout title="출처 - Puri">
+  <div class="page-container">
+    <div class="page-header">
+      <h2 class="page-title">출처</h2>
+      <p class="page-desc">출처별로 문제를 탐색하세요.</p>
+    </div>
+
+    <div id="breadcrumb" class="breadcrumb">
+      <span class="breadcrumb-item active">전체</span>
+    </div>
+
+    <div id="source-list" class="source-list">
+      {topLevel.map(item => (
+        <a href={`/source/${item.slug}`} class="source-card" data-slug={item.slug}>
+          <div class="source-info">
+            <span class="source-name">{item.name}</span>
+            {item.hasChildren && <span class="source-arrow">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+            </span>}
+          </div>
+          <span class="source-count">{item.count}문제</span>
+        </a>
+      ))}
+      {topLevel.length === 0 && (
+        <p class="empty-state">등록된 출처가 없습니다.</p>
+      )}
+    </div>
+  </div>
+</BaseLayout>
+
+<style is:global>
+  .page-container { max-width: 1200px; margin: 4rem auto; padding: 0 1.5rem; }
+  .page-header { margin-bottom: 2rem; }
+  .page-title { font-size: 2.6rem; font-weight: 800; margin-bottom: 0.8rem; color: var(--color-text); letter-spacing: -0.02em; }
+  .page-desc { color: var(--color-text-muted); font-size: 1.15rem; }
+
+  .breadcrumb {
+    display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;
+    margin-bottom: 2rem; font-size: 0.95rem;
+  }
+  .breadcrumb-item {
+    color: var(--color-btn-1-bg); font-weight: 600; text-decoration: none;
+    cursor: pointer;
+  }
+  .breadcrumb-item:hover { text-decoration: underline; }
+  .breadcrumb-item.active { color: var(--color-text); cursor: default; }
+  .breadcrumb-item.active:hover { text-decoration: none; }
+  .breadcrumb-sep { color: var(--color-text-muted); }
+
+  .source-list {
+    display: flex; flex-direction: column; gap: 0.5rem;
+  }
+
+  .source-card {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 1.2rem 1.5rem;
+    background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 10px;
+    text-decoration: none; transition: all 0.2s;
+  }
+  .source-card:hover {
+    border-color: var(--color-btn-1-bg); background: var(--color-bg);
+  }
+
+  .source-info { display: flex; align-items: center; gap: 0.5rem; }
+  .source-name { font-weight: 700; font-size: 1.1rem; color: var(--color-text); }
+  .source-arrow { color: var(--color-text-muted); display: flex; align-items: center; }
+  .source-count {
+    font-size: 0.9rem; font-weight: 600; color: var(--color-text-muted);
+    background: var(--color-bg); padding: 0.3rem 0.8rem; border-radius: 20px;
+    border: 1px solid var(--color-border);
+  }
+
+  .empty-state { text-align: center; color: var(--color-text-muted); padding: 3rem; }
+</style>

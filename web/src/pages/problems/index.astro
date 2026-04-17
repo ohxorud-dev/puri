@@ -1,0 +1,33 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProblemList from '../../components/ProblemList.astro';
+
+const allProblems = await getCollection('problems');
+const problems = allProblems.map(p => ({
+  data: p.data,
+  frontmatter: p.data,
+  url: `/problems/${p.id.split('/')[0]}`,
+  id: p.id.split('/')[0] || ''
+})).sort((a, b) => {
+  return parseInt(a.id) - parseInt(b.id);
+});
+---
+
+<BaseLayout title="모든 문제 - Puri">
+  <div class="page-container">
+    <div class="page-header">
+      <h2 class="page-title">모든 문제</h2>
+      <p class="page-desc">Puri에 등록된 문제들을 탐색하고 성취를 이뤄내세요.</p>
+    </div>
+
+    <ProblemList problems={problems} />
+  </div>
+</BaseLayout>
+
+<style is:global>
+  .page-container { max-width: 1200px; margin: 5rem auto; padding: 0 1.5rem; }
+  .page-header { margin-bottom: 2rem; text-align: left; }
+  .page-title { font-size: 2.6rem; font-weight: 800; margin-bottom: 0.8rem; color: var(--color-text); letter-spacing: -0.02em; }
+  .page-desc { color: var(--color-text-muted); font-size: 1.15rem; }
+</style>

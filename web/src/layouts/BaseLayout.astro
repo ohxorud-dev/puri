@@ -1,0 +1,114 @@
+---
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+const {
+  title = "Puri",
+  description = "알고리즘을 체계적으로 학습하고, 코딩 실력을 증명하세요.",
+  ogType = "website",
+  fullWidth = false,
+} = Astro.props;
+
+const canonicalUrl = new URL(Astro.url.pathname, Astro.site);
+---
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="canonical" href={canonicalUrl} />
+  <title>{title}</title>
+  <meta name="description" content={description} />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:url" content={canonicalUrl} />
+  <meta property="og:type" content={ogType} />
+  <meta property="og:site_name" content="Puri" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content={title} />
+  <meta name="twitter:description" content={description} />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" crossorigin="anonymous">
+  <script is:inline>
+    const theme = (() => {
+      if (typeof localStorage !== 'undefined' && localStorage.getItem('theme')) {
+        return localStorage.getItem('theme');
+      }
+      if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        return 'dark';
+      }
+      return 'light';
+    })();
+    document.documentElement.setAttribute('data-theme', theme);
+    window.localStorage.setItem('theme', theme);
+  </script>
+  <style is:global>
+    :root, :root[data-theme='light'] {
+      --color-bg: #f4f6f8;
+      --color-text: #1a1a1a;
+      --color-text-muted: #666666;
+      --color-border: #dcdcdc;
+      --color-nav-bg: #ffffff;
+      --color-surface: #ffffff;
+      --color-code-bg: #eeeeee;
+      --color-code-text: #333333;
+      
+      /* 확실하게 구분되는 버튼 색상 */
+      --color-btn-1-bg: #0066cc;
+      --color-btn-1-text: #ffffff;
+      --color-btn-1-hover: #004c99;
+      
+      --color-btn-2-bg: #4a4a4a;
+      --color-btn-2-text: #ffffff;
+      --color-btn-2-hover: #333333;
+    }
+    :root[data-theme='dark'] {
+      --color-bg: #121212;
+      --color-text: #e0e0e0;
+      --color-text-muted: #a0a0a0;
+      --color-border: #333333;
+      --color-nav-bg: #1e1e1e;
+      --color-surface: #1e1e1e;
+      --color-code-bg: #2a2a2a;
+      --color-code-text: #cccccc;
+      
+      /* 다크모드 버튼 색상 */
+      --color-btn-1-bg: #3b82f6;
+      --color-btn-1-text: #ffffff;
+      --color-btn-1-hover: #2563eb;
+      
+      --color-btn-2-bg: #555555;
+      --color-btn-2-text: #ffffff;
+      --color-btn-2-hover: #404040;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      background-color: var(--color-bg);
+      color: var(--color-text);
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+    main {
+      flex: 1;
+    }
+    * {
+      box-sizing: border-box;
+    }
+    a {
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <Header fullWidth={fullWidth} />
+  <main>
+    <slot />
+  </main>
+  <Footer />
+</body>
+</html>

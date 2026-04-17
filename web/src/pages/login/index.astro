@@ -1,0 +1,118 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+<BaseLayout title="로그인 - Puri">
+  <div class="auth-container">
+    <div class="auth-card">
+      <div class="auth-header">
+        <h2 class="auth-title">로그인</h2>
+        <p class="auth-desc">성장을 위한 완벽한 시작점</p>
+      </div>
+      
+      <form id="login-form" class="auth-form">
+        <div class="form-group">
+          <label for="username">아이디</label>
+          <input type="text" id="username" name="username" required placeholder="아이디를 입력하세요">
+        </div>
+        <div class="form-group">
+          <label for="password">비밀번호</label>
+          <input type="password" id="password" name="password" required placeholder="비밀번호를 입력하세요">
+        </div>
+        <button type="submit" class="btn-auth">로그인</button>
+      </form>
+      
+      <div id="login-error" class="error-message" style="display: none;"></div>
+      
+      <div class="auth-footer">
+        아직 계정이 없으신가요? <a href="/signup" class="auth-link">회원가입</a>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  import { userClient } from '../../lib/api';
+
+  const form = document.getElementById('login-form') as HTMLFormElement;
+  const errorDiv = document.getElementById('login-error');
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(form);
+    const username = formData.get('username') as string;
+    const password = formData.get('password') as string;
+
+    try {
+      await userClient.login({ username, password });
+      localStorage.setItem('is_logged_in', '1');
+      window.location.href = '/';
+    } catch (err: any) {
+      console.error('Login failed:', err);
+      if (errorDiv) {
+        errorDiv.textContent = `로그인 실패: ${err.message || '다시 시도해주세요.'}`;
+        errorDiv.style.display = 'block';
+      }
+    }
+  });
+</script>
+
+<style is:global>
+  .auth-container { display: flex; justify-content: center; align-items: center; min-height: 75vh; padding: 2rem 1.5rem; }
+  .auth-card { 
+    background: var(--color-surface); 
+    border: 1px solid var(--color-border); 
+    border-radius: 16px; 
+    padding: 3.5rem 3rem; 
+    width: 100%; 
+    max-width: 440px; 
+    box-shadow: 0 10px 30px -10px rgba(0,0,0,0.1); 
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+  }
+  .auth-card:hover { box-shadow: 0 20px 40px -15px rgba(0,0,0,0.15); transform: translateY(-2px); }
+  :root[data-theme='dark'] .auth-card { box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5); }
+  :root[data-theme='dark'] .auth-card:hover { box-shadow: 0 20px 40px -15px rgba(0,0,0,0.7); }
+  
+  .auth-header { margin-bottom: 2.5rem; text-align: center; }
+  .auth-title { font-size: 2.2rem; font-weight: 800; color: var(--color-text); margin: 0 0 0.5rem 0; letter-spacing: -0.03em; }
+  .auth-desc { color: var(--color-text-muted); font-size: 1.05rem; }
+  
+  .form-group { margin-bottom: 1.5rem; }
+  .form-group label { display: block; font-weight: 600; color: var(--color-text); margin-bottom: 0.6rem; font-size: 0.95rem; }
+  .form-group input { 
+    box-sizing: border-box; width: 100%; padding: 1.1rem 1.2rem; 
+    border: 1.5px solid var(--color-border); border-radius: 10px; 
+    background: var(--color-bg); color: var(--color-text); 
+    font-size: 1rem; transition: all 0.2s ease; 
+  }
+  .form-group input:focus { 
+    outline: none; 
+    border-color: var(--color-btn-1-bg); 
+    box-shadow: 0 0 0 4px rgba(0, 102, 204, 0.15); 
+  }
+  :root[data-theme='dark'] .form-group input:focus { box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.25); }
+  
+  .btn-auth { 
+    width: 100%; padding: 1.2rem; background: var(--color-btn-1-bg); 
+    color: var(--color-btn-1-text); border: none; border-radius: 10px; 
+    font-size: 1.1rem; font-weight: 700; cursor: pointer; 
+    transition: all 0.2s ease; margin-top: 1rem; letter-spacing: 0.02em;
+  }
+  .btn-auth:hover { background: var(--color-btn-1-hover); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+  .btn-auth:active { transform: translateY(1px); box-shadow: none; }
+  
+  .auth-footer { text-align: center; margin-top: 2.5rem; color: var(--color-text-muted); font-size: 0.95rem; }
+  .auth-link { color: var(--color-btn-1-bg); font-weight: 600; text-decoration: none; position: relative; padding-bottom: 2px;}
+  .auth-link::after { content: ''; position: absolute; left: 0; bottom: 0; width: 0; height: 2px; background: var(--color-btn-1-bg); transition: width 0.3s ease; }
+  .auth-link:hover::after { width: 100%; }
+
+  .error-message {
+    margin-top: 1rem;
+    padding: 0.8rem;
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    text-align: center;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+  }
+</style>

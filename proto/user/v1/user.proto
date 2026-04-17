@@ -1,0 +1,91 @@
+syntax = "proto3";
+package puri.user.v1;
+option go_package = "github.com/puri-cp/puri/gen/user/v1;userv1";
+
+import "buf/validate/validate.proto";
+import "google/protobuf/timestamp.proto";
+import "common/v1/endpoint_security.proto";
+
+service UserService {
+  rpc Register(RegisterRequest) returns (RegisterResponse) {
+    option (puri.common.v1.endpoint_rule) = { isPublic: true };
+  }
+  rpc Login(LoginRequest) returns (LoginResponse) {
+    option (puri.common.v1.endpoint_rule) = { isPublic: true };
+  }
+  rpc Logout(LogoutRequest) returns (LogoutResponse) {
+    option (puri.common.v1.endpoint_rule) = { isPublic: true };
+  }
+  rpc GetProfile(GetProfileRequest) returns (GetProfileResponse) {
+    option (puri.common.v1.endpoint_rule) = { isPublic: false };
+  }
+  rpc UpdateProfile(UpdateProfileRequest) returns (UpdateProfileResponse) {
+    option (puri.common.v1.endpoint_rule) = { isPublic: false };
+  }
+  rpc GetRanking(GetRankingRequest) returns (GetRankingResponse) {
+    option (puri.common.v1.endpoint_rule) = { isPublic: true };
+  }
+}
+
+message User {
+  int64 id = 1 [(buf.validate.field).int64.gte = 1];
+  string username = 2 [(buf.validate.field).string.min_len = 3, (buf.validate.field).string.max_len = 32, (buf.validate.field).string.pattern = "^[a-zA-Z0-9_]+$"];
+  string email = 3 [(buf.validate.field).string.email = true, (buf.validate.field).string.max_len = 320];
+  string display_name = 4 [(buf.validate.field).string.max_len = 64];
+  string boj_handle = 5 [(buf.validate.field).string.max_len = 32];
+  google.protobuf.Timestamp created_at = 6;
+}
+
+message RegisterRequest {
+  string email = 1 [(buf.validate.field).string.email = true, (buf.validate.field).string.max_len = 320];
+  string username = 2 [(buf.validate.field).string.min_len = 3, (buf.validate.field).string.max_len = 32, (buf.validate.field).string.pattern = "^[a-zA-Z0-9_]+$"];
+  string password = 3 [(buf.validate.field).string.min_len = 8, (buf.validate.field).string.max_len = 128];
+}
+
+message RegisterResponse {
+  User user = 1;
+}
+
+message LoginRequest {
+  string username = 1 [(buf.validate.field).string.min_len = 3, (buf.validate.field).string.max_len = 32, (buf.validate.field).string.pattern = "^[a-zA-Z0-9_]+$"];
+  string password = 2 [(buf.validate.field).string.min_len = 8, (buf.validate.field).string.max_len = 128];
+}
+
+message LoginResponse {
+  User user = 1;
+}
+
+message LogoutRequest {}
+message LogoutResponse {}
+
+message GetProfileRequest {}
+message GetProfileResponse {
+  User user = 1;
+}
+
+message UpdateProfileRequest {
+  optional string display_name = 1 [(buf.validate.field).string.max_len = 64];
+  optional string boj_handle = 2 [(buf.validate.field).string.max_len = 32];
+}
+
+message UpdateProfileResponse {
+  User user = 1;
+}
+
+message RankEntry {
+  int32 rank = 1;
+  int64 user_id = 2;
+  string username = 3;
+  int32 solved_count = 4;
+  int32 submission_count = 5;
+}
+
+message GetRankingRequest {
+  int32 page_size = 1;
+  string page_token = 2;
+}
+
+message GetRankingResponse {
+  repeated RankEntry entries = 1;
+  string next_page_token = 2;
+}

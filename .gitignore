@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+bin/
+services/*/bin/
+
+# Environment
+.env
+.env.local
+
+# Protobuf lock
+buf.lock
+
+# IDE / OS
+.idea/
+.vscode/
+.claude/
+.DS_Store
+
+# Logs
+*.log
+
+# Large testcase backups (full official data, kept locally only)
+problems/*/testcases.full.json

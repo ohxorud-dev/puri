@@ -1,0 +1,14 @@
+syntax = "proto3";
+package puri.common.v1;
+option go_package = "github.com/puri-cp/puri/gen/common/v1;commonv1";
+
+import "google/protobuf/descriptor.proto";
+
+message EndpointSecurity {
+  bool isPublic = 1;
+  repeated string permission = 2;
+}
+
+extend google.protobuf.MethodOptions {
+  EndpointSecurity endpoint_rule = 50001;
+}

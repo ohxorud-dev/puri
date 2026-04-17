@@ -1,0 +1,184 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="채점 현황 - Puri">
+  <div class="page-container">
+    <h2 class="page-title">채점 현황</h2>
+    <p class="page-desc">실시간으로 채점되고 있는 결과를 확인하세요.</p>
+
+    <div class="filter-bar">
+      <input type="text" id="filter-username" placeholder="아이디 검색..." class="filter-input" />
+      <input type="text" id="filter-problem" placeholder="문제 아이디 검색..." class="filter-input" />
+      <select id="filter-result" class="filter-select">
+        <option value="">전체 결과</option>
+        <option value="맞았습니다!!">맞았습니다!!</option>
+        <option value="틀렸습니다">틀렸습니다</option>
+        <option value="시간 초과">시간 초과</option>
+        <option value="런타임 에러">런타임 에러</option>
+        <option value="메모리 초과">메모리 초과</option>
+        <option value="컴파일 에러">컴파일 에러</option>
+        <option value="대기 중">대기 중</option>
+        <option value="채점 중">채점 중</option>
+      </select>
+      <select id="filter-sort" class="filter-select">
+        <option value="id-desc">최신순</option>
+        <option value="id-asc">오래된순</option>
+        <option value="time-asc">시간 빠른순</option>
+        <option value="time-desc">시간 느린순</option>
+      </select>
+    </div>
+
+    <div class="table-container">
+      <table class="problem-table">
+        <thead>
+          <tr>
+            <th>제출 번호</th>
+            <th>아이디</th>
+            <th>문제</th>
+            <th>결과</th>
+            <th>메모리</th>
+            <th>시간</th>
+          </tr>
+        </thead>
+        <tbody id="status-body">
+          <tr><td colspan="6" style="text-align:center; padding:2rem; color:var(--color-text-muted);">불러오는 중...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  import { submissionClient } from '../../lib/api';
+  import { SubmissionStatus } from '../../gen/common/v1/types_pb';
+
+  const statusLabels: Record<number, { text: string; cls: string }> = {
+    [SubmissionStatus.ACCEPTED]: { text: '맞았습니다!!', cls: 'status-success' },
+    [SubmissionStatus.WRONG_ANSWER]: { text: '틀렸습니다', cls: 'status-fail' },
+    [SubmissionStatus.TIME_LIMIT_EXCEEDED]: { text: '시간 초과', cls: 'status-fail' },
+    [SubmissionStatus.RUNTIME_ERROR]: { text: '런타임 에러', cls: 'status-fail' },
+    [SubmissionStatus.MEMORY_LIMIT_EXCEEDED]: { text: '메모리 초과', cls: 'status-fail' },
+    [SubmissionStatus.COMPILATION_ERROR]: { text: '컴파일 에러', cls: 'status-fail' },
+    [SubmissionStatus.PENDING]: { text: '대기 중', cls: '' },
+    [SubmissionStatus.JUDGING]: { text: '채점 중', cls: '' },
+  };
+
+  const tbody = document.getElementById('status-body')!;
+
+  async function loadSubmissions() {
+    try {
+      const resp = await submissionClient.listSubmissions({ pageSize: 20 });
+
+      if (resp.submissions.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:2rem; color:var(--color-text-muted);">제출 기록이 없습니다.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = resp.submissions.map(sub => {
+        const status = statusLabels[sub.status] ?? { text: '알 수 없음', cls: '' };
+        const mem = sub.memoryUsageKb > 0 ? (sub.memoryUsageKb >= 1024 ? `${(sub.memoryUsageKb / 1024).toFixed(1)}MB` : `${sub.memoryUsageKb}KB`) : '-';
+        const time = sub.executionTimeMs > 0 ? `${sub.executionTimeMs}ms` : '-';
+        const displayName = sub.username || `user ${sub.userId}`;
+        const problemName = sub.problemTitle || `문제 ${sub.problemId}`;
+        return `<tr data-username="${displayName}" data-problem-id="${sub.problemId}" data-result="${status.text}" data-id="${sub.id}" data-time="${sub.executionTimeMs}">
+          <td>${sub.id}</td>
+          <td><a href="/profile" class="user-link">${displayName}</a></td>
+          <td><a href="/problems/${sub.problemId}" class="problem-link">${problemName}</a></td>
+          <td><span class="${status.cls}">${status.text}</span></td>
+          <td>${mem}</td>
+          <td>${time}</td>
+        </tr>`;
+      }).join('');
+
+      initFilters();
+    } catch (err: any) {
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:2rem; color:#ef4444;">불러오기 실패: ${err.message}</td></tr>`;
+    }
+  }
+
+  function initFilters() {
+    const usernameInput = document.getElementById('filter-username') as HTMLInputElement;
+    const problemInput = document.getElementById('filter-problem') as HTMLInputElement;
+    const resultSelect = document.getElementById('filter-result') as HTMLSelectElement;
+    const sortSelect = document.getElementById('filter-sort') as HTMLSelectElement;
+
+    function applyFilters() {
+      const username = usernameInput.value.toLowerCase();
+      const problem = problemInput.value.toLowerCase();
+      const result = resultSelect.value;
+      const rows = Array.from(tbody.querySelectorAll('tr[data-id]')) as HTMLTableRowElement[];
+
+      rows.forEach(row => {
+        const matchUser = !username || (row.dataset.username?.toLowerCase().includes(username));
+        const matchProblem = !problem || (row.dataset.problemId?.includes(problem));
+        const matchResult = !result || row.dataset.result === result;
+        row.style.display = (matchUser && matchProblem && matchResult) ? '' : 'none';
+      });
+    }
+
+    function applySort() {
+      const [field, dir] = sortSelect.value.split('-');
+      const rows = Array.from(tbody.querySelectorAll('tr[data-id]')) as HTMLTableRowElement[];
+
+      rows.sort((a, b) => {
+        let valA = 0, valB = 0;
+        if (field === 'id') {
+          valA = parseInt(a.dataset.id || '0');
+          valB = parseInt(b.dataset.id || '0');
+        } else if (field === 'time') {
+          valA = parseInt(a.dataset.time || '0');
+          valB = parseInt(b.dataset.time || '0');
+        }
+        return dir === 'asc' ? valA - valB : valB - valA;
+      });
+
+      rows.forEach(row => tbody.appendChild(row));
+      applyFilters();
+    }
+
+    usernameInput?.addEventListener('input', applyFilters);
+    problemInput?.addEventListener('input', applyFilters);
+    resultSelect?.addEventListener('change', applyFilters);
+    sortSelect?.addEventListener('change', applySort);
+  }
+
+  loadSubmissions();
+</script>
+
+<style is:global>
+  .page-container { max-width: 1200px; margin: 4rem auto; padding: 0 1.5rem; }
+  .page-title { font-size: 2.2rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--color-text); }
+  .page-desc { color: var(--color-text-muted); font-size: 1.1rem; margin-bottom: 2rem; }
+
+  .filter-bar {
+    display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; align-items: center;
+  }
+  .filter-input {
+    padding: 0.7rem 1rem; border: 1.5px solid var(--color-border); border-radius: 8px;
+    background: var(--color-surface); color: var(--color-text); font-size: 0.95rem;
+    width: 200px; max-width: 100%; transition: border-color 0.2s;
+  }
+  .filter-input:focus { outline: none; border-color: var(--color-btn-1-bg); }
+  .filter-input::placeholder { color: var(--color-text-muted); }
+  .filter-select {
+    padding: 0.7rem 1rem; border: 1.5px solid var(--color-border); border-radius: 8px;
+    background: var(--color-surface); color: var(--color-text); font-size: 0.95rem;
+    cursor: pointer; transition: border-color 0.2s;
+    -webkit-appearance: none; -moz-appearance: none; appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 0.8rem center; padding-right: 2.2rem;
+  }
+  .filter-select:focus { outline: none; border-color: var(--color-btn-1-bg); }
+  .table-container { overflow-x: auto; }
+  .problem-table { width: 100%; border-collapse: collapse; background: var(--color-surface); border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+  .problem-table th, .problem-table td { padding: 1.2rem; text-align: left; border-bottom: 1px solid var(--color-border); }
+  .problem-table th { background: var(--color-bg); color: var(--color-text-muted); font-weight: 600; }
+  .problem-table td { color: var(--color-text); }
+  .problem-link { color: var(--color-text); font-weight: 600; text-decoration: none; transition: color 0.2s;}
+  .problem-link:hover { color: var(--color-btn-1-bg); text-decoration: underline; }
+  .user-link { color: var(--color-text); font-weight: 600; text-decoration: none; transition: color 0.2s; }
+  .user-link:hover { color: var(--color-btn-1-bg); text-decoration: underline; }
+  .status-success { color: #16a34a; font-weight: bold; }
+  .status-fail { color: #dc2626; font-weight: bold; }
+</style>

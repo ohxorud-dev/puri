@@ -1,0 +1,119 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+<BaseLayout title="내 제안 - Puri">
+  <div class="my-container">
+    <header class="my-header">
+      <div>
+        <h1>내 문제 제안</h1>
+        <p class="desc">제출한 문제 초안과 상태를 확인합니다.</p>
+      </div>
+      <a href="/proposals/new" class="btn-new" id="new-btn" style="display:none;">+ 새 제안</a>
+    </header>
+
+    <div id="login-required" class="login-required" style="display:none;">
+      <p>로그인이 필요합니다.</p>
+      <a href="/login" class="btn-new">로그인</a>
+    </div>
+    <div id="loading" class="muted" style="display:none;">불러오는 중...</div>
+    <div id="empty" class="muted" style="display:none;">아직 제안한 문제가 없습니다.</div>
+    <table id="table" class="proposal-table" style="display:none;">
+      <thead>
+        <tr><th>#</th><th>제목</th><th>상태</th><th>생성</th><th></th></tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+    <div id="error" class="err" style="display:none;"></div>
+  </div>
+</BaseLayout>
+
+<script>
+  import { proposalClient } from '../../lib/api';
+  import { isLoggedIn } from '../../lib/auth';
+
+  const loginRequired = document.getElementById('login-required')!;
+  const newBtn = document.getElementById('new-btn')!;
+  const loadingEl = document.getElementById('loading')!;
+  const emptyEl = document.getElementById('empty')!;
+  const tableEl = document.getElementById('table')!;
+  const rowsEl = document.getElementById('rows')!;
+  const errorEl = document.getElementById('error')!;
+
+  const STATUS_LABELS: Record<number, { label: string; cls: string }> = {
+    1: { label: '초안', cls: 'st-draft' },
+    2: { label: '제출됨', cls: 'st-submitted' },
+    3: { label: '검토 중', cls: 'st-reviewing' },
+    4: { label: '승인', cls: 'st-approved' },
+    5: { label: '반려', cls: 'st-rejected' },
+    6: { label: '게시됨', cls: 'st-published' },
+  };
+
+  function fmt(ts: any) {
+    if (!ts) return '';
+    const ms = Number(ts.seconds) * 1000;
+    return new Date(ms).toLocaleString();
+  }
+
+  function escapeHtml(s: string) {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  async function load() {
+    if (!(await isLoggedIn())) {
+      loginRequired.style.display = 'block';
+      return;
+    }
+    newBtn.style.display = '';
+    loadingEl.style.display = 'block';
+    try {
+      const resp = await proposalClient.listMyProposals({ pageSize: 50 });
+      loadingEl.style.display = 'none';
+      if (!resp.proposals.length) { emptyEl.style.display = 'block'; return; }
+      tableEl.style.display = '';
+      rowsEl.innerHTML = resp.proposals.map((p: any) => {
+        const st = STATUS_LABELS[p.status] || { label: '-', cls: '' };
+        return `<tr>
+          <td>${p.id}</td>
+          <td>${escapeHtml(p.title)}</td>
+          <td><span class="status-badge ${st.cls}">${st.label}</span></td>
+          <td class="muted">${fmt(p.createdAt)}</td>
+          <td><a href="/proposals/new?id=${p.id}" class="link">편집</a></td>
+        </tr>`;
+      }).join('');
+    } catch (err: any) {
+      loadingEl.style.display = 'none';
+      errorEl.style.display = 'block';
+      errorEl.textContent = `불러오기 실패: ${err.message || err}`;
+    }
+  }
+  load();
+</script>
+
+<style is:global>
+  .my-container { max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+  .my-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; gap: 1rem; }
+  .my-header h1 { margin: 0 0 0.2rem; font-size: 1.8rem; letter-spacing: -0.02em; }
+  .my-header .desc { color: var(--color-text-muted); margin: 0; }
+  .btn-new {
+    padding: 0.7rem 1.2rem; background: var(--color-btn-1-bg); color: var(--color-btn-1-text);
+    border-radius: 8px; font-weight: 600; text-decoration: none;
+  }
+  .btn-new:hover { background: var(--color-btn-1-hover); }
+  .proposal-table { width: 100%; border-collapse: collapse; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 12px; overflow: hidden; }
+  .proposal-table th, .proposal-table td { padding: 0.85rem 1rem; text-align: left; border-bottom: 1px solid var(--color-border); }
+  .proposal-table th { background: var(--color-bg); font-size: 0.88rem; font-weight: 700; color: var(--color-text-muted); }
+  .proposal-table tr:last-child td { border-bottom: none; }
+  .status-badge { padding: 0.2rem 0.6rem; border-radius: 6px; font-size: 0.82rem; font-weight: 600; }
+  .st-draft { background: rgba(148,163,184,0.2); color: #64748b; }
+  .st-submitted { background: rgba(59,130,246,0.15); color: #3b82f6; }
+  .st-reviewing { background: rgba(234,179,8,0.15); color: #ca8a04; }
+  .st-approved { background: rgba(34,197,94,0.15); color: #16a34a; }
+  .st-rejected { background: rgba(239,68,68,0.15); color: #ef4444; }
+  .st-published { background: rgba(168,85,247,0.15); color: #a855f7; }
+  .muted { color: var(--color-text-muted); }
+  .err { color: #ef4444; padding: 1rem; background: rgba(239,68,68,0.1); border-radius: 8px; }
+  .link { color: var(--color-btn-1-bg); font-weight: 600; text-decoration: none; }
+  .link:hover { text-decoration: underline; }
+  .login-required { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 12px; padding: 2rem; text-align: center; }
+  .login-required p { margin: 0 0 1rem; color: var(--color-text-muted); font-size: 1rem; }
+</style>

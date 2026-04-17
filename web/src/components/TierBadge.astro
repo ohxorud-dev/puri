@@ -1,0 +1,33 @@
+---
+const { tier } = Astro.props;
+
+let baseClass = "tier-unrated";
+if (tier) {
+  const t = tier.split(' ')[0].toLowerCase();
+  baseClass = `tier-${t}`;
+}
+---
+
+{tier ? (
+  <span class={`tier-badge ${baseClass}`}>{tier}</span>
+) : (
+  <span class="tier-badge tier-unrated">Unrated</span>
+)}
+
+<style>
+  .tier-badge {
+    color: white;
+    padding: 0.3rem 0.7rem;
+    border-radius: 6px;
+    font-weight: 800;
+    font-size: 0.9rem;
+    display: inline-block;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  .tier-unrated { background: #475569; }
+  .tier-bronze { background: linear-gradient(135deg, #c2824c, #8c5324); }
+  .tier-silver { background: linear-gradient(135deg, #afb9c4, #64748b); }
+  .tier-gold { background: linear-gradient(135deg, #fbbf24, #d97706); }
+  .tier-platinum { background: linear-gradient(135deg, #34d399, #059669); }
+  .tier-diamond { background: linear-gradient(135deg, #38bdf8, #0284c7); }
+</style>

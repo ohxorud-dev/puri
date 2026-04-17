@@ -1,0 +1,133 @@
+syntax = "proto3";
+package puri.community.v1;
+option go_package = "github.com/puri-cp/puri/gen/community/v1;communityv1";
+
+import "buf/validate/validate.proto";
+import "google/protobuf/timestamp.proto";
+import "common/v1/endpoint_security.proto";
+
+enum Category {
+  CATEGORY_UNSPECIFIED = 0;
+  CATEGORY_NOTICE = 1;
+  CATEGORY_GENERAL = 2;
+  CATEGORY_QNA = 3;
+  CATEGORY_TIPS = 4;
+}
+
+service CommunityService {
+  rpc CreatePost(CreatePostRequest) returns (CreatePostResponse) {
+    option (puri.common.v1.endpoint_rule) = { isPublic: false };
+  }
+  rpc GetPost(GetPostRequest) returns (GetPostResponse) {
+    option (puri.common.v1.endpoint_rule) = { isPublic: true };
+  }
+  rpc ListPosts(ListPostsRequest) returns (ListPostsResponse) {
+    option (puri.common.v1.endpoint_rule) = { isPublic: true };
+  }
+  rpc UpdatePost(UpdatePostRequest) returns (UpdatePostResponse) {
+    option (puri.common.v1.endpoint_rule) = { isPublic: false };
+  }
+  rpc DeletePost(DeletePostRequest) returns (DeletePostResponse) {
+    option (puri.common.v1.endpoint_rule) = { isPublic: false };
+  }
+  rpc CreateComment(CreateCommentRequest) returns (CreateCommentResponse) {
+    option (puri.common.v1.endpoint_rule) = { isPublic: false };
+  }
+  rpc ListComments(ListCommentsRequest) returns (ListCommentsResponse) {
+    option (puri.common.v1.endpoint_rule) = { isPublic: true };
+  }
+  rpc DeleteComment(DeleteCommentRequest) returns (DeleteCommentResponse) {
+    option (puri.common.v1.endpoint_rule) = { isPublic: false };
+  }
+}
+
+message Post {
+  int64 id = 1 [(buf.validate.field).int64.gte = 1];
+  Category category = 2 [(buf.validate.field).enum.defined_only = true];
+  string title = 3 [(buf.validate.field).string.min_len = 1, (buf.validate.field).string.max_len = 200];
+  string content = 4 [(buf.validate.field).string.min_len = 1, (buf.validate.field).string.max_bytes = 65536];
+  int64 author_id = 5 [(buf.validate.field).int64.gte = 1];
+  string author_name = 6 [(buf.validate.field).string.min_len = 1];
+  google.protobuf.Timestamp created_at = 7;
+  google.protobuf.Timestamp updated_at = 8;
+  int32 view_count = 9 [(buf.validate.field).int32.gte = 0];
+  int32 like_count = 10 [(buf.validate.field).int32.gte = 0];
+  int32 comment_count = 11 [(buf.validate.field).int32.gte = 0];
+}
+
+message Comment {
+  int64 id = 1 [(buf.validate.field).int64.gte = 1];
+  int64 post_id = 2 [(buf.validate.field).int64.gte = 1];
+  int64 author_id = 3 [(buf.validate.field).int64.gte = 1];
+  string author_name = 4 [(buf.validate.field).string.min_len = 1];
+  string content = 5 [(buf.validate.field).string.min_len = 1, (buf.validate.field).string.max_bytes = 8192];
+  google.protobuf.Timestamp created_at = 6;
+}
+
+message CreatePostRequest {
+  Category category = 1 [(buf.validate.field).enum.defined_only = true];
+  string title = 2 [(buf.validate.field).string.min_len = 1, (buf.validate.field).string.max_len = 200];
+  string content = 3 [(buf.validate.field).string.min_len = 1, (buf.validate.field).string.max_bytes = 65536];
+}
+
+message CreatePostResponse {
+  Post post = 1;
+}
+
+message GetPostRequest {
+  int64 post_id = 1 [(buf.validate.field).int64.gte = 1];
+}
+
+message GetPostResponse {
+  Post post = 1;
+}
+
+message ListPostsRequest {
+  Category category = 1 [(buf.validate.field).enum.defined_only = true];
+  int32 page_size = 2 [(buf.validate.field).int32.gte = 1, (buf.validate.field).int32.lte = 100];
+  string page_token = 3;
+}
+
+message ListPostsResponse {
+  repeated Post posts = 1;
+  string next_page_token = 2;
+}
+
+message UpdatePostRequest {
+  int64 post_id = 1 [(buf.validate.field).int64.gte = 1];
+  string title = 2 [(buf.validate.field).string.min_len = 1, (buf.validate.field).string.max_len = 200];
+  string content = 3 [(buf.validate.field).string.min_len = 1, (buf.validate.field).string.max_bytes = 65536];
+}
+
+message UpdatePostResponse {
+  Post post = 1;
+}
+
+message DeletePostRequest {
+  int64 post_id = 1 [(buf.validate.field).int64.gte = 1];
+}
+
+message DeletePostResponse {}
+
+message CreateCommentRequest {
+  int64 post_id = 1 [(buf.validate.field).int64.gte = 1];
+  string content = 2 [(buf.validate.field).string.min_len = 1, (buf.validate.field).string.max_bytes = 8192];
+}
+
+message CreateCommentResponse {
+  Comment comment = 1;
+}
+
+message ListCommentsRequest {
+  int64 post_id = 1 [(buf.validate.field).int64.gte = 1];
+}
+
+message ListCommentsResponse {
+  repeated Comment comments = 1;
+}
+
+message DeleteCommentRequest {
+  int64 comment_id = 1 [(buf.validate.field).int64.gte = 1];
+}
+
+message DeleteCommentResponse {}

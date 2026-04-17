@@ -1,0 +1,156 @@
+---
+export function getStaticPaths() {
+  return [
+    { params: { category: "notice", id: undefined } },
+    { params: { category: "general", id: undefined } },
+    { params: { category: "qna", id: undefined } },
+    { params: { category: "tips", id: undefined } },
+  ];
+}
+
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+
+const { category, id } = Astro.params;
+
+// If no id, redirect to category list (handled by index.astro)
+if (!id) {
+  return Astro.redirect(`/community/${category}`);
+}
+
+const categoryMeta: Record<string, string> = {
+  notice: "공지사항",
+  general: "자유게시판",
+  qna: "질문/답변",
+  tips: "알고리즘 꿀팁",
+};
+const categoryName = categoryMeta[category!] ?? category;
+---
+<BaseLayout title="게시글 - Puri">
+  <div class="post-container">
+    <div class="post-nav">
+      <a href={`/community/${category}`} class="back-link">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+        {categoryName}
+      </a>
+    </div>
+
+    <div id="post-loading" style="text-align:center; padding:4rem; color:var(--color-text-muted);">불러오는 중...</div>
+
+    <article id="post-content" style="display:none;">
+      <h1 id="post-title" class="post-title"></h1>
+      <div class="post-meta">
+        <span id="post-author" class="post-author"></span>
+        <span class="meta-sep">·</span>
+        <span id="post-date" class="post-date"></span>
+        <span class="meta-sep">·</span>
+        <span>조회 <span id="post-views">0</span></span>
+      </div>
+      <div id="post-body" class="post-body"></div>
+    </article>
+
+    <section id="comments-section" style="display:none;">
+      <h3 class="comments-title">댓글 <span id="comment-count">0</span>개</h3>
+      <div id="comments-list" class="comments-list"></div>
+    </section>
+  </div>
+</BaseLayout>
+
+<script>
+  import { communityClient } from '../../../lib/api';
+
+  const postId = Number(window.location.pathname.split('/').filter(Boolean).pop());
+  const loadingEl = document.getElementById('post-loading')!;
+  const contentEl = document.getElementById('post-content')!;
+  const commentsSection = document.getElementById('comments-section')!;
+
+  async function loadPost() {
+    if (!postId || isNaN(postId)) {
+      loadingEl.innerHTML = '<span style="color:#ef4444;">잘못된 게시글 번호입니다.</span>';
+      return;
+    }
+
+    try {
+      const resp = await communityClient.getPost({ postId: BigInt(postId) });
+      const post = resp.post!;
+
+      loadingEl.style.display = 'none';
+      contentEl.style.display = '';
+
+      document.getElementById('post-title')!.textContent = post.title;
+      document.getElementById('post-author')!.textContent = post.authorName;
+      document.getElementById('post-views')!.textContent = String(post.viewCount);
+      document.getElementById('post-body')!.innerHTML = post.content.replace(/\n/g, '<br>');
+
+      if (post.createdAt) {
+        const date = new Date(Number(post.createdAt.seconds) * 1000).toISOString().slice(0, 10);
+        document.getElementById('post-date')!.textContent = date;
+      }
+
+      const commentsResp = await communityClient.listComments({ postId: BigInt(postId) });
+      commentsSection.style.display = '';
+      document.getElementById('comment-count')!.textContent = String(commentsResp.comments.length);
+
+      const commentsList = document.getElementById('comments-list')!;
+      if (commentsResp.comments.length === 0) {
+        commentsList.innerHTML = '<p class="no-comments">아직 댓글이 없습니다.</p>';
+      } else {
+        commentsList.innerHTML = commentsResp.comments.map(c => {
+          const date = c.createdAt ? new Date(Number(c.createdAt.seconds) * 1000).toISOString().slice(0, 10) : '';
+          return `<div class="comment-item">
+            <div class="comment-header">
+              <span class="comment-author">${c.authorName}</span>
+              <span class="comment-date">${date}</span>
+            </div>
+            <p class="comment-body">${c.content.replace(/\n/g, '<br>')}</p>
+          </div>`;
+        }).join('');
+      }
+    } catch (err: any) {
+      loadingEl.innerHTML = `<span style="color:#ef4444;">게시글을 불러올 수 없습니다: ${err.message}</span>`;
+    }
+  }
+
+  loadPost();
+</script>
+
+<style is:global>
+  .post-container { max-width: 900px; margin: 3rem auto; padding: 0 1.5rem; }
+
+  .post-nav { margin-bottom: 2rem; }
+  .back-link {
+    display: inline-flex; align-items: center; gap: 0.3rem;
+    color: var(--color-text-muted); text-decoration: none; font-weight: 600; font-size: 1rem;
+    transition: color 0.2s;
+  }
+  .back-link:hover { color: var(--color-text); }
+
+  .post-title { font-size: 2rem; font-weight: 800; color: var(--color-text); margin: 0 0 1rem 0; line-height: 1.4; }
+
+  .post-meta {
+    display: flex; align-items: center; gap: 0.6rem;
+    color: var(--color-text-muted); font-size: 0.95rem;
+    padding-bottom: 1.5rem; border-bottom: 1px solid var(--color-border); margin-bottom: 2rem;
+  }
+  .post-author { font-weight: 600; color: var(--color-text); }
+  .meta-sep { opacity: 0.4; }
+
+  .post-body {
+    font-size: 1.1rem; line-height: 1.8; color: var(--color-text);
+    min-height: 200px; margin-bottom: 3rem;
+  }
+
+  .comments-title {
+    font-size: 1.3rem; font-weight: 700; color: var(--color-text);
+    margin: 0 0 1.5rem 0; padding-top: 2rem; border-top: 1px solid var(--color-border);
+  }
+
+  .no-comments { color: var(--color-text-muted); font-size: 0.95rem; }
+
+  .comment-item { padding: 1.2rem 0; border-bottom: 1px solid var(--color-border); }
+  .comment-item:last-child { border-bottom: none; }
+
+  .comment-header { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.5rem; }
+  .comment-author { font-weight: 600; color: var(--color-text); font-size: 0.95rem; }
+  .comment-date { color: var(--color-text-muted); font-size: 0.85rem; }
+  .comment-body { color: var(--color-text); font-size: 1rem; line-height: 1.6; margin: 0; }
+</style>

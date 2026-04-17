@@ -1,0 +1,6 @@
+[submodule "problems"]
+	path = problems
+	url = https://github.com/ohxorud-dev/puri-problems.git
+[submodule "testcases"]
+	path = testcases
+	url = https://github.com/ohxorud-dev/puri-testcases.git

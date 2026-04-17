@@ -1,0 +1,86 @@
+name: Deploy API
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'services/**'
+      - 'gen/**'
+      - 'db/**'
+      - 'problems'
+      - 'testcases'
+      - 'docker-compose.prod.yml'
+      - '.github/workflows/deploy-api.yml'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to server
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ vars.SSH_HOST }}
+          username: ${{ vars.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            set -e
+
+            # Ensure git is installed
+            command -v git &> /dev/null || sudo yum install -y git
+
+            # Install/upgrade buildx plugin if missing or < 0.17
+            NEED_BUILDX=false
+            if ! sudo docker buildx version &> /dev/null; then
+              NEED_BUILDX=true
+            else
+              BUILDX_VER=$(sudo docker buildx version | grep -oP '\d+\.\d+' | head -1)
+              BUILDX_MAJOR=$(echo "$BUILDX_VER" | cut -d. -f1)
+              BUILDX_MINOR=$(echo "$BUILDX_VER" | cut -d. -f2)
+              if [ "$BUILDX_MAJOR" -eq 0 ] && [ "$BUILDX_MINOR" -lt 17 ]; then
+                NEED_BUILDX=true
+              fi
+            fi
+            if [ "$NEED_BUILDX" = true ]; then
+              BUILDX_LATEST=$(curl -s https://api.github.com/repos/docker/buildx/releases/latest | grep -oP '"tag_name":\s*"\K[^"]+')
+              sudo mkdir -p /usr/libexec/docker/cli-plugins
+              sudo curl -SL "https://github.com/docker/buildx/releases/download/${BUILDX_LATEST}/buildx-${BUILDX_LATEST}.linux-amd64" -o /usr/libexec/docker/cli-plugins/docker-buildx
+              sudo chmod +x /usr/libexec/docker/cli-plugins/docker-buildx
+            fi
+
+            # Install compose plugin if missing
+            if ! sudo docker compose version &> /dev/null; then
+              COMPOSE_URL="https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)"
+              sudo mkdir -p /usr/libexec/docker/cli-plugins
+              sudo curl -SL "$COMPOSE_URL" -o /usr/libexec/docker/cli-plugins/docker-compose
+              sudo chmod +x /usr/libexec/docker/cli-plugins/docker-compose
+            fi
+
+            # Clone or pull repo (use PAT for private repo + submodules)
+            git config --global url."https://${{ secrets.GH_PAT }}@github.com/".insteadOf "https://github.com/"
+            REPO_URL="https://${{ secrets.GH_PAT }}@github.com/ohxorud-dev/puri.git"
+            if [ ! -d ~/puri ]; then
+              git clone --recurse-submodules "$REPO_URL" ~/puri
+            else
+              cd ~/puri
+              git remote set-url origin "$REPO_URL"
+              git fetch origin
+              git reset --hard origin/main
+              git submodule sync --recursive
+              git submodule update --init --recursive
+            fi
+
+            cd ~/puri
+
+            # Write env file
+            echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" > .env
+
+            # Pull judge images
+            sudo docker pull gcc:13 &
+            sudo docker pull python:3.11-slim &
+            sudo docker pull node:20-slim &
+            wait
+
+            # Clean up and deploy
+            sudo docker compose -f docker-compose.prod.yml down --remove-orphans 2>/dev/null || true
+            sudo docker compose -f docker-compose.prod.yml up -d --build

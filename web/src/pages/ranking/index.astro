@@ -1,0 +1,81 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="랭킹 - Puri">
+  <div class="page-container">
+    <h2 class="page-title">랭킹</h2>
+    <p class="page-desc">Puri의 알고리즘 고수들을 만나보세요.</p>
+
+    <div class="table-container">
+      <table class="problem-table">
+        <thead>
+          <tr>
+            <th>순위</th>
+            <th>아이디</th>
+            <th>맞은 문제</th>
+            <th>제출 수</th>
+          </tr>
+        </thead>
+        <tbody id="ranking-body">
+          <tr><td colspan="4" style="text-align:center; padding:2rem; color:var(--color-text-muted);">불러오는 중...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  import { userClient } from '../../lib/api';
+
+  const tbody = document.getElementById('ranking-body')!;
+
+  async function loadRanking() {
+    try {
+      const resp = await userClient.getRanking({ pageSize: 100 });
+
+      if (resp.entries.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:2rem; color:var(--color-text-muted);">등록된 유저가 없습니다.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = resp.entries.map(e => {
+        const rankClass = e.rank <= 3 ? `rank-top rank-${e.rank}` : '';
+        return `<tr>
+          <td><span class="rank-badge ${rankClass}">${e.rank}</span></td>
+          <td><span class="user-link">${e.username}</span></td>
+          <td><span class="score">${e.solvedCount}</span></td>
+          <td>${e.submissionCount}</td>
+        </tr>`;
+      }).join('');
+    } catch (err: any) {
+      tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:2rem; color:#ef4444;">불러오기 실패: ${err.message}</td></tr>`;
+    }
+  }
+
+  loadRanking();
+</script>
+
+<style is:global>
+  .page-container { max-width: 1200px; margin: 4rem auto; padding: 0 1.5rem; }
+  .page-title { font-size: 2.2rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--color-text); }
+  .page-desc { color: var(--color-text-muted); font-size: 1.1rem; margin-bottom: 3rem; }
+  .table-container { overflow-x: auto; }
+  .problem-table { width: 100%; border-collapse: collapse; background: var(--color-surface); border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+  .problem-table th, .problem-table td { padding: 1.2rem; text-align: left; border-bottom: 1px solid var(--color-border); }
+  .problem-table th { background: var(--color-bg); color: var(--color-text-muted); font-weight: 600; }
+  .problem-table td { color: var(--color-text); }
+  .user-link { color: var(--color-text); font-weight: 600; }
+  .score { color: var(--color-btn-1-bg); font-weight: 700; font-size: 1.1rem; }
+
+  .rank-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 32px; height: 32px; border-radius: 8px;
+    font-weight: 800; font-size: 0.95rem;
+    color: var(--color-text-muted); background: var(--color-bg);
+  }
+  .rank-top { color: white; }
+  .rank-1 { background: linear-gradient(135deg, #fbbf24, #d97706); }
+  .rank-2 { background: linear-gradient(135deg, #afb9c4, #64748b); }
+  .rank-3 { background: linear-gradient(135deg, #d97706, #92400e); }
+</style>

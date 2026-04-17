@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://puri.ac/sitemap-index.xml
