@@ -14,6 +14,7 @@ import (
 
 	commonv1 "github.com/puri-cp/puri/gen/common/v1"
 	"github.com/puri-cp/puri/services/api/auth"
+	"github.com/puri-cp/puri/services/api/repository"
 )
 
 type LoggingInterceptor struct{}
@@ -55,11 +56,12 @@ func (i *LoggingInterceptor) WrapStreamingHandler(next connect.StreamingHandlerF
 }
 
 type AuthInterceptor struct {
-	secret string
+	secret   string
+	userRepo repository.UserRepo
 }
 
-func NewAuthInterceptor(secret string) *AuthInterceptor {
-	return &AuthInterceptor{secret: secret}
+func NewAuthInterceptor(secret string, userRepo repository.UserRepo) *AuthInterceptor {
+	return &AuthInterceptor{secret: secret, userRepo: userRepo}
 }
 
 func (i *AuthInterceptor) WrapUnary(next connect.UnaryFunc) connect.UnaryFunc {
@@ -108,6 +110,14 @@ func (i *AuthInterceptor) authenticate(ctx context.Context, spec connect.Spec, h
 	userID, err := auth.VerifyTokenFromHeader(header, i.secret)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeUnauthenticated, fmt.Errorf("authentication failed: %w", err))
+	}
+
+	banned, err := i.userRepo.IsBanned(ctx, userID)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("failed to check ban status"))
+	}
+	if banned {
+		return nil, connect.NewError(connect.CodeUnauthenticated, fmt.Errorf("account is banned"))
 	}
 
 	return auth.WithUserID(ctx, userID), nil

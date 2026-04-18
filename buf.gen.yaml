@@ -17,3 +17,8 @@ plugins:
     out: web/src/gen
     opt: target=ts
     include_imports: true
+
+  - remote: buf.build/bufbuild/es:v2.10.2
+    out: app/admin/src/gen
+    opt: target=ts
+    include_imports: true

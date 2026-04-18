@@ -3,15 +3,18 @@
   "version": "0.0.1",
   "private": true,
   "workspaces": [
-    "web"
+    "web",
+    "app/admin"
   ],
   "scripts": {
-    "dev": "concurrently \"npm run dev:web\" \"npm run dev:api\" \"npm run dev:submission\"",
+    "dev": "concurrently \"npm run dev:web\" \"npm run dev:admin\" \"npm run dev:api\" \"npm run dev:submission\"",
     "dev:web": "npm run dev -w web",
+    "dev:admin": "npm run dev -w @mijung/admin",
     "dev:api": "cd services/api && go run main.go",
     "dev:submission": "cd services/submission && go run main.go",
-    "build": "npm run build:web && npm run build:api && npm run build:submission",
+    "build": "npm run build:web && npm run build:admin && npm run build:api && npm run build:submission",
     "build:web": "npm run build -w web",
+    "build:admin": "npm run build -w @mijung/admin",
     "build:api": "cd services/api && go build -o ../../bin/api .",
     "build:submission": "cd services/submission && go build -o ../../bin/submission ."
   },

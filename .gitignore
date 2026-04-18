@@ -24,3 +24,4 @@ buf.lock
 
 # Large testcase backups (full official data, kept locally only)
 problems/*/testcases.full.json
+app/admin/tsconfig.tsbuildinfo

@@ -49,6 +49,15 @@ const (
 	// UserServiceGetUserByUsernameProcedure is the fully-qualified name of the UserService's
 	// GetUserByUsername RPC.
 	UserServiceGetUserByUsernameProcedure = "/puri.user.v1.UserService/GetUserByUsername"
+	// UserServiceAdminListUsersProcedure is the fully-qualified name of the UserService's
+	// AdminListUsers RPC.
+	UserServiceAdminListUsersProcedure = "/puri.user.v1.UserService/AdminListUsers"
+	// UserServiceAdminBanUserProcedure is the fully-qualified name of the UserService's AdminBanUser
+	// RPC.
+	UserServiceAdminBanUserProcedure = "/puri.user.v1.UserService/AdminBanUser"
+	// UserServiceAdminUnbanUserProcedure is the fully-qualified name of the UserService's
+	// AdminUnbanUser RPC.
+	UserServiceAdminUnbanUserProcedure = "/puri.user.v1.UserService/AdminUnbanUser"
 )
 
 // UserServiceClient is a client for the puri.user.v1.UserService service.
@@ -60,6 +69,9 @@ type UserServiceClient interface {
 	UpdateProfile(context.Context, *connect.Request[v1.UpdateProfileRequest]) (*connect.Response[v1.UpdateProfileResponse], error)
 	GetRanking(context.Context, *connect.Request[v1.GetRankingRequest]) (*connect.Response[v1.GetRankingResponse], error)
 	GetUserByUsername(context.Context, *connect.Request[v1.GetUserByUsernameRequest]) (*connect.Response[v1.GetUserByUsernameResponse], error)
+	AdminListUsers(context.Context, *connect.Request[v1.AdminListUsersRequest]) (*connect.Response[v1.AdminListUsersResponse], error)
+	AdminBanUser(context.Context, *connect.Request[v1.AdminBanUserRequest]) (*connect.Response[v1.AdminBanUserResponse], error)
+	AdminUnbanUser(context.Context, *connect.Request[v1.AdminUnbanUserRequest]) (*connect.Response[v1.AdminUnbanUserResponse], error)
 }
 
 // NewUserServiceClient constructs a client for the puri.user.v1.UserService service. By default, it
@@ -115,6 +127,24 @@ func NewUserServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			connect.WithSchema(userServiceMethods.ByName("GetUserByUsername")),
 			connect.WithClientOptions(opts...),
 		),
+		adminListUsers: connect.NewClient[v1.AdminListUsersRequest, v1.AdminListUsersResponse](
+			httpClient,
+			baseURL+UserServiceAdminListUsersProcedure,
+			connect.WithSchema(userServiceMethods.ByName("AdminListUsers")),
+			connect.WithClientOptions(opts...),
+		),
+		adminBanUser: connect.NewClient[v1.AdminBanUserRequest, v1.AdminBanUserResponse](
+			httpClient,
+			baseURL+UserServiceAdminBanUserProcedure,
+			connect.WithSchema(userServiceMethods.ByName("AdminBanUser")),
+			connect.WithClientOptions(opts...),
+		),
+		adminUnbanUser: connect.NewClient[v1.AdminUnbanUserRequest, v1.AdminUnbanUserResponse](
+			httpClient,
+			baseURL+UserServiceAdminUnbanUserProcedure,
+			connect.WithSchema(userServiceMethods.ByName("AdminUnbanUser")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -127,6 +157,9 @@ type userServiceClient struct {
 	updateProfile     *connect.Client[v1.UpdateProfileRequest, v1.UpdateProfileResponse]
 	getRanking        *connect.Client[v1.GetRankingRequest, v1.GetRankingResponse]
 	getUserByUsername *connect.Client[v1.GetUserByUsernameRequest, v1.GetUserByUsernameResponse]
+	adminListUsers    *connect.Client[v1.AdminListUsersRequest, v1.AdminListUsersResponse]
+	adminBanUser      *connect.Client[v1.AdminBanUserRequest, v1.AdminBanUserResponse]
+	adminUnbanUser    *connect.Client[v1.AdminUnbanUserRequest, v1.AdminUnbanUserResponse]
 }
 
 // Register calls puri.user.v1.UserService.Register.
@@ -164,6 +197,21 @@ func (c *userServiceClient) GetUserByUsername(ctx context.Context, req *connect.
 	return c.getUserByUsername.CallUnary(ctx, req)
 }
 
+// AdminListUsers calls puri.user.v1.UserService.AdminListUsers.
+func (c *userServiceClient) AdminListUsers(ctx context.Context, req *connect.Request[v1.AdminListUsersRequest]) (*connect.Response[v1.AdminListUsersResponse], error) {
+	return c.adminListUsers.CallUnary(ctx, req)
+}
+
+// AdminBanUser calls puri.user.v1.UserService.AdminBanUser.
+func (c *userServiceClient) AdminBanUser(ctx context.Context, req *connect.Request[v1.AdminBanUserRequest]) (*connect.Response[v1.AdminBanUserResponse], error) {
+	return c.adminBanUser.CallUnary(ctx, req)
+}
+
+// AdminUnbanUser calls puri.user.v1.UserService.AdminUnbanUser.
+func (c *userServiceClient) AdminUnbanUser(ctx context.Context, req *connect.Request[v1.AdminUnbanUserRequest]) (*connect.Response[v1.AdminUnbanUserResponse], error) {
+	return c.adminUnbanUser.CallUnary(ctx, req)
+}
+
 // UserServiceHandler is an implementation of the puri.user.v1.UserService service.
 type UserServiceHandler interface {
 	Register(context.Context, *connect.Request[v1.RegisterRequest]) (*connect.Response[v1.RegisterResponse], error)
@@ -173,6 +221,9 @@ type UserServiceHandler interface {
 	UpdateProfile(context.Context, *connect.Request[v1.UpdateProfileRequest]) (*connect.Response[v1.UpdateProfileResponse], error)
 	GetRanking(context.Context, *connect.Request[v1.GetRankingRequest]) (*connect.Response[v1.GetRankingResponse], error)
 	GetUserByUsername(context.Context, *connect.Request[v1.GetUserByUsernameRequest]) (*connect.Response[v1.GetUserByUsernameResponse], error)
+	AdminListUsers(context.Context, *connect.Request[v1.AdminListUsersRequest]) (*connect.Response[v1.AdminListUsersResponse], error)
+	AdminBanUser(context.Context, *connect.Request[v1.AdminBanUserRequest]) (*connect.Response[v1.AdminBanUserResponse], error)
+	AdminUnbanUser(context.Context, *connect.Request[v1.AdminUnbanUserRequest]) (*connect.Response[v1.AdminUnbanUserResponse], error)
 }
 
 // NewUserServiceHandler builds an HTTP handler from the service implementation. It returns the path
@@ -224,6 +275,24 @@ func NewUserServiceHandler(svc UserServiceHandler, opts ...connect.HandlerOption
 		connect.WithSchema(userServiceMethods.ByName("GetUserByUsername")),
 		connect.WithHandlerOptions(opts...),
 	)
+	userServiceAdminListUsersHandler := connect.NewUnaryHandler(
+		UserServiceAdminListUsersProcedure,
+		svc.AdminListUsers,
+		connect.WithSchema(userServiceMethods.ByName("AdminListUsers")),
+		connect.WithHandlerOptions(opts...),
+	)
+	userServiceAdminBanUserHandler := connect.NewUnaryHandler(
+		UserServiceAdminBanUserProcedure,
+		svc.AdminBanUser,
+		connect.WithSchema(userServiceMethods.ByName("AdminBanUser")),
+		connect.WithHandlerOptions(opts...),
+	)
+	userServiceAdminUnbanUserHandler := connect.NewUnaryHandler(
+		UserServiceAdminUnbanUserProcedure,
+		svc.AdminUnbanUser,
+		connect.WithSchema(userServiceMethods.ByName("AdminUnbanUser")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/puri.user.v1.UserService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case UserServiceRegisterProcedure:
@@ -240,6 +309,12 @@ func NewUserServiceHandler(svc UserServiceHandler, opts ...connect.HandlerOption
 			userServiceGetRankingHandler.ServeHTTP(w, r)
 		case UserServiceGetUserByUsernameProcedure:
 			userServiceGetUserByUsernameHandler.ServeHTTP(w, r)
+		case UserServiceAdminListUsersProcedure:
+			userServiceAdminListUsersHandler.ServeHTTP(w, r)
+		case UserServiceAdminBanUserProcedure:
+			userServiceAdminBanUserHandler.ServeHTTP(w, r)
+		case UserServiceAdminUnbanUserProcedure:
+			userServiceAdminUnbanUserHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -275,4 +350,16 @@ func (UnimplementedUserServiceHandler) GetRanking(context.Context, *connect.Requ
 
 func (UnimplementedUserServiceHandler) GetUserByUsername(context.Context, *connect.Request[v1.GetUserByUsernameRequest]) (*connect.Response[v1.GetUserByUsernameResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("puri.user.v1.UserService.GetUserByUsername is not implemented"))
+}
+
+func (UnimplementedUserServiceHandler) AdminListUsers(context.Context, *connect.Request[v1.AdminListUsersRequest]) (*connect.Response[v1.AdminListUsersResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("puri.user.v1.UserService.AdminListUsers is not implemented"))
+}
+
+func (UnimplementedUserServiceHandler) AdminBanUser(context.Context, *connect.Request[v1.AdminBanUserRequest]) (*connect.Response[v1.AdminBanUserResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("puri.user.v1.UserService.AdminBanUser is not implemented"))
+}
+
+func (UnimplementedUserServiceHandler) AdminUnbanUser(context.Context, *connect.Request[v1.AdminUnbanUserRequest]) (*connect.Response[v1.AdminUnbanUserResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("puri.user.v1.UserService.AdminUnbanUser is not implemented"))
 }

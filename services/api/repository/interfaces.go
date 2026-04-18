@@ -16,6 +16,9 @@ type UserRepo interface {
 	GetByUsername(ctx context.Context, username string) (*User, error)
 	GetByID(ctx context.Context, id int64) (*User, error)
 	UpdateProfile(ctx context.Context, id int64, displayName, bojHandle *string) (*User, error)
+	SetBanned(ctx context.Context, id int64, banned bool) (*User, error)
+	IsBanned(ctx context.Context, id int64) (bool, error)
+	ListUsers(ctx context.Context, limit int32, offset int32) ([]*User, error)
 	GetRanking(ctx context.Context, limit int32, offset int32) ([]*RankEntry, error)
 }
 

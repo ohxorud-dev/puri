@@ -181,9 +181,14 @@ func toProtoUser(u *repository.User) *userv1.User {
 		Id:       u.ID,
 		Username: u.Username,
 		Email:    u.Email,
+		Role:     u.Role,
+		IsBanned: u.IsBanned,
 	}
 	if u.CreatedAt != nil {
 		user.CreatedAt = timestamppb.New(*u.CreatedAt)
+	}
+	if u.BannedAt != nil {
+		user.BannedAt = timestamppb.New(*u.BannedAt)
 	}
 	if u.DisplayName != nil {
 		user.DisplayName = *u.DisplayName
@@ -192,4 +197,86 @@ func toProtoUser(u *repository.User) *userv1.User {
 		user.BojHandle = *u.BojHandle
 	}
 	return user
+}
+
+func (h *UserServiceHandler) requireAdmin(ctx context.Context) (*repository.User, error) {
+	userID, ok := auth.UserIDFromContext(ctx)
+	if !ok {
+		return nil, connect.NewError(connect.CodeUnauthenticated, fmt.Errorf("unauthenticated"))
+	}
+	user, err := h.repo.GetByID(ctx, userID)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error"))
+	}
+	if user == nil || user.Role != "admin" {
+		return nil, connect.NewError(connect.CodePermissionDenied, fmt.Errorf("admin only"))
+	}
+	return user, nil
+}
+
+func (h *UserServiceHandler) AdminListUsers(ctx context.Context, req *connect.Request[userv1.AdminListUsersRequest]) (*connect.Response[userv1.AdminListUsersResponse], error) {
+	if _, err := h.requireAdmin(ctx); err != nil {
+		return nil, err
+	}
+
+	limit := req.Msg.PageSize
+	if limit == 0 {
+		limit = 50
+	}
+
+	offset := int32(0)
+	if req.Msg.PageToken != "" {
+		if o, err := strconv.Atoi(req.Msg.PageToken); err == nil && o >= 0 {
+			offset = int32(o)
+		}
+	}
+
+	users, err := h.repo.ListUsers(ctx, limit, offset)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error"))
+	}
+
+	protoUsers := make([]*userv1.User, 0, len(users))
+	for _, u := range users {
+		protoUsers = append(protoUsers, toProtoUser(u))
+	}
+
+	nextPageToken := ""
+	if len(users) == int(limit) {
+		nextPageToken = strconv.Itoa(int(offset) + int(limit))
+	}
+
+	return connect.NewResponse(&userv1.AdminListUsersResponse{Users: protoUsers, NextPageToken: nextPageToken}), nil
+}
+
+func (h *UserServiceHandler) AdminBanUser(ctx context.Context, req *connect.Request[userv1.AdminBanUserRequest]) (*connect.Response[userv1.AdminBanUserResponse], error) {
+	admin, err := h.requireAdmin(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if admin.ID == req.Msg.UserId {
+		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("cannot ban yourself"))
+	}
+	user, err := h.repo.SetBanned(ctx, req.Msg.UserId, true)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error"))
+	}
+	if user == nil {
+		return nil, connect.NewError(connect.CodeNotFound, fmt.Errorf("user not found"))
+	}
+	return connect.NewResponse(&userv1.AdminBanUserResponse{User: toProtoUser(user)}), nil
+}
+
+func (h *UserServiceHandler) AdminUnbanUser(ctx context.Context, req *connect.Request[userv1.AdminUnbanUserRequest]) (*connect.Response[userv1.AdminUnbanUserResponse], error) {
+	if _, err := h.requireAdmin(ctx); err != nil {
+		return nil, err
+	}
+	user, err := h.repo.SetBanned(ctx, req.Msg.UserId, false)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error"))
+	}
+	if user == nil {
+		return nil, connect.NewError(connect.CodeNotFound, fmt.Errorf("user not found"))
+	}
+	return connect.NewResponse(&userv1.AdminUnbanUserResponse{User: toProtoUser(user)}), nil
 }

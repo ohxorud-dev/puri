@@ -53,17 +53,17 @@ func main() {
 	}
 
 	logInterceptor := interceptor.NewLoggingInterceptor()
-	authInterceptor := interceptor.NewAuthInterceptor(cfg.JWTSecret)
+
+	userRepo := repository.NewUserRepository(pool)
+	authInterceptor := interceptor.NewAuthInterceptor(cfg.JWTSecret, userRepo)
 
 	opts := []connect.HandlerOption{
 		connect.WithInterceptors(valInterceptor, logInterceptor, authInterceptor),
 	}
-
-	userRepo := repository.NewUserRepository(pool)
 	communityRepo := repository.NewCommunityRepository(pool)
 	userHandler := handler.NewUserServiceHandler(userRepo, cfg.JWTSecret, cfg.Env == "production")
 	communityHandler := handler.NewCommunityServiceHandler(communityRepo, userRepo)
-	submissionHandler := handler.NewSubmissionServiceHandler(cfg.SubmissionServiceURL)
+	submissionHandler := handler.NewSubmissionServiceHandler(cfg.SubmissionServiceURL, userRepo)
 	proposalRepo := repository.NewProposalRepository(pool)
 	proposalHandler := handler.NewProposalServiceHandler(proposalRepo, cfg.SubmissionServiceURL)
 
@@ -86,7 +86,7 @@ func main() {
 	})
 
 	corsHandler := cors.New(cors.Options{
-		AllowedOrigins:   []string{"https://puri.ac", "http://localhost:4321"},
+		AllowedOrigins:   []string{"https://puri.ac", "https://admin.puri.ac", "http://localhost:4321", "http://localhost:5173"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Content-Type", "Connect-Protocol-Version"},
 		AllowCredentials: true,

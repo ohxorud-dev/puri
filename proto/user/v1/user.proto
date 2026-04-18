@@ -28,6 +28,15 @@ service UserService {
   rpc GetUserByUsername(GetUserByUsernameRequest) returns (GetUserByUsernameResponse) {
     option (puri.common.v1.endpoint_rule) = { isPublic: true };
   }
+  rpc AdminListUsers(AdminListUsersRequest) returns (AdminListUsersResponse) {
+    option (puri.common.v1.endpoint_rule) = { isPublic: false };
+  }
+  rpc AdminBanUser(AdminBanUserRequest) returns (AdminBanUserResponse) {
+    option (puri.common.v1.endpoint_rule) = { isPublic: false };
+  }
+  rpc AdminUnbanUser(AdminUnbanUserRequest) returns (AdminUnbanUserResponse) {
+    option (puri.common.v1.endpoint_rule) = { isPublic: false };
+  }
 }
 
 message User {
@@ -37,6 +46,9 @@ message User {
   string display_name = 4 [(buf.validate.field).string.max_len = 64];
   string boj_handle = 5 [(buf.validate.field).string.max_len = 32];
   google.protobuf.Timestamp created_at = 6;
+  string role = 7;
+  bool is_banned = 8;
+  google.protobuf.Timestamp banned_at = 9;
 }
 
 message RegisterRequest {
@@ -98,4 +110,30 @@ message GetRankingRequest {
 message GetRankingResponse {
   repeated RankEntry entries = 1;
   string next_page_token = 2;
+}
+
+message AdminListUsersRequest {
+  int32 page_size = 1;
+  string page_token = 2;
+}
+
+message AdminListUsersResponse {
+  repeated User users = 1;
+  string next_page_token = 2;
+}
+
+message AdminBanUserRequest {
+  int64 user_id = 1 [(buf.validate.field).int64.gte = 1];
+}
+
+message AdminBanUserResponse {
+  User user = 1;
+}
+
+message AdminUnbanUserRequest {
+  int64 user_id = 1 [(buf.validate.field).int64.gte = 1];
+}
+
+message AdminUnbanUserResponse {
+  User user = 1;
 }
