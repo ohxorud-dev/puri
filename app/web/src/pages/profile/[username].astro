@@ -1,7 +1,11 @@
 ---
+export const prerender = false;
+
 import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const { username } = Astro.params;
 ---
-<BaseLayout title="프로필 - Puri">
+<BaseLayout title={`${username} - Puri`}>
   <div class="profile-container">
     <div id="profile-loading" style="text-align:center; padding:4rem; color:var(--color-text-muted);">불러오는 중...</div>
     <div id="profile-error" style="display:none; text-align:center; padding:4rem; color:var(--color-text-muted);"></div>
@@ -13,9 +17,6 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         <div class="profile-info">
           <h1 class="profile-username"><span id="profile-username"></span></h1>
           <p class="profile-bio"><span id="profile-email"></span></p>
-        </div>
-        <div class="profile-actions" id="profile-actions" style="display:none;">
-          <button class="btn-edit-profile" id="btn-logout">로그아웃</button>
         </div>
       </div>
 
@@ -46,25 +47,41 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   </div>
 </BaseLayout>
 
+<script define:vars={{ username }}>
+  window.__PROFILE_USERNAME__ = username;
+</script>
+
 <script>
-  import { getUser, clearAuthCache } from '../../lib/auth';
+  import { getUser } from '../../lib/auth';
   import { userClient } from '../../lib/api';
+
+  const requested = (window as any).__PROFILE_USERNAME__ as string;
 
   async function loadProfile() {
     const loadingEl = document.getElementById('profile-loading')!;
     const errorEl = document.getElementById('profile-error')!;
     const contentEl = document.getElementById('profile-content')!;
 
+    let target;
     let me;
     try { me = await getUser(); } catch { me = null; }
 
-    if (!me) {
-      loadingEl.innerHTML = '<p style="color:var(--color-text-muted);">로그인이 필요합니다. <a href="/login" style="color:var(--color-btn-1-bg); font-weight:600;">로그인</a></p>';
+    try {
+      const resp = await userClient.getUserByUsername({ username: requested });
+      target = resp.user;
+    } catch {
+      loadingEl.style.display = 'none';
+      errorEl.style.display = '';
+      errorEl.innerHTML = '<p>사용자를 찾을 수 없습니다.</p>';
       return;
     }
 
-    const target = me;
-    const isSelf = true;
+    if (!target) {
+      loadingEl.style.display = 'none';
+      errorEl.style.display = '';
+      errorEl.innerHTML = '<p>사용자를 찾을 수 없습니다.</p>';
+      return;
+    }
 
     loadingEl.style.display = 'none';
     contentEl.style.display = '';
@@ -78,19 +95,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     }
     document.getElementById('stat-displayname')!.textContent = target.displayName || '-';
     document.getElementById('stat-bojhandle')!.textContent = target.bojHandle || '-';
-
-    if (isSelf) {
-      document.getElementById('profile-actions')!.style.display = '';
-    }
   }
-
-  document.getElementById('btn-logout')?.addEventListener('click', async () => {
-    try {
-      await userClient.logout({});
-    } catch {}
-    clearAuthCache();
-    window.location.href = '/';
-  });
 
   loadProfile();
 </script>
@@ -102,8 +107,6 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   .profile-info { flex: 1; }
   .profile-username { font-size: 2.2rem; font-weight: 800; margin: 0 0 0.5rem 0; color: var(--color-text); display: flex; align-items: center; gap: 1rem; }
   .profile-bio { font-size: 1.05rem; color: var(--color-text-muted); margin: 0; }
-  .btn-edit-profile { background: var(--color-surface); border: 1px solid var(--color-border); color: var(--color-text); padding: 0.6rem 1.2rem; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
-  .btn-edit-profile:hover { background: var(--color-border); }
   .profile-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 2rem; }
   @media (max-width: 800px) {
     .profile-grid { grid-template-columns: 1fr; }

@@ -1,10 +1,13 @@
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
+import cloudflare from '@astrojs/cloudflare';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 
 export default defineConfig({
   site: 'https://puri.ac',
+  output: 'static',
+  adapter: cloudflare({ imageService: 'passthrough' }),
   integrations: [sitemap({
     filter: (page) => !page.match(/\/community\/(notice|general|qna|tips)\/\d/)
   })],
@@ -21,22 +24,6 @@ export default defineConfig({
       proxy: {
         '/puri.': 'http://localhost:8080'
       }
-    },
-    plugins: [
-      {
-        name: 'profile-username-rewrite',
-        configureServer(server) {
-          server.middlewares.use((req, _res, next) => {
-            if (req.url) {
-              const m = req.url.match(/^\/profile\/([^\/\?#]+)\/?(\?.*)?$/);
-              if (m) {
-                req.url = '/profile/' + (m[2] || '');
-              }
-            }
-            next();
-          });
-        }
-      }
-    ]
+    }
   }
 });
