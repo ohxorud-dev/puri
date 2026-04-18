@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"fmt"
+	"math"
 	"net/http"
 	"strconv"
 	"strings"
@@ -123,7 +124,7 @@ func (h *SubmissionServiceHandler) ListSubmissions(ctx context.Context, req *con
 
 	offset := int32(0)
 	if req.Msg.PageToken != "" {
-		if o, err := strconv.Atoi(req.Msg.PageToken); err == nil {
+		if o, err := strconv.Atoi(req.Msg.PageToken); err == nil && o >= 0 && o <= math.MaxInt32 {
 			offset = int32(o)
 		}
 	}

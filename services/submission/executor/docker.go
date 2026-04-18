@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"math"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -273,12 +274,12 @@ exit $EXIT
 		var executionTimeMs int32
 		var memoryUsageKb int32
 		if timeData, err := os.ReadFile(filepath.Join(tmpDir, "exec_time.txt")); err == nil {
-			if ms, err := strconv.Atoi(strings.TrimSpace(string(timeData))); err == nil {
+			if ms, err := strconv.Atoi(strings.TrimSpace(string(timeData))); err == nil && ms >= 0 && ms <= math.MaxInt32 {
 				executionTimeMs = int32(ms)
 			}
 		}
 		if memData, err := os.ReadFile(filepath.Join(tmpDir, "exec_mem.txt")); err == nil {
-			if kb, err := strconv.Atoi(strings.TrimSpace(string(memData))); err == nil {
+			if kb, err := strconv.Atoi(strings.TrimSpace(string(memData))); err == nil && kb >= 0 && kb <= math.MaxInt32 {
 				memoryUsageKb = int32(kb)
 			}
 		}

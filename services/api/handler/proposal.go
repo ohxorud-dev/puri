@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"math"
 	"net/http"
 	"strconv"
 
@@ -244,7 +245,7 @@ func (h *ProposalServiceHandler) ListMyProposals(ctx context.Context, req *conne
 	}
 	offset := int32(0)
 	if req.Msg.PageToken != "" {
-		if o, err := strconv.Atoi(req.Msg.PageToken); err == nil {
+		if o, err := strconv.Atoi(req.Msg.PageToken); err == nil && o >= 0 && o <= math.MaxInt32 {
 			offset = int32(o)
 		}
 	}

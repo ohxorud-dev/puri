@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"fmt"
+	"math"
 	"strconv"
 
 	"connectrpc.com/connect"
@@ -147,7 +148,7 @@ func (h *UserServiceHandler) GetRanking(ctx context.Context, req *connect.Reques
 
 	offset := int32(0)
 	if req.Msg.PageToken != "" {
-		if o, err := strconv.Atoi(req.Msg.PageToken); err == nil && o >= 0 {
+		if o, err := strconv.Atoi(req.Msg.PageToken); err == nil && o >= 0 && o <= math.MaxInt32 {
 			offset = int32(o)
 		}
 	}
@@ -244,7 +245,7 @@ func (h *UserServiceHandler) AdminListUsers(ctx context.Context, req *connect.Re
 
 	offset := int32(0)
 	if req.Msg.PageToken != "" {
-		if o, err := strconv.Atoi(req.Msg.PageToken); err == nil && o >= 0 {
+		if o, err := strconv.Atoi(req.Msg.PageToken); err == nil && o >= 0 && o <= math.MaxInt32 {
 			offset = int32(o)
 		}
 	}
