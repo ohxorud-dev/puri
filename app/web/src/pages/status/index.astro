@@ -83,7 +83,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
         const problemName = sub.problemTitle || `문제 ${sub.problemId}`;
         return `<tr data-username="${displayName}" data-problem-id="${sub.problemId}" data-result="${status.text}" data-id="${sub.id}" data-time="${sub.executionTimeMs}">
           <td>${sub.id}</td>
-          <td><a href="/profile" class="user-link">${displayName}</a></td>
+          <td>${sub.username ? `<a href="/profile/${encodeURIComponent(sub.username)}" class="user-link">${sub.username}</a>` : displayName}</td>
           <td><a href="/problems/${sub.problemId}" class="problem-link">${problemName}</a></td>
           <td><span class="${status.cls}">${status.text}</span></td>
           <td>${mem}</td>
