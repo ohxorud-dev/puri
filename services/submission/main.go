@@ -58,7 +58,6 @@ func main() {
 		fmt.Fprintf(os.Stderr, "failed to connect to rabbitmq consumer: %v\n", err)
 		os.Exit(1)
 	}
-	defer consumer.Close()
 	consumer.Start()
 
 	valInterceptor, err := interceptor.NewValidationInterceptor()
@@ -98,11 +97,16 @@ func main() {
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
+	fmt.Println("Shutting down...")
 
-	shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
+
 	if err := server.Shutdown(shutdownCtx); err != nil {
 		fmt.Fprintf(os.Stderr, "server shutdown error: %v\n", err)
+	}
+	if err := consumer.Shutdown(shutdownCtx); err != nil {
+		fmt.Fprintf(os.Stderr, "consumer shutdown error: %v\n", err)
 	}
 	fmt.Println("Server stopped gracefully")
 }

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/rabbitmq/amqp091-go"
@@ -16,12 +17,15 @@ import (
 )
 
 type Consumer struct {
-	conn         *amqp091.Connection
-	ch           *amqp091.Channel
-	repo         *repository.SubmissionRepository
+	conn          *amqp091.Connection
+	ch            *amqp091.Channel
+	repo          *repository.SubmissionRepository
 	runner        *executor.DockerRunner
 	problemsPath  string
 	testcasesPath string
+
+	wg      sync.WaitGroup
+	stopped chan struct{}
 }
 
 func NewConsumer(url string, repo *repository.SubmissionRepository, runner *executor.DockerRunner, problemsPath, testcasesPath string) (*Consumer, error) {
@@ -50,7 +54,15 @@ func NewConsumer(url string, repo *repository.SubmissionRepository, runner *exec
 		return nil, fmt.Errorf("failed to declare queue: %w", err)
 	}
 
-	return &Consumer{conn: conn, ch: ch, repo: repo, runner: runner, problemsPath: problemsPath, testcasesPath: testcasesPath}, nil
+	return &Consumer{
+		conn:          conn,
+		ch:            ch,
+		repo:          repo,
+		runner:        runner,
+		problemsPath:  problemsPath,
+		testcasesPath: testcasesPath,
+		stopped:       make(chan struct{}),
+	}, nil
 }
 
 func (c *Consumer) Start() {
@@ -65,12 +77,16 @@ func (c *Consumer) Start() {
 	)
 	if err != nil {
 		log.Printf("[Consumer] failed to start consuming: %v", err)
+		close(c.stopped)
 		return
 	}
 
 	go func() {
+		defer close(c.stopped)
 		for msg := range msgs {
+			c.wg.Add(1)
 			c.processJob(msg)
+			c.wg.Done()
 		}
 	}()
 }
@@ -178,6 +194,30 @@ func parseDuration(limit string) time.Duration {
 		return sec
 	}
 	return 3 * time.Second
+}
+
+func (c *Consumer) Shutdown(ctx context.Context) error {
+	if c.ch != nil {
+		_ = c.ch.Close()
+	}
+
+	done := make(chan struct{})
+	go func() {
+		c.wg.Wait()
+		<-c.stopped
+		close(done)
+	}()
+
+	select {
+	case <-done:
+	case <-ctx.Done():
+		log.Printf("[Consumer] shutdown timeout, in-flight jobs may be interrupted")
+	}
+
+	if c.conn != nil {
+		return c.conn.Close()
+	}
+	return nil
 }
 
 func (c *Consumer) Close() {
