@@ -79,6 +79,17 @@ func (r *SubmissionRepository) UpdateStatus(ctx context.Context, id int64, statu
 	return err
 }
 
+func (r *SubmissionRepository) ClaimForJudging(ctx context.Context, id int64) (bool, error) {
+	tag, err := r.pool.Exec(ctx,
+		`UPDATE submissions SET status = 'JUDGING' WHERE id = $1 AND status = 'PENDING'`,
+		id,
+	)
+	if err != nil {
+		return false, err
+	}
+	return tag.RowsAffected() > 0, nil
+}
+
 func (r *SubmissionRepository) Delete(ctx context.Context, id int64) (bool, error) {
 	tag, err := r.pool.Exec(ctx, `DELETE FROM submissions WHERE id = $1`, id)
 	if err != nil {

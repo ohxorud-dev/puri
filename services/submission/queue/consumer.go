@@ -83,11 +83,21 @@ func (c *Consumer) processJob(msg amqp091.Delivery) {
 		return
 	}
 
-	log.Printf("[Consumer] judging submission %d (problem %d, lang %s)", job.SubmissionID, job.ProblemID, job.Language)
-
-	// Mark as JUDGING
 	ctx := context.Background()
-	_ = c.repo.UpdateStatus(ctx, job.SubmissionID, "JUDGING", "", 0, 0)
+
+	claimed, err := c.repo.ClaimForJudging(ctx, job.SubmissionID)
+	if err != nil {
+		log.Printf("[Consumer] failed to claim submission %d: %v", job.SubmissionID, err)
+		msg.Nack(false, true)
+		return
+	}
+	if !claimed {
+		log.Printf("[Consumer] skipping submission %d (already processed or missing)", job.SubmissionID)
+		msg.Ack(false)
+		return
+	}
+
+	log.Printf("[Consumer] judging submission %d (problem %d, lang %s)", job.SubmissionID, job.ProblemID, job.Language)
 
 	// Load test cases
 	testCases, err := problem.LoadTestCases(c.testcasesPath, job.ProblemID)
