@@ -1,2 +1,2 @@
 /sitemap.xml /sitemap-index.xml 301
-/profile/:username /profile/index.html 200
+/profile/* /profile/ 200
