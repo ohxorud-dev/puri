@@ -1,64 +1,24 @@
 ---
 import BaseLayout from './BaseLayout.astro';
-import TierBadge from '../components/TierBadge.astro';
+import ProblemView from '../components/ProblemView.astro';
 const { frontmatter } = Astro.props;
 const problemDesc = `${frontmatter.title} - 시간 제한: ${frontmatter.time_limit}, 메모리 제한: ${frontmatter.memory_limit}`;
+const problemId = Astro.url.pathname.split('/').filter(Boolean).pop();
 ---
 <BaseLayout title={`${frontmatter.title} - Puri`} description={problemDesc} ogType="article" fullWidth={true}>
   <div class="workspace-layout">
     <div class="problem-panel">
-      <div class="problem-header">
-        <h1 class="problem-title">
-          <span class="problem-id-label">{Astro.url.pathname.split('/').filter(Boolean).pop()}</span>
-          {frontmatter.title}
-          {frontmatter.tier && <TierBadge tier={frontmatter.tier} />}
-        </h1>
-        <div class="problem-meta">
-          <span class="meta-badge">
-            시간 제한: {frontmatter.time_limit}
-          </span>
-          <span class="meta-badge">
-            메모리 제한: {frontmatter.memory_limit}
-          </span>
-        </div>
-      </div>
-      <div class="content markdown-body">
+      <ProblemView
+        problemId={problemId}
+        title={frontmatter.title}
+        tier={frontmatter.tier}
+        timeLimit={frontmatter.time_limit}
+        memoryLimit={frontmatter.memory_limit}
+        examples={frontmatter.examples}
+        source={frontmatter.source}
+      >
         <slot />
-
-        {frontmatter.examples && frontmatter.examples.length > 0 && (
-          <div class="examples-section">
-            <h2 class="examples-title">예제 입출력</h2>
-            {frontmatter.examples.map((ex, index) => (
-              <div class="example-container">
-                <div class="example-row">
-                  <div class="example-box">
-                    <div class="example-label">예제 입력 {index + 1}</div>
-                    <pre class="example-code"><code>{ex.input}</code></pre>
-                  </div>
-                  <div class="example-box">
-                    <div class="example-label">예제 출력 {index + 1}</div>
-                    <pre class="example-code"><code>{ex.output}</code></pre>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {frontmatter.source && (
-          <div class="source-section">
-            <h2 class="source-title">출처</h2>
-            <div class="source-path">
-              {(Array.isArray(frontmatter.source) ? frontmatter.source : [frontmatter.source]).map((part, i, arr) => (
-                <>
-                  <span class="source-part">{part}</span>
-                  {i < arr.length - 1 && <span class="source-sep">›</span>}
-                </>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
+      </ProblemView>
     </div>
     
     <div class="ide-panel">
@@ -162,56 +122,7 @@ const problemDesc = `${frontmatter.title} - 시간 제한: ${frontmatter.time_li
       });
     }
 
-    // Markdown `pre` 블록 입출력 디자인 처리
-    document.querySelectorAll('.markdown-body pre').forEach((pre) => {
-      // Create a clean container for line numbers and code
-      const wrapper = document.createElement('div');
-      wrapper.className = 'clean-code-wrapper';
-      
-      const codeBlock = pre.querySelector('code');
-      if (!codeBlock) return;
-      
-      const copyBtn = document.createElement('button');
-      copyBtn.className = 'clean-copy-btn';
-      copyBtn.title = '복사하기';
-      const iconCopy = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>`;
-      const iconCheck = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>`;
-      
-      copyBtn.innerHTML = iconCopy;
-      copyBtn.onclick = () => {
-        const code = codeBlock.innerText;
-        if (code) {
-          navigator.clipboard.writeText(code).then(() => {
-            copyBtn.innerHTML = iconCheck;
-            copyBtn.classList.add('copied');
-            setTimeout(() => {
-              copyBtn.innerHTML = iconCopy;
-              copyBtn.classList.remove('copied');
-            }, 2000);
-          });
-        }
-      };
-      
-      const lines = codeBlock.innerText.split('\n');
-      if (lines[lines.length - 1] === '') lines.pop(); // Remove empty last newline
-      
-      const gutter = document.createElement('div');
-      gutter.className = 'clean-gutter';
-      let gutterHtml = '';
-      lines.forEach((_, idx) => {
-        gutterHtml += `<span>${idx + 1}</span>`;
-      });
-      gutter.innerHTML = gutterHtml;
-      
-      pre.parentNode.insertBefore(wrapper, pre);
-      wrapper.appendChild(gutter);
-      wrapper.appendChild(pre);
-      
-      // Do not add copy button if the content is empty or only whitespace
-      if (codeBlock.innerText.trim() !== '') {
-        wrapper.appendChild(copyBtn);
-      }
-    });
+    // Markdown `pre` 꾸미기는 ProblemView 컴포넌트의 __enhanceProblemView가 담당
   });
 </script>
 

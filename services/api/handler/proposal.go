@@ -38,7 +38,21 @@ func (h *ProposalServiceHandler) CreateProposal(ctx context.Context, req *connec
 	if !ok {
 		return nil, connect.NewError(connect.CodeUnauthenticated, fmt.Errorf("unauthenticated"))
 	}
-	p, err := h.repo.Create(ctx, userID, req.Msg.Title)
+	kind := kindEnumToString(req.Msg.Kind)
+	if kind == "" {
+		kind = "general"
+	}
+	var saleTier *string
+	if kind == "sale" {
+		t := saleTierEnumToString(req.Msg.SaleTier)
+		if t == "" {
+			return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("sale_tier is required when kind is sale"))
+		}
+		saleTier = &t
+	} else if req.Msg.SaleTier != proposalv1.SaleTier_SALE_TIER_UNSPECIFIED {
+		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("sale_tier is only allowed when kind is sale"))
+	}
+	p, err := h.repo.Create(ctx, userID, req.Msg.Title, kind, saleTier)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("create proposal: %w", err))
 	}
@@ -88,6 +102,16 @@ func (h *ProposalServiceHandler) UpdateProposal(ctx context.Context, req *connec
 			return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("testcases_gz is not a valid gzipped JSON array"))
 		}
 		upd.TestcasesGz = req.Msg.TestcasesGz
+	}
+	if req.Msg.SaleTier != nil {
+		if p.Kind != "sale" {
+			return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("sale_tier is only allowed for sale proposals"))
+		}
+		t := saleTierEnumToString(*req.Msg.SaleTier)
+		if t == "" {
+			return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("invalid sale_tier"))
+		}
+		upd.SaleTier = &t
 	}
 
 	if err := h.repo.Update(ctx, req.Msg.ProposalId, upd); err != nil {
@@ -309,6 +333,10 @@ func toProtoProposal(p *repository.Proposal) *proposalv1.Proposal {
 		ReferenceSolutionLanguage: stringToLanguageEnum(p.ReferenceSolutionLanguage),
 		ReferenceSolutionSource:   p.ReferenceSolutionSource,
 		Status:                    statusStringToEnum(p.Status),
+		Kind:                      kindStringToEnum(p.Kind),
+	}
+	if p.SaleTier != nil {
+		out.SaleTier = saleTierStringToEnum(*p.SaleTier)
 	}
 	if p.CreatedAt != nil {
 		out.CreatedAt = timestamppb.New(*p.CreatedAt)
@@ -355,6 +383,50 @@ func toProtoValidations(vs []repository.ProposalExampleValidation) []*proposalv1
 }
 
 func ptrStr(s string) *string { return &s }
+
+func kindEnumToString(k proposalv1.ProposalKind) string {
+	switch k {
+	case proposalv1.ProposalKind_PROPOSAL_KIND_GENERAL:
+		return "general"
+	case proposalv1.ProposalKind_PROPOSAL_KIND_SALE:
+		return "sale"
+	}
+	return ""
+}
+
+func kindStringToEnum(s string) proposalv1.ProposalKind {
+	switch s {
+	case "general":
+		return proposalv1.ProposalKind_PROPOSAL_KIND_GENERAL
+	case "sale":
+		return proposalv1.ProposalKind_PROPOSAL_KIND_SALE
+	}
+	return proposalv1.ProposalKind_PROPOSAL_KIND_UNSPECIFIED
+}
+
+func saleTierEnumToString(t proposalv1.SaleTier) string {
+	switch t {
+	case proposalv1.SaleTier_SALE_TIER_PLATINUM:
+		return "platinum"
+	case proposalv1.SaleTier_SALE_TIER_DIAMOND:
+		return "diamond"
+	case proposalv1.SaleTier_SALE_TIER_RUBY:
+		return "ruby"
+	}
+	return ""
+}
+
+func saleTierStringToEnum(s string) proposalv1.SaleTier {
+	switch s {
+	case "platinum":
+		return proposalv1.SaleTier_SALE_TIER_PLATINUM
+	case "diamond":
+		return proposalv1.SaleTier_SALE_TIER_DIAMOND
+	case "ruby":
+		return proposalv1.SaleTier_SALE_TIER_RUBY
+	}
+	return proposalv1.SaleTier_SALE_TIER_UNSPECIFIED
+}
 
 func isValidGzippedTestcases(b []byte) bool {
 	r, err := gzip.NewReader(bytes.NewReader(b))

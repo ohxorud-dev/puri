@@ -44,6 +44,8 @@ type Proposal struct {
 	PublishedProblemID        *int32
 	CreatedAt                 *time.Time
 	UpdatedAt                 *time.Time
+	Kind                      string
+	SaleTier                  *string
 }
 
 type ProposalRepository struct {
@@ -54,18 +56,18 @@ func NewProposalRepository(pool *pgxpool.Pool) *ProposalRepository {
 	return &ProposalRepository{pool: pool}
 }
 
-func (r *ProposalRepository) Create(ctx context.Context, authorID int64, title string) (*Proposal, error) {
+func (r *ProposalRepository) Create(ctx context.Context, authorID int64, title string, kind string, saleTier *string) (*Proposal, error) {
 	var p Proposal
 	err := r.pool.QueryRow(ctx,
-		`INSERT INTO problem_proposals (author_user_id, title, statement_md, time_limit, memory_limit)
-		 VALUES ($1, $2, '', '1초', '128MB')
-		 RETURNING id, author_user_id, title, statement_md, time_limit, memory_limit, examples, testcases, reference_solution_source, reference_solution_language, status, review_notes, example_validation_result, published_problem_id, created_at, updated_at`,
-		authorID, title,
+		`INSERT INTO problem_proposals (author_user_id, title, statement_md, time_limit, memory_limit, kind, sale_tier)
+		 VALUES ($1, $2, '', '1초', '128MB', $3, $4)
+		 RETURNING id, author_user_id, title, statement_md, time_limit, memory_limit, examples, testcases, reference_solution_source, reference_solution_language, status, review_notes, example_validation_result, published_problem_id, created_at, updated_at, kind, sale_tier`,
+		authorID, title, kind, saleTier,
 	).Scan(
 		&p.ID, &p.AuthorUserID, &p.Title, &p.StatementMd, &p.TimeLimit, &p.MemoryLimit,
 		&p.ExamplesJSON, &p.TestcasesGz, &p.ReferenceSolutionSource, &p.ReferenceSolutionLanguage,
 		&p.Status, &p.ReviewNotes, &p.ExampleValidationResult, &p.PublishedProblemID,
-		&p.CreatedAt, &p.UpdatedAt,
+		&p.CreatedAt, &p.UpdatedAt, &p.Kind, &p.SaleTier,
 	)
 	if err != nil {
 		return nil, err
@@ -76,14 +78,14 @@ func (r *ProposalRepository) Create(ctx context.Context, authorID int64, title s
 func (r *ProposalRepository) GetByID(ctx context.Context, id int64) (*Proposal, error) {
 	var p Proposal
 	err := r.pool.QueryRow(ctx,
-		`SELECT id, author_user_id, title, statement_md, time_limit, memory_limit, examples, testcases, reference_solution_source, reference_solution_language, status, review_notes, example_validation_result, published_problem_id, created_at, updated_at
+		`SELECT id, author_user_id, title, statement_md, time_limit, memory_limit, examples, testcases, reference_solution_source, reference_solution_language, status, review_notes, example_validation_result, published_problem_id, created_at, updated_at, kind, sale_tier
 		 FROM problem_proposals WHERE id = $1`,
 		id,
 	).Scan(
 		&p.ID, &p.AuthorUserID, &p.Title, &p.StatementMd, &p.TimeLimit, &p.MemoryLimit,
 		&p.ExamplesJSON, &p.TestcasesGz, &p.ReferenceSolutionSource, &p.ReferenceSolutionLanguage,
 		&p.Status, &p.ReviewNotes, &p.ExampleValidationResult, &p.PublishedProblemID,
-		&p.CreatedAt, &p.UpdatedAt,
+		&p.CreatedAt, &p.UpdatedAt, &p.Kind, &p.SaleTier,
 	)
 	if err == pgx.ErrNoRows {
 		return nil, nil
@@ -103,6 +105,7 @@ type ProposalUpdate struct {
 	TestcasesGz               []byte
 	ReferenceSolutionSource   *string
 	ReferenceSolutionLanguage *string
+	SaleTier                  *string
 }
 
 func (r *ProposalRepository) Update(ctx context.Context, id int64, u ProposalUpdate) error {
@@ -136,6 +139,9 @@ func (r *ProposalRepository) Update(ctx context.Context, id int64, u ProposalUpd
 	if u.ReferenceSolutionLanguage != nil {
 		add("reference_solution_language", *u.ReferenceSolutionLanguage)
 	}
+	if u.SaleTier != nil {
+		add("sale_tier", *u.SaleTier)
+	}
 	if len(args) == 1 {
 		return nil
 	}
@@ -154,7 +160,7 @@ func (r *ProposalRepository) UpdateStatus(ctx context.Context, id int64, status 
 
 func (r *ProposalRepository) ListByAuthor(ctx context.Context, authorID int64, limit, offset int32) ([]*Proposal, error) {
 	rows, err := r.pool.Query(ctx,
-		`SELECT id, author_user_id, title, statement_md, time_limit, memory_limit, examples, testcases, reference_solution_source, reference_solution_language, status, review_notes, example_validation_result, published_problem_id, created_at, updated_at
+		`SELECT id, author_user_id, title, statement_md, time_limit, memory_limit, examples, testcases, reference_solution_source, reference_solution_language, status, review_notes, example_validation_result, published_problem_id, created_at, updated_at, kind, sale_tier
 		 FROM problem_proposals WHERE author_user_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3`,
 		authorID, limit, offset,
 	)
@@ -170,7 +176,7 @@ func (r *ProposalRepository) ListByAuthor(ctx context.Context, authorID int64, l
 			&p.ID, &p.AuthorUserID, &p.Title, &p.StatementMd, &p.TimeLimit, &p.MemoryLimit,
 			&p.ExamplesJSON, &p.TestcasesGz, &p.ReferenceSolutionSource, &p.ReferenceSolutionLanguage,
 			&p.Status, &p.ReviewNotes, &p.ExampleValidationResult, &p.PublishedProblemID,
-			&p.CreatedAt, &p.UpdatedAt,
+			&p.CreatedAt, &p.UpdatedAt, &p.Kind, &p.SaleTier,
 		); err != nil {
 			return nil, err
 		}

@@ -35,6 +35,19 @@ enum ProposalStatus {
   PROPOSAL_STATUS_PUBLISHED = 6;
 }
 
+enum ProposalKind {
+  PROPOSAL_KIND_UNSPECIFIED = 0;
+  PROPOSAL_KIND_GENERAL = 1;
+  PROPOSAL_KIND_SALE = 2;
+}
+
+enum SaleTier {
+  SALE_TIER_UNSPECIFIED = 0;
+  SALE_TIER_PLATINUM = 1;
+  SALE_TIER_DIAMOND = 2;
+  SALE_TIER_RUBY = 3;
+}
+
 message Example {
   string input = 1;
   string output = 2;
@@ -65,10 +78,14 @@ message Proposal {
   optional int32 published_problem_id = 13;
   google.protobuf.Timestamp created_at = 14;
   google.protobuf.Timestamp updated_at = 15;
+  ProposalKind kind = 16 [(buf.validate.field).enum.defined_only = true];
+  SaleTier sale_tier = 17 [(buf.validate.field).enum.defined_only = true];
 }
 
 message CreateProposalRequest {
   string title = 1 [(buf.validate.field).string.min_len = 1, (buf.validate.field).string.max_len = 200];
+  ProposalKind kind = 2 [(buf.validate.field).enum.defined_only = true];
+  SaleTier sale_tier = 3 [(buf.validate.field).enum.defined_only = true];
 }
 
 message CreateProposalResponse {
@@ -86,6 +103,7 @@ message UpdateProposalRequest {
   optional string reference_solution_source = 8 [(buf.validate.field).string.max_bytes = 65536];
   // gzipped JSON bytes of full testcases array [{input,output},...]
   optional bytes testcases_gz = 9 [(buf.validate.field).bytes.max_len = 104857600];
+  optional SaleTier sale_tier = 10 [(buf.validate.field).enum.defined_only = true];
 }
 
 message UpdateProposalResponse {

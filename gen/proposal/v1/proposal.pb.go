@@ -85,6 +85,107 @@ func (ProposalStatus) EnumDescriptor() ([]byte, []int) {
 	return file_proposal_v1_proposal_proto_rawDescGZIP(), []int{0}
 }
 
+type ProposalKind int32
+
+const (
+	ProposalKind_PROPOSAL_KIND_UNSPECIFIED ProposalKind = 0
+	ProposalKind_PROPOSAL_KIND_GENERAL     ProposalKind = 1
+	ProposalKind_PROPOSAL_KIND_SALE        ProposalKind = 2
+)
+
+// Enum value maps for ProposalKind.
+var (
+	ProposalKind_name = map[int32]string{
+		0: "PROPOSAL_KIND_UNSPECIFIED",
+		1: "PROPOSAL_KIND_GENERAL",
+		2: "PROPOSAL_KIND_SALE",
+	}
+	ProposalKind_value = map[string]int32{
+		"PROPOSAL_KIND_UNSPECIFIED": 0,
+		"PROPOSAL_KIND_GENERAL":     1,
+		"PROPOSAL_KIND_SALE":        2,
+	}
+)
+
+func (x ProposalKind) Enum() *ProposalKind {
+	p := new(ProposalKind)
+	*p = x
+	return p
+}
+
+func (x ProposalKind) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ProposalKind) Descriptor() protoreflect.EnumDescriptor {
+	return file_proposal_v1_proposal_proto_enumTypes[1].Descriptor()
+}
+
+func (ProposalKind) Type() protoreflect.EnumType {
+	return &file_proposal_v1_proposal_proto_enumTypes[1]
+}
+
+func (x ProposalKind) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ProposalKind.Descriptor instead.
+func (ProposalKind) EnumDescriptor() ([]byte, []int) {
+	return file_proposal_v1_proposal_proto_rawDescGZIP(), []int{1}
+}
+
+type SaleTier int32
+
+const (
+	SaleTier_SALE_TIER_UNSPECIFIED SaleTier = 0
+	SaleTier_SALE_TIER_PLATINUM    SaleTier = 1
+	SaleTier_SALE_TIER_DIAMOND     SaleTier = 2
+	SaleTier_SALE_TIER_RUBY        SaleTier = 3
+)
+
+// Enum value maps for SaleTier.
+var (
+	SaleTier_name = map[int32]string{
+		0: "SALE_TIER_UNSPECIFIED",
+		1: "SALE_TIER_PLATINUM",
+		2: "SALE_TIER_DIAMOND",
+		3: "SALE_TIER_RUBY",
+	}
+	SaleTier_value = map[string]int32{
+		"SALE_TIER_UNSPECIFIED": 0,
+		"SALE_TIER_PLATINUM":    1,
+		"SALE_TIER_DIAMOND":     2,
+		"SALE_TIER_RUBY":        3,
+	}
+)
+
+func (x SaleTier) Enum() *SaleTier {
+	p := new(SaleTier)
+	*p = x
+	return p
+}
+
+func (x SaleTier) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (SaleTier) Descriptor() protoreflect.EnumDescriptor {
+	return file_proposal_v1_proposal_proto_enumTypes[2].Descriptor()
+}
+
+func (SaleTier) Type() protoreflect.EnumType {
+	return &file_proposal_v1_proposal_proto_enumTypes[2]
+}
+
+func (x SaleTier) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use SaleTier.Descriptor instead.
+func (SaleTier) EnumDescriptor() ([]byte, []int) {
+	return file_proposal_v1_proposal_proto_rawDescGZIP(), []int{2}
+}
+
 type Example struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Input         string                 `protobuf:"bytes,1,opt,name=input,proto3" json:"input,omitempty"`
@@ -238,6 +339,8 @@ type Proposal struct {
 	PublishedProblemId        *int32                 `protobuf:"varint,13,opt,name=published_problem_id,json=publishedProblemId,proto3,oneof" json:"published_problem_id,omitempty"`
 	CreatedAt                 *timestamppb.Timestamp `protobuf:"bytes,14,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	UpdatedAt                 *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	Kind                      ProposalKind           `protobuf:"varint,16,opt,name=kind,proto3,enum=puri.proposal.v1.ProposalKind" json:"kind,omitempty"`
+	SaleTier                  SaleTier               `protobuf:"varint,17,opt,name=sale_tier,json=saleTier,proto3,enum=puri.proposal.v1.SaleTier" json:"sale_tier,omitempty"`
 	unknownFields             protoimpl.UnknownFields
 	sizeCache                 protoimpl.SizeCache
 }
@@ -377,9 +480,25 @@ func (x *Proposal) GetUpdatedAt() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *Proposal) GetKind() ProposalKind {
+	if x != nil {
+		return x.Kind
+	}
+	return ProposalKind_PROPOSAL_KIND_UNSPECIFIED
+}
+
+func (x *Proposal) GetSaleTier() SaleTier {
+	if x != nil {
+		return x.SaleTier
+	}
+	return SaleTier_SALE_TIER_UNSPECIFIED
+}
+
 type CreateProposalRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Title         string                 `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
+	Kind          ProposalKind           `protobuf:"varint,2,opt,name=kind,proto3,enum=puri.proposal.v1.ProposalKind" json:"kind,omitempty"`
+	SaleTier      SaleTier               `protobuf:"varint,3,opt,name=sale_tier,json=saleTier,proto3,enum=puri.proposal.v1.SaleTier" json:"sale_tier,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -419,6 +538,20 @@ func (x *CreateProposalRequest) GetTitle() string {
 		return x.Title
 	}
 	return ""
+}
+
+func (x *CreateProposalRequest) GetKind() ProposalKind {
+	if x != nil {
+		return x.Kind
+	}
+	return ProposalKind_PROPOSAL_KIND_UNSPECIFIED
+}
+
+func (x *CreateProposalRequest) GetSaleTier() SaleTier {
+	if x != nil {
+		return x.SaleTier
+	}
+	return SaleTier_SALE_TIER_UNSPECIFIED
 }
 
 type CreateProposalResponse struct {
@@ -476,7 +609,8 @@ type UpdateProposalRequest struct {
 	ReferenceSolutionLanguage *v1.Language           `protobuf:"varint,7,opt,name=reference_solution_language,json=referenceSolutionLanguage,proto3,enum=puri.common.v1.Language,oneof" json:"reference_solution_language,omitempty"`
 	ReferenceSolutionSource   *string                `protobuf:"bytes,8,opt,name=reference_solution_source,json=referenceSolutionSource,proto3,oneof" json:"reference_solution_source,omitempty"`
 	// gzipped JSON bytes of full testcases array [{input,output},...]
-	TestcasesGz   []byte `protobuf:"bytes,9,opt,name=testcases_gz,json=testcasesGz,proto3,oneof" json:"testcases_gz,omitempty"`
+	TestcasesGz   []byte    `protobuf:"bytes,9,opt,name=testcases_gz,json=testcasesGz,proto3,oneof" json:"testcases_gz,omitempty"`
+	SaleTier      *SaleTier `protobuf:"varint,10,opt,name=sale_tier,json=saleTier,proto3,enum=puri.proposal.v1.SaleTier,oneof" json:"sale_tier,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -572,6 +706,13 @@ func (x *UpdateProposalRequest) GetTestcasesGz() []byte {
 		return x.TestcasesGz
 	}
 	return nil
+}
+
+func (x *UpdateProposalRequest) GetSaleTier() SaleTier {
+	if x != nil && x.SaleTier != nil {
+		return *x.SaleTier
+	}
+	return SaleTier_SALE_TIER_UNSPECIFIED
 }
 
 type UpdateProposalResponse struct {
@@ -928,7 +1069,7 @@ const file_proposal_v1_proposal_proto_rawDesc = "" +
 	"\x0fexpected_output\x18\x03 \x01(\tR\x0eexpectedOutput\x12#\n" +
 	"\ractual_output\x18\x04 \x01(\tR\factualOutput\x12\x16\n" +
 	"\x06result\x18\x05 \x01(\tR\x06result\x123\n" +
-	"\x11execution_time_ms\x18\x06 \x01(\x05B\a\xbaH\x04\x1a\x02(\x00R\x0fexecutionTimeMs\"\xd9\x06\n" +
+	"\x11execution_time_ms\x18\x06 \x01(\x05B\a\xbaH\x04\x1a\x02(\x00R\x0fexecutionTimeMs\"\xda\a\n" +
 	"\bProposal\x12\x17\n" +
 	"\x02id\x18\x01 \x01(\x03B\a\xbaH\x04\"\x02(\x01R\x02id\x12-\n" +
 	"\x0eauthor_user_id\x18\x02 \x01(\x03B\a\xbaH\x04\"\x02(\x01R\fauthorUserId\x12\x1e\n" +
@@ -948,14 +1089,18 @@ const file_proposal_v1_proposal_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\x0e \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x129\n" +
 	"\n" +
-	"updated_at\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAtB\x17\n" +
-	"\x15_published_problem_id\"9\n" +
+	"updated_at\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12<\n" +
+	"\x04kind\x18\x10 \x01(\x0e2\x1e.puri.proposal.v1.ProposalKindB\b\xbaH\x05\x82\x01\x02\x10\x01R\x04kind\x12A\n" +
+	"\tsale_tier\x18\x11 \x01(\x0e2\x1a.puri.proposal.v1.SaleTierB\b\xbaH\x05\x82\x01\x02\x10\x01R\bsaleTierB\x17\n" +
+	"\x15_published_problem_id\"\xba\x01\n" +
 	"\x15CreateProposalRequest\x12 \n" +
 	"\x05title\x18\x01 \x01(\tB\n" +
-	"\xbaH\ar\x05\x10\x01\x18\xc8\x01R\x05title\"9\n" +
+	"\xbaH\ar\x05\x10\x01\x18\xc8\x01R\x05title\x12<\n" +
+	"\x04kind\x18\x02 \x01(\x0e2\x1e.puri.proposal.v1.ProposalKindB\b\xbaH\x05\x82\x01\x02\x10\x01R\x04kind\x12A\n" +
+	"\tsale_tier\x18\x03 \x01(\x0e2\x1a.puri.proposal.v1.SaleTierB\b\xbaH\x05\x82\x01\x02\x10\x01R\bsaleTier\"9\n" +
 	"\x16CreateProposalResponse\x12\x1f\n" +
 	"\vproposal_id\x18\x01 \x01(\x03R\n" +
-	"proposalId\"\x96\x05\n" +
+	"proposalId\"\xec\x05\n" +
 	"\x15UpdateProposalRequest\x12(\n" +
 	"\vproposal_id\x18\x01 \x01(\x03B\a\xbaH\x04\"\x02(\x01R\n" +
 	"proposalId\x12#\n" +
@@ -968,14 +1113,18 @@ const file_proposal_v1_proposal_proto_rawDesc = "" +
 	"\x1breference_solution_language\x18\a \x01(\x0e2\x18.puri.common.v1.LanguageB\b\xbaH\x05\x82\x01\x02\x10\x01H\x04R\x19referenceSolutionLanguage\x88\x01\x01\x12J\n" +
 	"\x19reference_solution_source\x18\b \x01(\tB\t\xbaH\x06r\x04(\x80\x80\x04H\x05R\x17referenceSolutionSource\x88\x01\x01\x122\n" +
 	"\ftestcases_gz\x18\t \x01(\fB\n" +
-	"\xbaH\az\x05\x18\x80\x80\x802H\x06R\vtestcasesGz\x88\x01\x01B\b\n" +
+	"\xbaH\az\x05\x18\x80\x80\x802H\x06R\vtestcasesGz\x88\x01\x01\x12F\n" +
+	"\tsale_tier\x18\n" +
+	" \x01(\x0e2\x1a.puri.proposal.v1.SaleTierB\b\xbaH\x05\x82\x01\x02\x10\x01H\aR\bsaleTier\x88\x01\x01B\b\n" +
 	"\x06_titleB\x0f\n" +
 	"\r_statement_mdB\r\n" +
 	"\v_time_limitB\x0f\n" +
 	"\r_memory_limitB\x1e\n" +
 	"\x1c_reference_solution_languageB\x1c\n" +
 	"\x1a_reference_solution_sourceB\x0f\n" +
-	"\r_testcases_gz\"P\n" +
+	"\r_testcases_gzB\f\n" +
+	"\n" +
+	"_sale_tier\"P\n" +
 	"\x16UpdateProposalResponse\x126\n" +
 	"\bproposal\x18\x01 \x01(\v2\x1a.puri.proposal.v1.ProposalR\bproposal\"A\n" +
 	"\x15SubmitProposalRequest\x12(\n" +
@@ -1004,7 +1153,16 @@ const file_proposal_v1_proposal_proto_rawDesc = "" +
 	"\x19PROPOSAL_STATUS_REVIEWING\x10\x03\x12\x1c\n" +
 	"\x18PROPOSAL_STATUS_APPROVED\x10\x04\x12\x1c\n" +
 	"\x18PROPOSAL_STATUS_REJECTED\x10\x05\x12\x1d\n" +
-	"\x19PROPOSAL_STATUS_PUBLISHED\x10\x062\xa2\x04\n" +
+	"\x19PROPOSAL_STATUS_PUBLISHED\x10\x06*`\n" +
+	"\fProposalKind\x12\x1d\n" +
+	"\x19PROPOSAL_KIND_UNSPECIFIED\x10\x00\x12\x19\n" +
+	"\x15PROPOSAL_KIND_GENERAL\x10\x01\x12\x16\n" +
+	"\x12PROPOSAL_KIND_SALE\x10\x02*h\n" +
+	"\bSaleTier\x12\x19\n" +
+	"\x15SALE_TIER_UNSPECIFIED\x10\x00\x12\x16\n" +
+	"\x12SALE_TIER_PLATINUM\x10\x01\x12\x15\n" +
+	"\x11SALE_TIER_DIAMOND\x10\x02\x12\x12\n" +
+	"\x0eSALE_TIER_RUBY\x10\x032\xa2\x04\n" +
 	"\x0fProposalService\x12i\n" +
 	"\x0eCreateProposal\x12'.puri.proposal.v1.CreateProposalRequest\x1a(.puri.proposal.v1.CreateProposalResponse\"\x04\x8a\xb5\x18\x00\x12i\n" +
 	"\x0eUpdateProposal\x12'.puri.proposal.v1.UpdateProposalRequest\x1a(.puri.proposal.v1.UpdateProposalResponse\"\x04\x8a\xb5\x18\x00\x12i\n" +
@@ -1024,55 +1182,62 @@ func file_proposal_v1_proposal_proto_rawDescGZIP() []byte {
 	return file_proposal_v1_proposal_proto_rawDescData
 }
 
-var file_proposal_v1_proposal_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_proposal_v1_proposal_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
 var file_proposal_v1_proposal_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
 var file_proposal_v1_proposal_proto_goTypes = []any{
 	(ProposalStatus)(0),             // 0: puri.proposal.v1.ProposalStatus
-	(*Example)(nil),                 // 1: puri.proposal.v1.Example
-	(*ExampleValidation)(nil),       // 2: puri.proposal.v1.ExampleValidation
-	(*Proposal)(nil),                // 3: puri.proposal.v1.Proposal
-	(*CreateProposalRequest)(nil),   // 4: puri.proposal.v1.CreateProposalRequest
-	(*CreateProposalResponse)(nil),  // 5: puri.proposal.v1.CreateProposalResponse
-	(*UpdateProposalRequest)(nil),   // 6: puri.proposal.v1.UpdateProposalRequest
-	(*UpdateProposalResponse)(nil),  // 7: puri.proposal.v1.UpdateProposalResponse
-	(*SubmitProposalRequest)(nil),   // 8: puri.proposal.v1.SubmitProposalRequest
-	(*SubmitProposalResponse)(nil),  // 9: puri.proposal.v1.SubmitProposalResponse
-	(*GetProposalRequest)(nil),      // 10: puri.proposal.v1.GetProposalRequest
-	(*GetProposalResponse)(nil),     // 11: puri.proposal.v1.GetProposalResponse
-	(*ListMyProposalsRequest)(nil),  // 12: puri.proposal.v1.ListMyProposalsRequest
-	(*ListMyProposalsResponse)(nil), // 13: puri.proposal.v1.ListMyProposalsResponse
-	(v1.Language)(0),                // 14: puri.common.v1.Language
-	(*timestamppb.Timestamp)(nil),   // 15: google.protobuf.Timestamp
+	(ProposalKind)(0),               // 1: puri.proposal.v1.ProposalKind
+	(SaleTier)(0),                   // 2: puri.proposal.v1.SaleTier
+	(*Example)(nil),                 // 3: puri.proposal.v1.Example
+	(*ExampleValidation)(nil),       // 4: puri.proposal.v1.ExampleValidation
+	(*Proposal)(nil),                // 5: puri.proposal.v1.Proposal
+	(*CreateProposalRequest)(nil),   // 6: puri.proposal.v1.CreateProposalRequest
+	(*CreateProposalResponse)(nil),  // 7: puri.proposal.v1.CreateProposalResponse
+	(*UpdateProposalRequest)(nil),   // 8: puri.proposal.v1.UpdateProposalRequest
+	(*UpdateProposalResponse)(nil),  // 9: puri.proposal.v1.UpdateProposalResponse
+	(*SubmitProposalRequest)(nil),   // 10: puri.proposal.v1.SubmitProposalRequest
+	(*SubmitProposalResponse)(nil),  // 11: puri.proposal.v1.SubmitProposalResponse
+	(*GetProposalRequest)(nil),      // 12: puri.proposal.v1.GetProposalRequest
+	(*GetProposalResponse)(nil),     // 13: puri.proposal.v1.GetProposalResponse
+	(*ListMyProposalsRequest)(nil),  // 14: puri.proposal.v1.ListMyProposalsRequest
+	(*ListMyProposalsResponse)(nil), // 15: puri.proposal.v1.ListMyProposalsResponse
+	(v1.Language)(0),                // 16: puri.common.v1.Language
+	(*timestamppb.Timestamp)(nil),   // 17: google.protobuf.Timestamp
 }
 var file_proposal_v1_proposal_proto_depIdxs = []int32{
-	1,  // 0: puri.proposal.v1.Proposal.examples:type_name -> puri.proposal.v1.Example
-	14, // 1: puri.proposal.v1.Proposal.reference_solution_language:type_name -> puri.common.v1.Language
+	3,  // 0: puri.proposal.v1.Proposal.examples:type_name -> puri.proposal.v1.Example
+	16, // 1: puri.proposal.v1.Proposal.reference_solution_language:type_name -> puri.common.v1.Language
 	0,  // 2: puri.proposal.v1.Proposal.status:type_name -> puri.proposal.v1.ProposalStatus
-	2,  // 3: puri.proposal.v1.Proposal.example_validation_result:type_name -> puri.proposal.v1.ExampleValidation
-	15, // 4: puri.proposal.v1.Proposal.created_at:type_name -> google.protobuf.Timestamp
-	15, // 5: puri.proposal.v1.Proposal.updated_at:type_name -> google.protobuf.Timestamp
-	1,  // 6: puri.proposal.v1.UpdateProposalRequest.examples:type_name -> puri.proposal.v1.Example
-	14, // 7: puri.proposal.v1.UpdateProposalRequest.reference_solution_language:type_name -> puri.common.v1.Language
-	3,  // 8: puri.proposal.v1.UpdateProposalResponse.proposal:type_name -> puri.proposal.v1.Proposal
-	0,  // 9: puri.proposal.v1.SubmitProposalResponse.status:type_name -> puri.proposal.v1.ProposalStatus
-	2,  // 10: puri.proposal.v1.SubmitProposalResponse.example_validation_result:type_name -> puri.proposal.v1.ExampleValidation
-	3,  // 11: puri.proposal.v1.GetProposalResponse.proposal:type_name -> puri.proposal.v1.Proposal
-	3,  // 12: puri.proposal.v1.ListMyProposalsResponse.proposals:type_name -> puri.proposal.v1.Proposal
-	4,  // 13: puri.proposal.v1.ProposalService.CreateProposal:input_type -> puri.proposal.v1.CreateProposalRequest
-	6,  // 14: puri.proposal.v1.ProposalService.UpdateProposal:input_type -> puri.proposal.v1.UpdateProposalRequest
-	8,  // 15: puri.proposal.v1.ProposalService.SubmitProposal:input_type -> puri.proposal.v1.SubmitProposalRequest
-	10, // 16: puri.proposal.v1.ProposalService.GetProposal:input_type -> puri.proposal.v1.GetProposalRequest
-	12, // 17: puri.proposal.v1.ProposalService.ListMyProposals:input_type -> puri.proposal.v1.ListMyProposalsRequest
-	5,  // 18: puri.proposal.v1.ProposalService.CreateProposal:output_type -> puri.proposal.v1.CreateProposalResponse
-	7,  // 19: puri.proposal.v1.ProposalService.UpdateProposal:output_type -> puri.proposal.v1.UpdateProposalResponse
-	9,  // 20: puri.proposal.v1.ProposalService.SubmitProposal:output_type -> puri.proposal.v1.SubmitProposalResponse
-	11, // 21: puri.proposal.v1.ProposalService.GetProposal:output_type -> puri.proposal.v1.GetProposalResponse
-	13, // 22: puri.proposal.v1.ProposalService.ListMyProposals:output_type -> puri.proposal.v1.ListMyProposalsResponse
-	18, // [18:23] is the sub-list for method output_type
-	13, // [13:18] is the sub-list for method input_type
-	13, // [13:13] is the sub-list for extension type_name
-	13, // [13:13] is the sub-list for extension extendee
-	0,  // [0:13] is the sub-list for field type_name
+	4,  // 3: puri.proposal.v1.Proposal.example_validation_result:type_name -> puri.proposal.v1.ExampleValidation
+	17, // 4: puri.proposal.v1.Proposal.created_at:type_name -> google.protobuf.Timestamp
+	17, // 5: puri.proposal.v1.Proposal.updated_at:type_name -> google.protobuf.Timestamp
+	1,  // 6: puri.proposal.v1.Proposal.kind:type_name -> puri.proposal.v1.ProposalKind
+	2,  // 7: puri.proposal.v1.Proposal.sale_tier:type_name -> puri.proposal.v1.SaleTier
+	1,  // 8: puri.proposal.v1.CreateProposalRequest.kind:type_name -> puri.proposal.v1.ProposalKind
+	2,  // 9: puri.proposal.v1.CreateProposalRequest.sale_tier:type_name -> puri.proposal.v1.SaleTier
+	3,  // 10: puri.proposal.v1.UpdateProposalRequest.examples:type_name -> puri.proposal.v1.Example
+	16, // 11: puri.proposal.v1.UpdateProposalRequest.reference_solution_language:type_name -> puri.common.v1.Language
+	2,  // 12: puri.proposal.v1.UpdateProposalRequest.sale_tier:type_name -> puri.proposal.v1.SaleTier
+	5,  // 13: puri.proposal.v1.UpdateProposalResponse.proposal:type_name -> puri.proposal.v1.Proposal
+	0,  // 14: puri.proposal.v1.SubmitProposalResponse.status:type_name -> puri.proposal.v1.ProposalStatus
+	4,  // 15: puri.proposal.v1.SubmitProposalResponse.example_validation_result:type_name -> puri.proposal.v1.ExampleValidation
+	5,  // 16: puri.proposal.v1.GetProposalResponse.proposal:type_name -> puri.proposal.v1.Proposal
+	5,  // 17: puri.proposal.v1.ListMyProposalsResponse.proposals:type_name -> puri.proposal.v1.Proposal
+	6,  // 18: puri.proposal.v1.ProposalService.CreateProposal:input_type -> puri.proposal.v1.CreateProposalRequest
+	8,  // 19: puri.proposal.v1.ProposalService.UpdateProposal:input_type -> puri.proposal.v1.UpdateProposalRequest
+	10, // 20: puri.proposal.v1.ProposalService.SubmitProposal:input_type -> puri.proposal.v1.SubmitProposalRequest
+	12, // 21: puri.proposal.v1.ProposalService.GetProposal:input_type -> puri.proposal.v1.GetProposalRequest
+	14, // 22: puri.proposal.v1.ProposalService.ListMyProposals:input_type -> puri.proposal.v1.ListMyProposalsRequest
+	7,  // 23: puri.proposal.v1.ProposalService.CreateProposal:output_type -> puri.proposal.v1.CreateProposalResponse
+	9,  // 24: puri.proposal.v1.ProposalService.UpdateProposal:output_type -> puri.proposal.v1.UpdateProposalResponse
+	11, // 25: puri.proposal.v1.ProposalService.SubmitProposal:output_type -> puri.proposal.v1.SubmitProposalResponse
+	13, // 26: puri.proposal.v1.ProposalService.GetProposal:output_type -> puri.proposal.v1.GetProposalResponse
+	15, // 27: puri.proposal.v1.ProposalService.ListMyProposals:output_type -> puri.proposal.v1.ListMyProposalsResponse
+	23, // [23:28] is the sub-list for method output_type
+	18, // [18:23] is the sub-list for method input_type
+	18, // [18:18] is the sub-list for extension type_name
+	18, // [18:18] is the sub-list for extension extendee
+	0,  // [0:18] is the sub-list for field type_name
 }
 
 func init() { file_proposal_v1_proposal_proto_init() }
@@ -1087,7 +1252,7 @@ func file_proposal_v1_proposal_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proposal_v1_proposal_proto_rawDesc), len(file_proposal_v1_proposal_proto_rawDesc)),
-			NumEnums:      1,
+			NumEnums:      3,
 			NumMessages:   13,
 			NumExtensions: 0,
 			NumServices:   1,

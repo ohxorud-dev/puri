@@ -1,0 +1,352 @@
+---
+import TierBadge from './TierBadge.astro';
+
+interface Example {
+  input: string;
+  output: string;
+}
+
+interface Props {
+  problemId?: string | number;
+  title?: string;
+  tier?: string;
+  timeLimit?: string;
+  memoryLimit?: string;
+  examples?: Example[];
+  source?: string | string[];
+}
+
+const {
+  problemId = '',
+  title = '',
+  tier,
+  timeLimit = '',
+  memoryLimit = '',
+  examples = [],
+  source,
+} = Astro.props as Props;
+
+const sourceParts = source
+  ? (Array.isArray(source) ? source : [source])
+  : [];
+---
+<div class="problem-view" data-problem-view>
+  <div class="problem-header">
+    <h1 class="problem-title">
+      <span class="problem-id-label" data-pv-id>{problemId}</span>
+      <span data-pv-title>{title}</span>
+      {tier && <TierBadge tier={tier} />}
+    </h1>
+    <div class="problem-meta">
+      <span class="meta-badge">
+        시간 제한: <span data-pv-time>{timeLimit}</span>
+      </span>
+      <span class="meta-badge">
+        메모리 제한: <span data-pv-memory>{memoryLimit}</span>
+      </span>
+    </div>
+  </div>
+  <div class="content markdown-body">
+    <div data-pv-statement><slot /></div>
+
+    <div class="examples-section" data-pv-examples-wrap style={examples.length === 0 ? 'display:none;' : ''}>
+      <h2 class="examples-title">예제 입출력</h2>
+      <div data-pv-examples>
+        {examples.map((ex, index) => (
+          <div class="example-row">
+            <div class="example-box">
+              <div class="example-label">예제 입력 {index + 1}</div>
+              <pre class="example-code"><code>{ex.input}</code></pre>
+            </div>
+            <div class="example-box">
+              <div class="example-label">예제 출력 {index + 1}</div>
+              <pre class="example-code"><code>{ex.output}</code></pre>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    {sourceParts.length > 0 && (
+      <div class="source-section">
+        <h2 class="source-title">출처</h2>
+        <div class="source-path">
+          {sourceParts.map((part, i, arr) => (
+            <>
+              <span class="source-part">{part}</span>
+              {i < arr.length - 1 && <span class="source-sep">›</span>}
+            </>
+          ))}
+        </div>
+      </div>
+    )}
+  </div>
+</div>
+
+<script is:inline>
+  (function () {
+    if (window.__enhanceProblemView) return;
+    function enhance(root) {
+      (root || document).querySelectorAll('.problem-view .markdown-body pre').forEach(function (pre) {
+        if (pre.parentElement && pre.parentElement.classList.contains('clean-code-wrapper')) return;
+        var codeBlock = pre.querySelector('code');
+        if (!codeBlock) return;
+
+        var wrapper = document.createElement('div');
+        wrapper.className = 'clean-code-wrapper';
+
+        var iconCopy = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>';
+        var iconCheck = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+
+        var copyBtn = document.createElement('button');
+        copyBtn.className = 'clean-copy-btn';
+        copyBtn.title = '복사하기';
+        copyBtn.innerHTML = iconCopy;
+        copyBtn.onclick = function () {
+          var code = codeBlock.innerText;
+          if (!code) return;
+          navigator.clipboard.writeText(code).then(function () {
+            copyBtn.innerHTML = iconCheck;
+            copyBtn.classList.add('copied');
+            setTimeout(function () {
+              copyBtn.innerHTML = iconCopy;
+              copyBtn.classList.remove('copied');
+            }, 2000);
+          });
+        };
+
+        var lines = codeBlock.innerText.split('\n');
+        if (lines[lines.length - 1] === '') lines.pop();
+        var gutter = document.createElement('div');
+        gutter.className = 'clean-gutter';
+        var gutterHtml = '';
+        lines.forEach(function (_, idx) { gutterHtml += '<span>' + (idx + 1) + '</span>'; });
+        gutter.innerHTML = gutterHtml;
+
+        pre.parentNode.insertBefore(wrapper, pre);
+        wrapper.appendChild(gutter);
+        wrapper.appendChild(pre);
+        if (codeBlock.innerText.trim() !== '') wrapper.appendChild(copyBtn);
+      });
+    }
+    window.__enhanceProblemView = enhance;
+    document.addEventListener('DOMContentLoaded', function () { enhance(document); });
+  })();
+</script>
+
+<style is:global>
+  .problem-view .problem-header {
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .problem-view .problem-title {
+    margin: 0 0 1rem 0;
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: var(--color-text);
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+  }
+  .problem-view .problem-id-label {
+    color: var(--color-btn-1-bg);
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 800;
+    font-size: 1.8rem;
+    padding-right: 0.5rem;
+    position: relative;
+  }
+  .problem-view .problem-id-label:empty { display: none; }
+  .problem-view .problem-id-label::after {
+    content: '';
+    position: absolute;
+    right: -4px;
+    top: 25%;
+    height: 50%;
+    width: 2px;
+    background: var(--color-border);
+  }
+  .problem-view .problem-tier-badge {
+    font-size: 1.1rem;
+    padding: 0.3rem 0.8rem;
+    border-radius: 8px;
+    font-weight: 800;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  }
+  .problem-view .problem-meta {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .problem-view .meta-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: var(--color-surface);
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 0.4rem 0.8rem;
+    border-radius: 8px;
+    border: 1px solid var(--color-border);
+  }
+
+  .problem-view .examples-section {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px dashed var(--color-border);
+  }
+  .problem-view .examples-title {
+    font-size: 1.6rem;
+    font-weight: 800;
+    margin-bottom: 2rem;
+    color: var(--color-text);
+  }
+  .problem-view .example-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .problem-view .example-box {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  .problem-view .example-label {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--color-text-muted);
+    padding-left: 0.2rem;
+  }
+  .problem-view .example-code { margin: 0 !important; }
+
+  .problem-view .source-section {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px dashed var(--color-border);
+  }
+  .problem-view .source-title {
+    font-size: 1.6rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    color: var(--color-text);
+  }
+  .problem-view .source-path {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.95rem;
+  }
+  .problem-view .source-part {
+    background: var(--color-surface);
+    color: var(--color-text);
+    padding: 0.35rem 0.75rem;
+    border-radius: 6px;
+    border: 1px solid var(--color-border);
+    font-weight: 600;
+  }
+  .problem-view .source-sep {
+    color: var(--color-text-muted);
+    font-weight: 700;
+  }
+
+  .problem-view .markdown-body h2 {
+    color: var(--color-text);
+    margin-top: 2.5rem;
+    margin-bottom: 1rem;
+    font-weight: 800;
+    font-size: 1.4rem;
+    display: flex;
+    align-items: center;
+    letter-spacing: -0.01em;
+  }
+  .problem-view .markdown-body h2::before {
+    content: ''; display: inline-block; width: 5px; height: 1.2rem;
+    background: var(--color-btn-1-bg); margin-right: 0.6rem; border-radius: 4px;
+  }
+  .problem-view .markdown-body p {
+    color: var(--color-text);
+    font-size: 1.05rem;
+    line-height: 1.7;
+    margin-bottom: 1.5rem;
+  }
+  .problem-view .markdown-body p code,
+  .problem-view .markdown-body li code {
+    background: var(--color-surface);
+    color: var(--color-btn-1-bg);
+    padding: 0.2rem 0.4rem;
+    border-radius: 6px;
+    font-size: 0.9em;
+    font-weight: 600;
+    border: 1px solid var(--color-border);
+  }
+
+  .problem-view .clean-code-wrapper {
+    position: relative;
+    display: flex;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    overflow: hidden;
+  }
+  .problem-view .clean-gutter {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem 0.5rem;
+    background: rgba(0,0,0,0.03);
+    border-right: 1px solid var(--color-border);
+    color: var(--color-text-muted);
+    font-family: 'JetBrains Mono', Consolas, monospace;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    text-align: right;
+    user-select: none;
+    min-width: 2.5rem;
+  }
+  :root[data-theme='dark'] .problem-view .clean-gutter {
+    background: rgba(255,255,255,0.02);
+  }
+  .problem-view .clean-code-wrapper pre {
+    margin: 0 !important;
+    padding: 1rem 1.2rem !important;
+    background: transparent !important;
+    border-radius: 0 !important;
+    border: none !important;
+    flex: 1;
+    overflow-x: auto;
+  }
+  .problem-view .clean-code-wrapper code {
+    font-family: 'JetBrains Mono', Consolas, monospace;
+    font-size: 0.9rem;
+    color: var(--color-text);
+    line-height: 1.5;
+  }
+  .problem-view .clean-copy-btn {
+    position: absolute;
+    top: 0.5rem; right: 0.5rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    color: var(--color-text-muted);
+    padding: 0.4rem;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    transition: all 0.2s;
+  }
+  .problem-view .clean-copy-btn:hover {
+    background: var(--color-border);
+    color: var(--color-text);
+  }
+  .problem-view .clean-copy-btn.copied {
+    color: #4ade80;
+    border-color: #4ade80;
+  }
+</style>

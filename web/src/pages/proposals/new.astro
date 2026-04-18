@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProblemView from '../../components/ProblemView.astro';
 ---
 <BaseLayout title="문제 출제 - Puri">
   <div class="propose-container">
@@ -17,6 +18,34 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     </div>
 
     <form id="propose-form" class="propose-form" style="display:none;">
+      <section class="form-section">
+        <h2>출제 방식</h2>
+        <div class="kind-picker" role="radiogroup" aria-label="출제 방식">
+          <label class="kind-opt">
+            <input type="radio" name="kind" value="general" checked />
+            <span class="kind-card">
+              <span class="kind-title">일반 문제 출제</span>
+              <span class="kind-desc">커뮤니티에 공개되는 일반 문제</span>
+            </span>
+          </label>
+          <label class="kind-opt">
+            <input type="radio" name="kind" value="sale" />
+            <span class="kind-card">
+              <span class="kind-title">문제 판매</span>
+              <span class="kind-desc">대회용 문제 제출</span>
+            </span>
+          </label>
+        </div>
+        <div id="sale-tier-wrap" class="field" style="display:none;">
+          <label for="sale_tier">문제 난이도</label>
+          <select id="sale_tier" name="sale_tier">
+            <option value="1">플레티넘</option>
+            <option value="2">다이아</option>
+            <option value="3">루비</option>
+          </select>
+        </div>
+      </section>
+
       <section class="form-section">
         <h2>기본 정보</h2>
         <div class="field">
@@ -84,11 +113,25 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
       <div class="actions">
         <button type="button" id="save-draft" class="btn-secondary">초안 저장</button>
+        <button type="button" id="preview-btn" class="btn-secondary">문제 미리보기</button>
         <button type="button" id="submit-btn" class="btn-primary">제출 (예제 검증)</button>
       </div>
 
       <div id="status-msg" class="status-msg" style="display:none;"></div>
       <div id="validation-panel" class="validation-panel" style="display:none;"></div>
+
+      <div id="preview-modal" class="preview-modal" style="display:none;" role="dialog" aria-modal="true" aria-label="문제 미리보기">
+        <div class="preview-backdrop"></div>
+        <div class="preview-dialog">
+          <header class="preview-head">
+            <h2>문제 미리보기</h2>
+            <button type="button" id="preview-close" class="btn-ghost" aria-label="닫기">✕</button>
+          </header>
+          <div id="preview-body" class="preview-body">
+            <ProblemView problemId="00000" />
+          </div>
+        </div>
+      </div>
     </form>
 
   </div>
@@ -133,6 +176,25 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   const addExBtn = document.getElementById('add-example') as HTMLButtonElement;
   const saveBtn = document.getElementById('save-draft') as HTMLButtonElement;
   const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement;
+  const previewBtn = document.getElementById('preview-btn') as HTMLButtonElement;
+  const previewModal = document.getElementById('preview-modal') as HTMLDivElement;
+  const previewBody = document.getElementById('preview-body') as HTMLDivElement;
+  const previewClose = document.getElementById('preview-close') as HTMLButtonElement;
+  const kindRadios = Array.from(document.querySelectorAll<HTMLInputElement>('input[name="kind"]'));
+  const saleTierWrap = document.getElementById('sale-tier-wrap') as HTMLDivElement;
+  const saleTierEl = document.getElementById('sale_tier') as HTMLSelectElement;
+
+  function currentKind(): 'general' | 'sale' {
+    return (kindRadios.find(r => r.checked)?.value as 'general' | 'sale') || 'general';
+  }
+  function syncSaleTierVisibility() {
+    saleTierWrap.style.display = currentKind() === 'sale' ? '' : 'none';
+  }
+  function lockKindRadios() {
+    kindRadios.forEach(r => { r.disabled = true; });
+  }
+  kindRadios.forEach(r => r.addEventListener('change', syncSaleTierVisibility));
+  syncSaleTierVisibility();
 
   function escapeHtml(s: string) {
     return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -194,8 +256,12 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   async function ensureProposal(): Promise<bigint> {
     if (proposalId) return proposalId;
     const title = titleEl.value.trim() || '제목 없는 제안';
-    const resp = await proposalClient.createProposal({ title });
+    const kind = currentKind();
+    const createReq: any = { title, kind: kind === 'sale' ? 2 : 1 };
+    if (kind === 'sale') createReq.saleTier = parseInt(saleTierEl.value, 10);
+    const resp = await proposalClient.createProposal(createReq);
     proposalId = resp.proposalId;
+    lockKindRadios();
     const newUrl = new URL(window.location.href);
     newUrl.searchParams.set('id', proposalId.toString());
     window.history.replaceState({}, '', newUrl);
@@ -216,6 +282,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       examples,
     };
     if (includeTestcases && testcasesGz) update.testcasesGz = testcasesGz;
+    if (currentKind() === 'sale') update.saleTier = parseInt(saleTierEl.value, 10);
     await proposalClient.updateProposal(update);
   }
 
@@ -230,6 +297,113 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     } finally {
       saveBtn.disabled = false;
     }
+  });
+
+  function renderMarkdown(src: string): string {
+    const lines = src.replace(/\r\n/g, '\n').split('\n');
+    const out: string[] = [];
+    let para: string[] = [];
+    const flush = () => {
+      if (para.length) { out.push(`<p>${para.join('<br/>')}</p>`); para = []; }
+    };
+    for (const raw of lines) {
+      const line = raw;
+      const h = /^(#{1,6})\s+(.*)$/.exec(line);
+      if (h) {
+        flush();
+        const lvl = h[1].length;
+        out.push(`<h${lvl}>${escapeHtml(h[2])}</h${lvl}>`);
+        continue;
+      }
+      if (!line.trim()) { flush(); continue; }
+      para.push(escapeHtml(line));
+    }
+    flush();
+    return out.join('\n');
+  }
+
+  function $pv<T extends Element = HTMLElement>(sel: string): T {
+    return previewBody.querySelector(sel) as T;
+  }
+
+  const TIER_STYLES: Record<string, { label: string; bg: string }> = {
+    platinum: { label: 'Platinum', bg: 'linear-gradient(135deg, #34d399, #059669)' },
+    diamond:  { label: 'Diamond',  bg: 'linear-gradient(135deg, #38bdf8, #0284c7)' },
+    ruby:     { label: 'Ruby',     bg: 'linear-gradient(135deg, #f43f5e, #be123c)' },
+  };
+
+  function openPreview() {
+    const title = titleEl.value.trim() || '(제목 없음)';
+    const kind = currentKind();
+
+    $pv('[data-pv-title]').textContent = title;
+    $pv('[data-pv-time]').textContent = tlEl.value.trim();
+    $pv('[data-pv-memory]').textContent = mlEl.value.trim();
+
+    const titleWrap = $pv('.problem-title');
+    titleWrap.querySelectorAll('.tier-badge, .problem-tier-badge').forEach(n => n.remove());
+    if (kind === 'sale') {
+      const key = saleTierEl.options[saleTierEl.selectedIndex]?.value;
+      const tierKey = key === '1' ? 'platinum' : key === '2' ? 'diamond' : 'ruby';
+      const t = TIER_STYLES[tierKey];
+      const badge = document.createElement('span');
+      badge.className = 'tier-badge problem-tier-badge';
+      badge.style.background = t.bg;
+      badge.style.color = '#fff';
+      badge.style.borderRadius = '6px';
+      badge.style.padding = '0.3rem 0.8rem';
+      badge.style.fontWeight = '700';
+      badge.style.fontSize = '0.85rem';
+      badge.textContent = t.label;
+      titleWrap.appendChild(badge);
+    }
+
+    $pv('[data-pv-statement]').innerHTML = renderMarkdown(stmtEl.value);
+
+    const examples = collectExamples();
+    const wrap = $pv('[data-pv-examples-wrap]') as HTMLElement;
+    const list = $pv('[data-pv-examples]');
+    if (examples.length === 0) {
+      wrap.style.display = 'none';
+      list.innerHTML = '';
+    } else {
+      wrap.style.display = '';
+      list.innerHTML = examples.map((ex, i) => `
+        <div class="example-row">
+          <div class="example-box">
+            <div class="example-label">예제 입력 ${i + 1}</div>
+            <pre class="example-code"><code>${escapeHtml(ex.input)}</code></pre>
+          </div>
+          <div class="example-box">
+            <div class="example-label">예제 출력 ${i + 1}</div>
+            <pre class="example-code"><code>${escapeHtml(ex.output)}</code></pre>
+          </div>
+        </div>`).join('');
+    }
+
+    // Re-wrap pre blocks (gutter + copy button) for newly injected markdown/examples.
+    // Unwrap previously-enhanced blocks first so repeated previews don't double-wrap.
+    previewBody.querySelectorAll('.clean-code-wrapper').forEach(w => {
+      const pre = w.querySelector('pre');
+      if (pre && w.parentNode) w.parentNode.insertBefore(pre, w);
+      w.remove();
+    });
+    (window as any).__enhanceProblemView?.(previewBody);
+
+    previewModal.style.display = '';
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closePreview() {
+    previewModal.style.display = 'none';
+    document.body.style.overflow = '';
+  }
+
+  previewBtn.addEventListener('click', openPreview);
+  previewClose.addEventListener('click', closePreview);
+  previewModal.querySelector('.preview-backdrop')!.addEventListener('click', closePreview);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && previewModal.style.display !== 'none') closePreview();
   });
 
   submitBtn.addEventListener('click', async () => {
@@ -283,6 +457,11 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       const resp = await proposalClient.getProposal({ proposalId });
       const p = resp.proposal!;
       titleEl.value = p.title;
+      const kindVal = p.kind === 2 ? 'sale' : 'general';
+      kindRadios.forEach(r => { r.checked = r.value === kindVal; });
+      lockKindRadios();
+      if (kindVal === 'sale' && p.saleTier) saleTierEl.value = String(p.saleTier);
+      syncSaleTierVisibility();
       stmtEl.value = p.statementMd;
       tlEl.value = p.timeLimit;
       mlEl.value = p.memoryLimit;
@@ -316,6 +495,22 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   }
   .btn-list:hover { background: var(--color-surface); }
   .propose-form { display: flex; flex-direction: column; gap: 1.5rem; }
+  .kind-picker { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-bottom: 1rem; }
+  .kind-opt { cursor: pointer; }
+  .kind-opt input { position: absolute; opacity: 0; pointer-events: none; }
+  .kind-card {
+    display: flex; flex-direction: column; gap: 0.25rem;
+    padding: 1rem 1.1rem; border: 1.5px solid var(--color-border);
+    border-radius: 10px; background: var(--color-bg);
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .kind-opt input:checked + .kind-card {
+    border-color: var(--color-btn-1-bg);
+    background: color-mix(in srgb, var(--color-btn-1-bg) 8%, var(--color-bg));
+  }
+  .kind-opt input:disabled + .kind-card { opacity: 0.65; cursor: not-allowed; }
+  .kind-title { font-weight: 700; font-size: 0.98rem; }
+  .kind-desc { font-size: 0.85rem; color: var(--color-text-muted); }
   .form-section {
     background: var(--color-surface); border: 1px solid var(--color-border);
     border-radius: 12px; padding: 1.5rem;
@@ -365,6 +560,12 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   .val-diff { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-top: 0.6rem; }
   .val-diff pre { background: var(--color-surface); padding: 0.5rem 0.7rem; border-radius: 6px; font-size: 0.85rem; margin: 0.2rem 0 0; white-space: pre-wrap; word-break: break-all; }
   .notes { margin-bottom: 0.8rem; color: var(--color-text-muted); font-size: 0.9rem; }
+  .preview-modal { position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 2rem 1rem; }
+  .preview-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.55); backdrop-filter: blur(2px); }
+  .preview-dialog { position: relative; background: var(--color-bg); color: var(--color-text); border: 1px solid var(--color-border); border-radius: 14px; width: min(860px, 100%); max-height: 90vh; display: flex; flex-direction: column; box-shadow: 0 30px 80px rgba(0,0,0,0.35); }
+  .preview-head { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.25rem; border-bottom: 1px solid var(--color-border); }
+  .preview-head h2 { margin: 0; font-size: 1.05rem; }
+  .preview-body { overflow-y: auto; padding: 1.5rem 1.75rem 2rem; }
   .login-required { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 12px; padding: 2.5rem; text-align: center; }
   .login-required p { margin: 0 0 1rem; color: var(--color-text-muted); font-size: 1rem; }
   .login-required .btn-primary { display: inline-block; text-decoration: none; }
