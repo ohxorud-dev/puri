@@ -8,6 +8,9 @@ on:
   schedule:
     - cron: '53 8 * * 1'
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+
 permissions:
   contents: read
   security-events: write
@@ -16,19 +19,25 @@ jobs:
   snyk-node:
     name: Snyk (npm)
     runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
     steps:
       - uses: actions/checkout@v4
         with:
           submodules: false
-      - uses: snyk/actions/setup@9adf32b1121593767fc3c057af55b55db032dc04 # master
+      - name: Check token
+        id: token
+        run: echo "set=${{ secrets.SNYK_TOKEN != '' }}" >> "$GITHUB_OUTPUT"
+      - if: steps.token.outputs.set == 'true'
+        uses: snyk/actions/setup@9adf32b1121593767fc3c057af55b55db032dc04 # master
       - name: Snyk test (all workspaces)
+        if: steps.token.outputs.set == 'true'
         continue-on-error: true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run: snyk test --all-projects --sarif-file-output=snyk-node.sarif
+        run: snyk test --all-projects --sarif-file-output=snyk-node.sarif || true
       - name: Upload SARIF
-        if: always()
-        uses: github/codeql-action/upload-sarif@v3
+        if: steps.token.outputs.set == 'true' && hashFiles('snyk-node.sarif') != ''
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: snyk-node.sarif
           category: snyk-node
@@ -36,6 +45,7 @@ jobs:
   snyk-go:
     name: Snyk (${{ matrix.module }})
     runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
     strategy:
       fail-fast: false
       matrix:
@@ -47,16 +57,21 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: '1.25'
-      - uses: snyk/actions/setup@9adf32b1121593767fc3c057af55b55db032dc04 # master
+      - name: Check token
+        id: token
+        run: echo "set=${{ secrets.SNYK_TOKEN != '' }}" >> "$GITHUB_OUTPUT"
+      - if: steps.token.outputs.set == 'true'
+        uses: snyk/actions/setup@9adf32b1121593767fc3c057af55b55db032dc04 # master
       - name: Snyk test
+        if: steps.token.outputs.set == 'true'
         continue-on-error: true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         working-directory: ${{ matrix.module }}
-        run: snyk test --sarif-file-output=../../snyk-${{ strategy.job-index }}.sarif
+        run: snyk test --sarif-file-output=../../snyk-${{ strategy.job-index }}.sarif || true
       - name: Upload SARIF
-        if: always()
-        uses: github/codeql-action/upload-sarif@v3
+        if: steps.token.outputs.set == 'true' && hashFiles(format('snyk-{0}.sarif', strategy.job-index)) != ''
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: snyk-${{ strategy.job-index }}.sarif
           category: snyk-${{ matrix.module }}
@@ -64,19 +79,25 @@ jobs:
   snyk-code:
     name: Snyk Code (SAST)
     runs-on: ubuntu-latest
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
     steps:
       - uses: actions/checkout@v4
         with:
           submodules: false
-      - uses: snyk/actions/setup@9adf32b1121593767fc3c057af55b55db032dc04 # master
+      - name: Check token
+        id: token
+        run: echo "set=${{ secrets.SNYK_TOKEN != '' }}" >> "$GITHUB_OUTPUT"
+      - if: steps.token.outputs.set == 'true'
+        uses: snyk/actions/setup@9adf32b1121593767fc3c057af55b55db032dc04 # master
       - name: Snyk Code test
+        if: steps.token.outputs.set == 'true'
         continue-on-error: true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        run: snyk code test --sarif-file-output=snyk-code.sarif
+        run: snyk code test --sarif-file-output=snyk-code.sarif || true
       - name: Upload SARIF
-        if: always()
-        uses: github/codeql-action/upload-sarif@v3
+        if: steps.token.outputs.set == 'true' && hashFiles('snyk-code.sarif') != ''
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: snyk-code.sarif
           category: snyk-code

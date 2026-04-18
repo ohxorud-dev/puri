@@ -17,6 +17,7 @@ on:
 
 env:
   IMAGE: ghcr.io/${{ github.repository_owner }}/puri-submission
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
 
 permissions:
   contents: read

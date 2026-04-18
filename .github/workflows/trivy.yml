@@ -8,6 +8,9 @@ on:
   schedule:
     - cron: '47 8 * * 1'
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+
 jobs:
   scan-fs:
     name: Filesystem scan
@@ -31,7 +34,7 @@ jobs:
           ignore-unfixed: true
 
       - name: Upload SARIF
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: trivy-fs.sarif
           category: trivy-fs
