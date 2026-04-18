@@ -44,7 +44,7 @@ var languageConfigs = map[string]LanguageConfig{
 		RunCmd:   "java Main",
 	},
 	"LANGUAGE_GO": {
-		Image:    "golang:1.26",
+		Image:    "golang:1.25",
 		FileName: "main.go",
 		RunCmd:   "go run main.go",
 	},
@@ -108,7 +108,7 @@ func (r *DockerRunner) ensureImage(ctx context.Context, img string) error {
 		return nil
 	}
 
-	pullCtx, cancel := context.WithTimeout(ctx, 5*time.Minute)
+	pullCtx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
 	defer cancel()
 	rc, err := r.cli.ImagePull(pullCtx, img, image.PullOptions{})
 	if err != nil {
