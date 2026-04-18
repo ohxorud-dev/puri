@@ -40,6 +40,12 @@ func NewConsumer(url string, repo *repository.SubmissionRepository, runner *exec
 		return nil, fmt.Errorf("failed to open channel: %w", err)
 	}
 
+	if err := ch.Qos(1, 0, false); err != nil {
+		ch.Close()
+		conn.Close()
+		return nil, fmt.Errorf("failed to set QoS: %w", err)
+	}
+
 	_, err = ch.QueueDeclare(
 		"submission_jobs",
 		true,
