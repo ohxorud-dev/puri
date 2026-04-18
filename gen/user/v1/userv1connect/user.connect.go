@@ -58,6 +58,12 @@ const (
 	// UserServiceAdminUnbanUserProcedure is the fully-qualified name of the UserService's
 	// AdminUnbanUser RPC.
 	UserServiceAdminUnbanUserProcedure = "/puri.user.v1.UserService/AdminUnbanUser"
+	// UserServiceAdminUpdateBanReasonProcedure is the fully-qualified name of the UserService's
+	// AdminUpdateBanReason RPC.
+	UserServiceAdminUpdateBanReasonProcedure = "/puri.user.v1.UserService/AdminUpdateBanReason"
+	// UserServiceAdminSetUserRoleProcedure is the fully-qualified name of the UserService's
+	// AdminSetUserRole RPC.
+	UserServiceAdminSetUserRoleProcedure = "/puri.user.v1.UserService/AdminSetUserRole"
 )
 
 // UserServiceClient is a client for the puri.user.v1.UserService service.
@@ -72,6 +78,8 @@ type UserServiceClient interface {
 	AdminListUsers(context.Context, *connect.Request[v1.AdminListUsersRequest]) (*connect.Response[v1.AdminListUsersResponse], error)
 	AdminBanUser(context.Context, *connect.Request[v1.AdminBanUserRequest]) (*connect.Response[v1.AdminBanUserResponse], error)
 	AdminUnbanUser(context.Context, *connect.Request[v1.AdminUnbanUserRequest]) (*connect.Response[v1.AdminUnbanUserResponse], error)
+	AdminUpdateBanReason(context.Context, *connect.Request[v1.AdminUpdateBanReasonRequest]) (*connect.Response[v1.AdminUpdateBanReasonResponse], error)
+	AdminSetUserRole(context.Context, *connect.Request[v1.AdminSetUserRoleRequest]) (*connect.Response[v1.AdminSetUserRoleResponse], error)
 }
 
 // NewUserServiceClient constructs a client for the puri.user.v1.UserService service. By default, it
@@ -145,21 +153,35 @@ func NewUserServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			connect.WithSchema(userServiceMethods.ByName("AdminUnbanUser")),
 			connect.WithClientOptions(opts...),
 		),
+		adminUpdateBanReason: connect.NewClient[v1.AdminUpdateBanReasonRequest, v1.AdminUpdateBanReasonResponse](
+			httpClient,
+			baseURL+UserServiceAdminUpdateBanReasonProcedure,
+			connect.WithSchema(userServiceMethods.ByName("AdminUpdateBanReason")),
+			connect.WithClientOptions(opts...),
+		),
+		adminSetUserRole: connect.NewClient[v1.AdminSetUserRoleRequest, v1.AdminSetUserRoleResponse](
+			httpClient,
+			baseURL+UserServiceAdminSetUserRoleProcedure,
+			connect.WithSchema(userServiceMethods.ByName("AdminSetUserRole")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // userServiceClient implements UserServiceClient.
 type userServiceClient struct {
-	register          *connect.Client[v1.RegisterRequest, v1.RegisterResponse]
-	login             *connect.Client[v1.LoginRequest, v1.LoginResponse]
-	logout            *connect.Client[v1.LogoutRequest, v1.LogoutResponse]
-	getProfile        *connect.Client[v1.GetProfileRequest, v1.GetProfileResponse]
-	updateProfile     *connect.Client[v1.UpdateProfileRequest, v1.UpdateProfileResponse]
-	getRanking        *connect.Client[v1.GetRankingRequest, v1.GetRankingResponse]
-	getUserByUsername *connect.Client[v1.GetUserByUsernameRequest, v1.GetUserByUsernameResponse]
-	adminListUsers    *connect.Client[v1.AdminListUsersRequest, v1.AdminListUsersResponse]
-	adminBanUser      *connect.Client[v1.AdminBanUserRequest, v1.AdminBanUserResponse]
-	adminUnbanUser    *connect.Client[v1.AdminUnbanUserRequest, v1.AdminUnbanUserResponse]
+	register             *connect.Client[v1.RegisterRequest, v1.RegisterResponse]
+	login                *connect.Client[v1.LoginRequest, v1.LoginResponse]
+	logout               *connect.Client[v1.LogoutRequest, v1.LogoutResponse]
+	getProfile           *connect.Client[v1.GetProfileRequest, v1.GetProfileResponse]
+	updateProfile        *connect.Client[v1.UpdateProfileRequest, v1.UpdateProfileResponse]
+	getRanking           *connect.Client[v1.GetRankingRequest, v1.GetRankingResponse]
+	getUserByUsername    *connect.Client[v1.GetUserByUsernameRequest, v1.GetUserByUsernameResponse]
+	adminListUsers       *connect.Client[v1.AdminListUsersRequest, v1.AdminListUsersResponse]
+	adminBanUser         *connect.Client[v1.AdminBanUserRequest, v1.AdminBanUserResponse]
+	adminUnbanUser       *connect.Client[v1.AdminUnbanUserRequest, v1.AdminUnbanUserResponse]
+	adminUpdateBanReason *connect.Client[v1.AdminUpdateBanReasonRequest, v1.AdminUpdateBanReasonResponse]
+	adminSetUserRole     *connect.Client[v1.AdminSetUserRoleRequest, v1.AdminSetUserRoleResponse]
 }
 
 // Register calls puri.user.v1.UserService.Register.
@@ -212,6 +234,16 @@ func (c *userServiceClient) AdminUnbanUser(ctx context.Context, req *connect.Req
 	return c.adminUnbanUser.CallUnary(ctx, req)
 }
 
+// AdminUpdateBanReason calls puri.user.v1.UserService.AdminUpdateBanReason.
+func (c *userServiceClient) AdminUpdateBanReason(ctx context.Context, req *connect.Request[v1.AdminUpdateBanReasonRequest]) (*connect.Response[v1.AdminUpdateBanReasonResponse], error) {
+	return c.adminUpdateBanReason.CallUnary(ctx, req)
+}
+
+// AdminSetUserRole calls puri.user.v1.UserService.AdminSetUserRole.
+func (c *userServiceClient) AdminSetUserRole(ctx context.Context, req *connect.Request[v1.AdminSetUserRoleRequest]) (*connect.Response[v1.AdminSetUserRoleResponse], error) {
+	return c.adminSetUserRole.CallUnary(ctx, req)
+}
+
 // UserServiceHandler is an implementation of the puri.user.v1.UserService service.
 type UserServiceHandler interface {
 	Register(context.Context, *connect.Request[v1.RegisterRequest]) (*connect.Response[v1.RegisterResponse], error)
@@ -224,6 +256,8 @@ type UserServiceHandler interface {
 	AdminListUsers(context.Context, *connect.Request[v1.AdminListUsersRequest]) (*connect.Response[v1.AdminListUsersResponse], error)
 	AdminBanUser(context.Context, *connect.Request[v1.AdminBanUserRequest]) (*connect.Response[v1.AdminBanUserResponse], error)
 	AdminUnbanUser(context.Context, *connect.Request[v1.AdminUnbanUserRequest]) (*connect.Response[v1.AdminUnbanUserResponse], error)
+	AdminUpdateBanReason(context.Context, *connect.Request[v1.AdminUpdateBanReasonRequest]) (*connect.Response[v1.AdminUpdateBanReasonResponse], error)
+	AdminSetUserRole(context.Context, *connect.Request[v1.AdminSetUserRoleRequest]) (*connect.Response[v1.AdminSetUserRoleResponse], error)
 }
 
 // NewUserServiceHandler builds an HTTP handler from the service implementation. It returns the path
@@ -293,6 +327,18 @@ func NewUserServiceHandler(svc UserServiceHandler, opts ...connect.HandlerOption
 		connect.WithSchema(userServiceMethods.ByName("AdminUnbanUser")),
 		connect.WithHandlerOptions(opts...),
 	)
+	userServiceAdminUpdateBanReasonHandler := connect.NewUnaryHandler(
+		UserServiceAdminUpdateBanReasonProcedure,
+		svc.AdminUpdateBanReason,
+		connect.WithSchema(userServiceMethods.ByName("AdminUpdateBanReason")),
+		connect.WithHandlerOptions(opts...),
+	)
+	userServiceAdminSetUserRoleHandler := connect.NewUnaryHandler(
+		UserServiceAdminSetUserRoleProcedure,
+		svc.AdminSetUserRole,
+		connect.WithSchema(userServiceMethods.ByName("AdminSetUserRole")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/puri.user.v1.UserService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case UserServiceRegisterProcedure:
@@ -315,6 +361,10 @@ func NewUserServiceHandler(svc UserServiceHandler, opts ...connect.HandlerOption
 			userServiceAdminBanUserHandler.ServeHTTP(w, r)
 		case UserServiceAdminUnbanUserProcedure:
 			userServiceAdminUnbanUserHandler.ServeHTTP(w, r)
+		case UserServiceAdminUpdateBanReasonProcedure:
+			userServiceAdminUpdateBanReasonHandler.ServeHTTP(w, r)
+		case UserServiceAdminSetUserRoleProcedure:
+			userServiceAdminSetUserRoleHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -362,4 +412,12 @@ func (UnimplementedUserServiceHandler) AdminBanUser(context.Context, *connect.Re
 
 func (UnimplementedUserServiceHandler) AdminUnbanUser(context.Context, *connect.Request[v1.AdminUnbanUserRequest]) (*connect.Response[v1.AdminUnbanUserResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("puri.user.v1.UserService.AdminUnbanUser is not implemented"))
+}
+
+func (UnimplementedUserServiceHandler) AdminUpdateBanReason(context.Context, *connect.Request[v1.AdminUpdateBanReasonRequest]) (*connect.Response[v1.AdminUpdateBanReasonResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("puri.user.v1.UserService.AdminUpdateBanReason is not implemented"))
+}
+
+func (UnimplementedUserServiceHandler) AdminSetUserRole(context.Context, *connect.Request[v1.AdminSetUserRoleRequest]) (*connect.Response[v1.AdminSetUserRoleResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("puri.user.v1.UserService.AdminSetUserRole is not implemented"))
 }

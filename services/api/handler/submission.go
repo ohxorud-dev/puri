@@ -98,6 +98,13 @@ func (h *SubmissionServiceHandler) ListSubmissions(ctx context.Context, req *con
 	return resp, nil
 }
 
+func (h *SubmissionServiceHandler) DeleteSubmission(ctx context.Context, req *connect.Request[submissionv1.DeleteSubmissionRequest]) (*connect.Response[submissionv1.DeleteSubmissionResponse], error) {
+	if !h.viewerIsAdmin(ctx) {
+		return nil, connect.NewError(connect.CodePermissionDenied, fmt.Errorf("admin only"))
+	}
+	return h.client.DeleteSubmission(ctx, req)
+}
+
 func (h *SubmissionServiceHandler) StreamSubmissionStatus(ctx context.Context, req *connect.Request[submissionv1.StreamSubmissionStatusRequest], stream *connect.ServerStream[submissionv1.StreamSubmissionStatusResponse]) error {
 	clientStream, err := h.client.StreamSubmissionStatus(ctx, req)
 	if err != nil {

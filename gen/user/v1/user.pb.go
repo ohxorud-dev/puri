@@ -35,6 +35,7 @@ type User struct {
 	Role          string                 `protobuf:"bytes,7,opt,name=role,proto3" json:"role,omitempty"`
 	IsBanned      bool                   `protobuf:"varint,8,opt,name=is_banned,json=isBanned,proto3" json:"is_banned,omitempty"`
 	BannedAt      *timestamppb.Timestamp `protobuf:"bytes,9,opt,name=banned_at,json=bannedAt,proto3" json:"banned_at,omitempty"`
+	ActiveBan     *Ban                   `protobuf:"bytes,10,opt,name=active_ban,json=activeBan,proto3" json:"active_ban,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -128,6 +129,13 @@ func (x *User) GetIsBanned() bool {
 func (x *User) GetBannedAt() *timestamppb.Timestamp {
 	if x != nil {
 		return x.BannedAt
+	}
+	return nil
+}
+
+func (x *User) GetActiveBan() *Ban {
+	if x != nil {
+		return x.ActiveBan
 	}
 	return nil
 }
@@ -952,16 +960,117 @@ func (x *AdminListUsersResponse) GetNextPageToken() string {
 	return ""
 }
 
+type Ban struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	Id               int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	UserId           int64                  `protobuf:"varint,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Reason           string                 `protobuf:"bytes,3,opt,name=reason,proto3" json:"reason,omitempty"`
+	BannedBy         int64                  `protobuf:"varint,4,opt,name=banned_by,json=bannedBy,proto3" json:"banned_by,omitempty"`
+	BannedByUsername string                 `protobuf:"bytes,5,opt,name=banned_by_username,json=bannedByUsername,proto3" json:"banned_by_username,omitempty"`
+	BannedAt         *timestamppb.Timestamp `protobuf:"bytes,6,opt,name=banned_at,json=bannedAt,proto3" json:"banned_at,omitempty"`
+	UnbannedAt       *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=unbanned_at,json=unbannedAt,proto3" json:"unbanned_at,omitempty"`
+	UnbannedBy       int64                  `protobuf:"varint,8,opt,name=unbanned_by,json=unbannedBy,proto3" json:"unbanned_by,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *Ban) Reset() {
+	*x = Ban{}
+	mi := &file_user_v1_user_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Ban) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Ban) ProtoMessage() {}
+
+func (x *Ban) ProtoReflect() protoreflect.Message {
+	mi := &file_user_v1_user_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Ban.ProtoReflect.Descriptor instead.
+func (*Ban) Descriptor() ([]byte, []int) {
+	return file_user_v1_user_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *Ban) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *Ban) GetUserId() int64 {
+	if x != nil {
+		return x.UserId
+	}
+	return 0
+}
+
+func (x *Ban) GetReason() string {
+	if x != nil {
+		return x.Reason
+	}
+	return ""
+}
+
+func (x *Ban) GetBannedBy() int64 {
+	if x != nil {
+		return x.BannedBy
+	}
+	return 0
+}
+
+func (x *Ban) GetBannedByUsername() string {
+	if x != nil {
+		return x.BannedByUsername
+	}
+	return ""
+}
+
+func (x *Ban) GetBannedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.BannedAt
+	}
+	return nil
+}
+
+func (x *Ban) GetUnbannedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.UnbannedAt
+	}
+	return nil
+}
+
+func (x *Ban) GetUnbannedBy() int64 {
+	if x != nil {
+		return x.UnbannedBy
+	}
+	return 0
+}
+
 type AdminBanUserRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	UserId        int64                  `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Reason        string                 `protobuf:"bytes,2,opt,name=reason,proto3" json:"reason,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *AdminBanUserRequest) Reset() {
 	*x = AdminBanUserRequest{}
-	mi := &file_user_v1_user_proto_msgTypes[18]
+	mi := &file_user_v1_user_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -973,7 +1082,7 @@ func (x *AdminBanUserRequest) String() string {
 func (*AdminBanUserRequest) ProtoMessage() {}
 
 func (x *AdminBanUserRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_user_v1_user_proto_msgTypes[18]
+	mi := &file_user_v1_user_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -986,7 +1095,7 @@ func (x *AdminBanUserRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AdminBanUserRequest.ProtoReflect.Descriptor instead.
 func (*AdminBanUserRequest) Descriptor() ([]byte, []int) {
-	return file_user_v1_user_proto_rawDescGZIP(), []int{18}
+	return file_user_v1_user_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *AdminBanUserRequest) GetUserId() int64 {
@@ -996,16 +1105,24 @@ func (x *AdminBanUserRequest) GetUserId() int64 {
 	return 0
 }
 
+func (x *AdminBanUserRequest) GetReason() string {
+	if x != nil {
+		return x.Reason
+	}
+	return ""
+}
+
 type AdminBanUserResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	User          *User                  `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"`
+	Ban           *Ban                   `protobuf:"bytes,2,opt,name=ban,proto3" json:"ban,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *AdminBanUserResponse) Reset() {
 	*x = AdminBanUserResponse{}
-	mi := &file_user_v1_user_proto_msgTypes[19]
+	mi := &file_user_v1_user_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1017,7 +1134,7 @@ func (x *AdminBanUserResponse) String() string {
 func (*AdminBanUserResponse) ProtoMessage() {}
 
 func (x *AdminBanUserResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_user_v1_user_proto_msgTypes[19]
+	mi := &file_user_v1_user_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1030,12 +1147,19 @@ func (x *AdminBanUserResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AdminBanUserResponse.ProtoReflect.Descriptor instead.
 func (*AdminBanUserResponse) Descriptor() ([]byte, []int) {
-	return file_user_v1_user_proto_rawDescGZIP(), []int{19}
+	return file_user_v1_user_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *AdminBanUserResponse) GetUser() *User {
 	if x != nil {
 		return x.User
+	}
+	return nil
+}
+
+func (x *AdminBanUserResponse) GetBan() *Ban {
+	if x != nil {
+		return x.Ban
 	}
 	return nil
 }
@@ -1049,7 +1173,7 @@ type AdminUnbanUserRequest struct {
 
 func (x *AdminUnbanUserRequest) Reset() {
 	*x = AdminUnbanUserRequest{}
-	mi := &file_user_v1_user_proto_msgTypes[20]
+	mi := &file_user_v1_user_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1061,7 +1185,7 @@ func (x *AdminUnbanUserRequest) String() string {
 func (*AdminUnbanUserRequest) ProtoMessage() {}
 
 func (x *AdminUnbanUserRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_user_v1_user_proto_msgTypes[20]
+	mi := &file_user_v1_user_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1074,7 +1198,7 @@ func (x *AdminUnbanUserRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AdminUnbanUserRequest.ProtoReflect.Descriptor instead.
 func (*AdminUnbanUserRequest) Descriptor() ([]byte, []int) {
-	return file_user_v1_user_proto_rawDescGZIP(), []int{20}
+	return file_user_v1_user_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *AdminUnbanUserRequest) GetUserId() int64 {
@@ -1093,7 +1217,7 @@ type AdminUnbanUserResponse struct {
 
 func (x *AdminUnbanUserResponse) Reset() {
 	*x = AdminUnbanUserResponse{}
-	mi := &file_user_v1_user_proto_msgTypes[21]
+	mi := &file_user_v1_user_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1105,7 +1229,7 @@ func (x *AdminUnbanUserResponse) String() string {
 func (*AdminUnbanUserResponse) ProtoMessage() {}
 
 func (x *AdminUnbanUserResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_user_v1_user_proto_msgTypes[21]
+	mi := &file_user_v1_user_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1118,10 +1242,202 @@ func (x *AdminUnbanUserResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AdminUnbanUserResponse.ProtoReflect.Descriptor instead.
 func (*AdminUnbanUserResponse) Descriptor() ([]byte, []int) {
-	return file_user_v1_user_proto_rawDescGZIP(), []int{21}
+	return file_user_v1_user_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *AdminUnbanUserResponse) GetUser() *User {
+	if x != nil {
+		return x.User
+	}
+	return nil
+}
+
+type AdminUpdateBanReasonRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        int64                  `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Reason        string                 `protobuf:"bytes,2,opt,name=reason,proto3" json:"reason,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AdminUpdateBanReasonRequest) Reset() {
+	*x = AdminUpdateBanReasonRequest{}
+	mi := &file_user_v1_user_proto_msgTypes[23]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AdminUpdateBanReasonRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AdminUpdateBanReasonRequest) ProtoMessage() {}
+
+func (x *AdminUpdateBanReasonRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_user_v1_user_proto_msgTypes[23]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AdminUpdateBanReasonRequest.ProtoReflect.Descriptor instead.
+func (*AdminUpdateBanReasonRequest) Descriptor() ([]byte, []int) {
+	return file_user_v1_user_proto_rawDescGZIP(), []int{23}
+}
+
+func (x *AdminUpdateBanReasonRequest) GetUserId() int64 {
+	if x != nil {
+		return x.UserId
+	}
+	return 0
+}
+
+func (x *AdminUpdateBanReasonRequest) GetReason() string {
+	if x != nil {
+		return x.Reason
+	}
+	return ""
+}
+
+type AdminUpdateBanReasonResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Ban           *Ban                   `protobuf:"bytes,1,opt,name=ban,proto3" json:"ban,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AdminUpdateBanReasonResponse) Reset() {
+	*x = AdminUpdateBanReasonResponse{}
+	mi := &file_user_v1_user_proto_msgTypes[24]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AdminUpdateBanReasonResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AdminUpdateBanReasonResponse) ProtoMessage() {}
+
+func (x *AdminUpdateBanReasonResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_user_v1_user_proto_msgTypes[24]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AdminUpdateBanReasonResponse.ProtoReflect.Descriptor instead.
+func (*AdminUpdateBanReasonResponse) Descriptor() ([]byte, []int) {
+	return file_user_v1_user_proto_rawDescGZIP(), []int{24}
+}
+
+func (x *AdminUpdateBanReasonResponse) GetBan() *Ban {
+	if x != nil {
+		return x.Ban
+	}
+	return nil
+}
+
+type AdminSetUserRoleRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        int64                  `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Role          string                 `protobuf:"bytes,2,opt,name=role,proto3" json:"role,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AdminSetUserRoleRequest) Reset() {
+	*x = AdminSetUserRoleRequest{}
+	mi := &file_user_v1_user_proto_msgTypes[25]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AdminSetUserRoleRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AdminSetUserRoleRequest) ProtoMessage() {}
+
+func (x *AdminSetUserRoleRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_user_v1_user_proto_msgTypes[25]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AdminSetUserRoleRequest.ProtoReflect.Descriptor instead.
+func (*AdminSetUserRoleRequest) Descriptor() ([]byte, []int) {
+	return file_user_v1_user_proto_rawDescGZIP(), []int{25}
+}
+
+func (x *AdminSetUserRoleRequest) GetUserId() int64 {
+	if x != nil {
+		return x.UserId
+	}
+	return 0
+}
+
+func (x *AdminSetUserRoleRequest) GetRole() string {
+	if x != nil {
+		return x.Role
+	}
+	return ""
+}
+
+type AdminSetUserRoleResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	User          *User                  `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AdminSetUserRoleResponse) Reset() {
+	*x = AdminSetUserRoleResponse{}
+	mi := &file_user_v1_user_proto_msgTypes[26]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AdminSetUserRoleResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AdminSetUserRoleResponse) ProtoMessage() {}
+
+func (x *AdminSetUserRoleResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_user_v1_user_proto_msgTypes[26]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AdminSetUserRoleResponse.ProtoReflect.Descriptor instead.
+func (*AdminSetUserRoleResponse) Descriptor() ([]byte, []int) {
+	return file_user_v1_user_proto_rawDescGZIP(), []int{26}
+}
+
+func (x *AdminSetUserRoleResponse) GetUser() *User {
 	if x != nil {
 		return x.User
 	}
@@ -1132,7 +1448,7 @@ var File_user_v1_user_proto protoreflect.FileDescriptor
 
 const file_user_v1_user_proto_rawDesc = "" +
 	"\n" +
-	"\x12user/v1/user.proto\x12\fpuri.user.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a!common/v1/endpoint_security.proto\"\xf2\x02\n" +
+	"\x12user/v1/user.proto\x12\fpuri.user.v1\x1a\x1bbuf/validate/validate.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a!common/v1/endpoint_security.proto\"\xa4\x03\n" +
 	"\x04User\x12\x17\n" +
 	"\x02id\x18\x01 \x01(\x03B\a\xbaH\x04\"\x02(\x01R\x02id\x126\n" +
 	"\busername\x18\x02 \x01(\tB\x1a\xbaH\x17r\x15\x10\x03\x18 2\x0f^[a-zA-Z0-9_]+$R\busername\x12 \n" +
@@ -1145,7 +1461,10 @@ const file_user_v1_user_proto_rawDesc = "" +
 	"created_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12\x12\n" +
 	"\x04role\x18\a \x01(\tR\x04role\x12\x1b\n" +
 	"\tis_banned\x18\b \x01(\bR\bisBanned\x127\n" +
-	"\tbanned_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\bbannedAt\"\x93\x01\n" +
+	"\tbanned_at\x18\t \x01(\v2\x1a.google.protobuf.TimestampR\bbannedAt\x120\n" +
+	"\n" +
+	"active_ban\x18\n" +
+	" \x01(\v2\x11.puri.user.v1.BanR\tactiveBan\"\x93\x01\n" +
 	"\x0fRegisterRequest\x12 \n" +
 	"\x05email\x18\x01 \x01(\tB\n" +
 	"\xbaH\ar\x05\x18\xc0\x02`\x01R\x05email\x126\n" +
@@ -1196,15 +1515,38 @@ const file_user_v1_user_proto_rawDesc = "" +
 	"page_token\x18\x02 \x01(\tR\tpageToken\"j\n" +
 	"\x16AdminListUsersResponse\x12(\n" +
 	"\x05users\x18\x01 \x03(\v2\x12.puri.user.v1.UserR\x05users\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"7\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"\xa8\x02\n" +
+	"\x03Ban\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x17\n" +
+	"\auser_id\x18\x02 \x01(\x03R\x06userId\x12\x16\n" +
+	"\x06reason\x18\x03 \x01(\tR\x06reason\x12\x1b\n" +
+	"\tbanned_by\x18\x04 \x01(\x03R\bbannedBy\x12,\n" +
+	"\x12banned_by_username\x18\x05 \x01(\tR\x10bannedByUsername\x127\n" +
+	"\tbanned_at\x18\x06 \x01(\v2\x1a.google.protobuf.TimestampR\bbannedAt\x12;\n" +
+	"\vunbanned_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\n" +
+	"unbannedAt\x12\x1f\n" +
+	"\vunbanned_by\x18\b \x01(\x03R\n" +
+	"unbannedBy\"Y\n" +
 	"\x13AdminBanUserRequest\x12 \n" +
-	"\auser_id\x18\x01 \x01(\x03B\a\xbaH\x04\"\x02(\x01R\x06userId\">\n" +
+	"\auser_id\x18\x01 \x01(\x03B\a\xbaH\x04\"\x02(\x01R\x06userId\x12 \n" +
+	"\x06reason\x18\x02 \x01(\tB\b\xbaH\x05r\x03\x18\xe8\aR\x06reason\"c\n" +
 	"\x14AdminBanUserResponse\x12&\n" +
-	"\x04user\x18\x01 \x01(\v2\x12.puri.user.v1.UserR\x04user\"9\n" +
+	"\x04user\x18\x01 \x01(\v2\x12.puri.user.v1.UserR\x04user\x12#\n" +
+	"\x03ban\x18\x02 \x01(\v2\x11.puri.user.v1.BanR\x03ban\"9\n" +
 	"\x15AdminUnbanUserRequest\x12 \n" +
 	"\auser_id\x18\x01 \x01(\x03B\a\xbaH\x04\"\x02(\x01R\x06userId\"@\n" +
 	"\x16AdminUnbanUserResponse\x12&\n" +
-	"\x04user\x18\x01 \x01(\v2\x12.puri.user.v1.UserR\x04user2\x98\a\n" +
+	"\x04user\x18\x01 \x01(\v2\x12.puri.user.v1.UserR\x04user\"a\n" +
+	"\x1bAdminUpdateBanReasonRequest\x12 \n" +
+	"\auser_id\x18\x01 \x01(\x03B\a\xbaH\x04\"\x02(\x01R\x06userId\x12 \n" +
+	"\x06reason\x18\x02 \x01(\tB\b\xbaH\x05r\x03\x18\xe8\aR\x06reason\"C\n" +
+	"\x1cAdminUpdateBanReasonResponse\x12#\n" +
+	"\x03ban\x18\x01 \x01(\v2\x11.puri.user.v1.BanR\x03ban\"f\n" +
+	"\x17AdminSetUserRoleRequest\x12 \n" +
+	"\auser_id\x18\x01 \x01(\x03B\a\xbaH\x04\"\x02(\x01R\x06userId\x12)\n" +
+	"\x04role\x18\x02 \x01(\tB\x15\xbaH\x12r\x102\x0e^(user|admin)$R\x04role\"B\n" +
+	"\x18AdminSetUserRoleResponse\x12&\n" +
+	"\x04user\x18\x01 \x01(\v2\x12.puri.user.v1.UserR\x04user2\xf6\b\n" +
 	"\vUserService\x12Q\n" +
 	"\bRegister\x12\x1d.puri.user.v1.RegisterRequest\x1a\x1e.puri.user.v1.RegisterResponse\"\x06\x8a\xb5\x18\x02\b\x01\x12H\n" +
 	"\x05Login\x12\x1a.puri.user.v1.LoginRequest\x1a\x1b.puri.user.v1.LoginResponse\"\x06\x8a\xb5\x18\x02\b\x01\x12K\n" +
@@ -1217,7 +1559,9 @@ const file_user_v1_user_proto_rawDesc = "" +
 	"\x11GetUserByUsername\x12&.puri.user.v1.GetUserByUsernameRequest\x1a'.puri.user.v1.GetUserByUsernameResponse\"\x06\x8a\xb5\x18\x02\b\x01\x12a\n" +
 	"\x0eAdminListUsers\x12#.puri.user.v1.AdminListUsersRequest\x1a$.puri.user.v1.AdminListUsersResponse\"\x04\x8a\xb5\x18\x00\x12[\n" +
 	"\fAdminBanUser\x12!.puri.user.v1.AdminBanUserRequest\x1a\".puri.user.v1.AdminBanUserResponse\"\x04\x8a\xb5\x18\x00\x12a\n" +
-	"\x0eAdminUnbanUser\x12#.puri.user.v1.AdminUnbanUserRequest\x1a$.puri.user.v1.AdminUnbanUserResponse\"\x04\x8a\xb5\x18\x00B,Z*github.com/puri-cp/puri/gen/user/v1;userv1b\x06proto3"
+	"\x0eAdminUnbanUser\x12#.puri.user.v1.AdminUnbanUserRequest\x1a$.puri.user.v1.AdminUnbanUserResponse\"\x04\x8a\xb5\x18\x00\x12s\n" +
+	"\x14AdminUpdateBanReason\x12).puri.user.v1.AdminUpdateBanReasonRequest\x1a*.puri.user.v1.AdminUpdateBanReasonResponse\"\x04\x8a\xb5\x18\x00\x12g\n" +
+	"\x10AdminSetUserRole\x12%.puri.user.v1.AdminSetUserRoleRequest\x1a&.puri.user.v1.AdminSetUserRoleResponse\"\x04\x8a\xb5\x18\x00B,Z*github.com/puri-cp/puri/gen/user/v1;userv1b\x06proto3"
 
 var (
 	file_user_v1_user_proto_rawDescOnce sync.Once
@@ -1231,69 +1575,84 @@ func file_user_v1_user_proto_rawDescGZIP() []byte {
 	return file_user_v1_user_proto_rawDescData
 }
 
-var file_user_v1_user_proto_msgTypes = make([]protoimpl.MessageInfo, 22)
+var file_user_v1_user_proto_msgTypes = make([]protoimpl.MessageInfo, 27)
 var file_user_v1_user_proto_goTypes = []any{
-	(*User)(nil),                      // 0: puri.user.v1.User
-	(*RegisterRequest)(nil),           // 1: puri.user.v1.RegisterRequest
-	(*RegisterResponse)(nil),          // 2: puri.user.v1.RegisterResponse
-	(*LoginRequest)(nil),              // 3: puri.user.v1.LoginRequest
-	(*LoginResponse)(nil),             // 4: puri.user.v1.LoginResponse
-	(*LogoutRequest)(nil),             // 5: puri.user.v1.LogoutRequest
-	(*LogoutResponse)(nil),            // 6: puri.user.v1.LogoutResponse
-	(*GetProfileRequest)(nil),         // 7: puri.user.v1.GetProfileRequest
-	(*GetProfileResponse)(nil),        // 8: puri.user.v1.GetProfileResponse
-	(*UpdateProfileRequest)(nil),      // 9: puri.user.v1.UpdateProfileRequest
-	(*UpdateProfileResponse)(nil),     // 10: puri.user.v1.UpdateProfileResponse
-	(*GetUserByUsernameRequest)(nil),  // 11: puri.user.v1.GetUserByUsernameRequest
-	(*GetUserByUsernameResponse)(nil), // 12: puri.user.v1.GetUserByUsernameResponse
-	(*RankEntry)(nil),                 // 13: puri.user.v1.RankEntry
-	(*GetRankingRequest)(nil),         // 14: puri.user.v1.GetRankingRequest
-	(*GetRankingResponse)(nil),        // 15: puri.user.v1.GetRankingResponse
-	(*AdminListUsersRequest)(nil),     // 16: puri.user.v1.AdminListUsersRequest
-	(*AdminListUsersResponse)(nil),    // 17: puri.user.v1.AdminListUsersResponse
-	(*AdminBanUserRequest)(nil),       // 18: puri.user.v1.AdminBanUserRequest
-	(*AdminBanUserResponse)(nil),      // 19: puri.user.v1.AdminBanUserResponse
-	(*AdminUnbanUserRequest)(nil),     // 20: puri.user.v1.AdminUnbanUserRequest
-	(*AdminUnbanUserResponse)(nil),    // 21: puri.user.v1.AdminUnbanUserResponse
-	(*timestamppb.Timestamp)(nil),     // 22: google.protobuf.Timestamp
+	(*User)(nil),                         // 0: puri.user.v1.User
+	(*RegisterRequest)(nil),              // 1: puri.user.v1.RegisterRequest
+	(*RegisterResponse)(nil),             // 2: puri.user.v1.RegisterResponse
+	(*LoginRequest)(nil),                 // 3: puri.user.v1.LoginRequest
+	(*LoginResponse)(nil),                // 4: puri.user.v1.LoginResponse
+	(*LogoutRequest)(nil),                // 5: puri.user.v1.LogoutRequest
+	(*LogoutResponse)(nil),               // 6: puri.user.v1.LogoutResponse
+	(*GetProfileRequest)(nil),            // 7: puri.user.v1.GetProfileRequest
+	(*GetProfileResponse)(nil),           // 8: puri.user.v1.GetProfileResponse
+	(*UpdateProfileRequest)(nil),         // 9: puri.user.v1.UpdateProfileRequest
+	(*UpdateProfileResponse)(nil),        // 10: puri.user.v1.UpdateProfileResponse
+	(*GetUserByUsernameRequest)(nil),     // 11: puri.user.v1.GetUserByUsernameRequest
+	(*GetUserByUsernameResponse)(nil),    // 12: puri.user.v1.GetUserByUsernameResponse
+	(*RankEntry)(nil),                    // 13: puri.user.v1.RankEntry
+	(*GetRankingRequest)(nil),            // 14: puri.user.v1.GetRankingRequest
+	(*GetRankingResponse)(nil),           // 15: puri.user.v1.GetRankingResponse
+	(*AdminListUsersRequest)(nil),        // 16: puri.user.v1.AdminListUsersRequest
+	(*AdminListUsersResponse)(nil),       // 17: puri.user.v1.AdminListUsersResponse
+	(*Ban)(nil),                          // 18: puri.user.v1.Ban
+	(*AdminBanUserRequest)(nil),          // 19: puri.user.v1.AdminBanUserRequest
+	(*AdminBanUserResponse)(nil),         // 20: puri.user.v1.AdminBanUserResponse
+	(*AdminUnbanUserRequest)(nil),        // 21: puri.user.v1.AdminUnbanUserRequest
+	(*AdminUnbanUserResponse)(nil),       // 22: puri.user.v1.AdminUnbanUserResponse
+	(*AdminUpdateBanReasonRequest)(nil),  // 23: puri.user.v1.AdminUpdateBanReasonRequest
+	(*AdminUpdateBanReasonResponse)(nil), // 24: puri.user.v1.AdminUpdateBanReasonResponse
+	(*AdminSetUserRoleRequest)(nil),      // 25: puri.user.v1.AdminSetUserRoleRequest
+	(*AdminSetUserRoleResponse)(nil),     // 26: puri.user.v1.AdminSetUserRoleResponse
+	(*timestamppb.Timestamp)(nil),        // 27: google.protobuf.Timestamp
 }
 var file_user_v1_user_proto_depIdxs = []int32{
-	22, // 0: puri.user.v1.User.created_at:type_name -> google.protobuf.Timestamp
-	22, // 1: puri.user.v1.User.banned_at:type_name -> google.protobuf.Timestamp
-	0,  // 2: puri.user.v1.RegisterResponse.user:type_name -> puri.user.v1.User
-	0,  // 3: puri.user.v1.LoginResponse.user:type_name -> puri.user.v1.User
-	0,  // 4: puri.user.v1.GetProfileResponse.user:type_name -> puri.user.v1.User
-	0,  // 5: puri.user.v1.UpdateProfileResponse.user:type_name -> puri.user.v1.User
-	0,  // 6: puri.user.v1.GetUserByUsernameResponse.user:type_name -> puri.user.v1.User
-	13, // 7: puri.user.v1.GetRankingResponse.entries:type_name -> puri.user.v1.RankEntry
-	0,  // 8: puri.user.v1.AdminListUsersResponse.users:type_name -> puri.user.v1.User
-	0,  // 9: puri.user.v1.AdminBanUserResponse.user:type_name -> puri.user.v1.User
-	0,  // 10: puri.user.v1.AdminUnbanUserResponse.user:type_name -> puri.user.v1.User
-	1,  // 11: puri.user.v1.UserService.Register:input_type -> puri.user.v1.RegisterRequest
-	3,  // 12: puri.user.v1.UserService.Login:input_type -> puri.user.v1.LoginRequest
-	5,  // 13: puri.user.v1.UserService.Logout:input_type -> puri.user.v1.LogoutRequest
-	7,  // 14: puri.user.v1.UserService.GetProfile:input_type -> puri.user.v1.GetProfileRequest
-	9,  // 15: puri.user.v1.UserService.UpdateProfile:input_type -> puri.user.v1.UpdateProfileRequest
-	14, // 16: puri.user.v1.UserService.GetRanking:input_type -> puri.user.v1.GetRankingRequest
-	11, // 17: puri.user.v1.UserService.GetUserByUsername:input_type -> puri.user.v1.GetUserByUsernameRequest
-	16, // 18: puri.user.v1.UserService.AdminListUsers:input_type -> puri.user.v1.AdminListUsersRequest
-	18, // 19: puri.user.v1.UserService.AdminBanUser:input_type -> puri.user.v1.AdminBanUserRequest
-	20, // 20: puri.user.v1.UserService.AdminUnbanUser:input_type -> puri.user.v1.AdminUnbanUserRequest
-	2,  // 21: puri.user.v1.UserService.Register:output_type -> puri.user.v1.RegisterResponse
-	4,  // 22: puri.user.v1.UserService.Login:output_type -> puri.user.v1.LoginResponse
-	6,  // 23: puri.user.v1.UserService.Logout:output_type -> puri.user.v1.LogoutResponse
-	8,  // 24: puri.user.v1.UserService.GetProfile:output_type -> puri.user.v1.GetProfileResponse
-	10, // 25: puri.user.v1.UserService.UpdateProfile:output_type -> puri.user.v1.UpdateProfileResponse
-	15, // 26: puri.user.v1.UserService.GetRanking:output_type -> puri.user.v1.GetRankingResponse
-	12, // 27: puri.user.v1.UserService.GetUserByUsername:output_type -> puri.user.v1.GetUserByUsernameResponse
-	17, // 28: puri.user.v1.UserService.AdminListUsers:output_type -> puri.user.v1.AdminListUsersResponse
-	19, // 29: puri.user.v1.UserService.AdminBanUser:output_type -> puri.user.v1.AdminBanUserResponse
-	21, // 30: puri.user.v1.UserService.AdminUnbanUser:output_type -> puri.user.v1.AdminUnbanUserResponse
-	21, // [21:31] is the sub-list for method output_type
-	11, // [11:21] is the sub-list for method input_type
-	11, // [11:11] is the sub-list for extension type_name
-	11, // [11:11] is the sub-list for extension extendee
-	0,  // [0:11] is the sub-list for field type_name
+	27, // 0: puri.user.v1.User.created_at:type_name -> google.protobuf.Timestamp
+	27, // 1: puri.user.v1.User.banned_at:type_name -> google.protobuf.Timestamp
+	18, // 2: puri.user.v1.User.active_ban:type_name -> puri.user.v1.Ban
+	0,  // 3: puri.user.v1.RegisterResponse.user:type_name -> puri.user.v1.User
+	0,  // 4: puri.user.v1.LoginResponse.user:type_name -> puri.user.v1.User
+	0,  // 5: puri.user.v1.GetProfileResponse.user:type_name -> puri.user.v1.User
+	0,  // 6: puri.user.v1.UpdateProfileResponse.user:type_name -> puri.user.v1.User
+	0,  // 7: puri.user.v1.GetUserByUsernameResponse.user:type_name -> puri.user.v1.User
+	13, // 8: puri.user.v1.GetRankingResponse.entries:type_name -> puri.user.v1.RankEntry
+	0,  // 9: puri.user.v1.AdminListUsersResponse.users:type_name -> puri.user.v1.User
+	27, // 10: puri.user.v1.Ban.banned_at:type_name -> google.protobuf.Timestamp
+	27, // 11: puri.user.v1.Ban.unbanned_at:type_name -> google.protobuf.Timestamp
+	0,  // 12: puri.user.v1.AdminBanUserResponse.user:type_name -> puri.user.v1.User
+	18, // 13: puri.user.v1.AdminBanUserResponse.ban:type_name -> puri.user.v1.Ban
+	0,  // 14: puri.user.v1.AdminUnbanUserResponse.user:type_name -> puri.user.v1.User
+	18, // 15: puri.user.v1.AdminUpdateBanReasonResponse.ban:type_name -> puri.user.v1.Ban
+	0,  // 16: puri.user.v1.AdminSetUserRoleResponse.user:type_name -> puri.user.v1.User
+	1,  // 17: puri.user.v1.UserService.Register:input_type -> puri.user.v1.RegisterRequest
+	3,  // 18: puri.user.v1.UserService.Login:input_type -> puri.user.v1.LoginRequest
+	5,  // 19: puri.user.v1.UserService.Logout:input_type -> puri.user.v1.LogoutRequest
+	7,  // 20: puri.user.v1.UserService.GetProfile:input_type -> puri.user.v1.GetProfileRequest
+	9,  // 21: puri.user.v1.UserService.UpdateProfile:input_type -> puri.user.v1.UpdateProfileRequest
+	14, // 22: puri.user.v1.UserService.GetRanking:input_type -> puri.user.v1.GetRankingRequest
+	11, // 23: puri.user.v1.UserService.GetUserByUsername:input_type -> puri.user.v1.GetUserByUsernameRequest
+	16, // 24: puri.user.v1.UserService.AdminListUsers:input_type -> puri.user.v1.AdminListUsersRequest
+	19, // 25: puri.user.v1.UserService.AdminBanUser:input_type -> puri.user.v1.AdminBanUserRequest
+	21, // 26: puri.user.v1.UserService.AdminUnbanUser:input_type -> puri.user.v1.AdminUnbanUserRequest
+	23, // 27: puri.user.v1.UserService.AdminUpdateBanReason:input_type -> puri.user.v1.AdminUpdateBanReasonRequest
+	25, // 28: puri.user.v1.UserService.AdminSetUserRole:input_type -> puri.user.v1.AdminSetUserRoleRequest
+	2,  // 29: puri.user.v1.UserService.Register:output_type -> puri.user.v1.RegisterResponse
+	4,  // 30: puri.user.v1.UserService.Login:output_type -> puri.user.v1.LoginResponse
+	6,  // 31: puri.user.v1.UserService.Logout:output_type -> puri.user.v1.LogoutResponse
+	8,  // 32: puri.user.v1.UserService.GetProfile:output_type -> puri.user.v1.GetProfileResponse
+	10, // 33: puri.user.v1.UserService.UpdateProfile:output_type -> puri.user.v1.UpdateProfileResponse
+	15, // 34: puri.user.v1.UserService.GetRanking:output_type -> puri.user.v1.GetRankingResponse
+	12, // 35: puri.user.v1.UserService.GetUserByUsername:output_type -> puri.user.v1.GetUserByUsernameResponse
+	17, // 36: puri.user.v1.UserService.AdminListUsers:output_type -> puri.user.v1.AdminListUsersResponse
+	20, // 37: puri.user.v1.UserService.AdminBanUser:output_type -> puri.user.v1.AdminBanUserResponse
+	22, // 38: puri.user.v1.UserService.AdminUnbanUser:output_type -> puri.user.v1.AdminUnbanUserResponse
+	24, // 39: puri.user.v1.UserService.AdminUpdateBanReason:output_type -> puri.user.v1.AdminUpdateBanReasonResponse
+	26, // 40: puri.user.v1.UserService.AdminSetUserRole:output_type -> puri.user.v1.AdminSetUserRoleResponse
+	29, // [29:41] is the sub-list for method output_type
+	17, // [17:29] is the sub-list for method input_type
+	17, // [17:17] is the sub-list for extension type_name
+	17, // [17:17] is the sub-list for extension extendee
+	0,  // [0:17] is the sub-list for field type_name
 }
 
 func init() { file_user_v1_user_proto_init() }
@@ -1308,7 +1667,7 @@ func file_user_v1_user_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_user_v1_user_proto_rawDesc), len(file_user_v1_user_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   22,
+			NumMessages:   27,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -103,20 +103,25 @@ func (i *AuthInterceptor) authenticate(ctx context.Context, spec connect.Spec, h
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("missing endpoint rule"))
 	}
 
-	if endpoint.IsPublic {
-		return ctx, nil
-	}
-
 	userID, err := auth.VerifyTokenFromHeader(header, i.secret)
 	if err != nil {
+		if endpoint.IsPublic {
+			return ctx, nil
+		}
 		return nil, connect.NewError(connect.CodeUnauthenticated, fmt.Errorf("authentication failed: %w", err))
 	}
 
 	banned, err := i.userRepo.IsBanned(ctx, userID)
 	if err != nil {
+		if endpoint.IsPublic {
+			return ctx, nil
+		}
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("failed to check ban status"))
 	}
 	if banned {
+		if endpoint.IsPublic {
+			return ctx, nil
+		}
 		return nil, connect.NewError(connect.CodeUnauthenticated, fmt.Errorf("account is banned"))
 	}
 

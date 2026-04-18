@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { submissionClient, userClient } from "./api";
 import type { User } from "./gen/user/v1/user_pb";
 import type { Submission } from "./gen/submission/v1/submission_pb";
@@ -169,6 +169,99 @@ function AdminShell({ user, onLogout }: { user: User; onLogout: () => void }) {
 
 const PAGE_SIZE = 50;
 
+type MenuItem = {
+  label: string;
+  onClick: () => void;
+  disabled?: boolean;
+  variant?: "default" | "danger" | "success";
+};
+
+function ActionMenu({ items }: { items: MenuItem[] }) {
+  const [open, setOpen] = useState(false);
+  const [pos, setPos] = useState<{ top: number; right: number } | null>(null);
+  const btnRef = useRef<HTMLButtonElement>(null);
+  const ddRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: MouseEvent) => {
+      if (
+        btnRef.current?.contains(e.target as Node) ||
+        ddRef.current?.contains(e.target as Node)
+      )
+        return;
+      setOpen(false);
+    };
+    const esc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    const reposition = () => setOpen(false);
+    document.addEventListener("mousedown", handler);
+    document.addEventListener("keydown", esc);
+    window.addEventListener("scroll", reposition, true);
+    window.addEventListener("resize", reposition);
+    return () => {
+      document.removeEventListener("mousedown", handler);
+      document.removeEventListener("keydown", esc);
+      window.removeEventListener("scroll", reposition, true);
+      window.removeEventListener("resize", reposition);
+    };
+  }, [open]);
+
+  const toggle = () => {
+    if (open) {
+      setOpen(false);
+      return;
+    }
+    const rect = btnRef.current?.getBoundingClientRect();
+    if (rect) {
+      setPos({
+        top: rect.bottom + 4,
+        right: window.innerWidth - rect.right,
+      });
+    }
+    setOpen(true);
+  };
+
+  return (
+    <>
+      <button
+        ref={btnRef}
+        className="icon-btn"
+        aria-label="액션"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        onClick={toggle}
+      >
+        ⋮
+      </button>
+      {open && pos && (
+        <div
+          ref={ddRef}
+          className="action-menu-dropdown"
+          role="menu"
+          style={{ top: pos.top, right: pos.right }}
+        >
+          {items.map((item, i) => (
+            <button
+              key={i}
+              role="menuitem"
+              className={`action-menu-item action-menu-item-${item.variant ?? "default"}`}
+              disabled={item.disabled}
+              onClick={() => {
+                setOpen(false);
+                item.onClick();
+              }}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </>
+  );
+}
+
 function UsersPanel({ self }: { self: User }) {
   const [users, setUsers] = useState<User[]>([]);
   const [pageStack, setPageStack] = useState<string[]>([]);
@@ -203,10 +296,14 @@ function UsersPanel({ self }: { self: User }) {
   const reload = () => loadPage(currentToken);
 
   const handleBan = async (u: User) => {
-    if (!confirm(`"${u.username}" 유저를 차단하시겠습니까?`)) return;
+    const reason = prompt(
+      `"${u.username}" 유저 차단 사유 (비워두면 "부정 사용"):`,
+      "",
+    );
+    if (reason == null) return;
     setActingId(u.id);
     try {
-      await userClient.adminBanUser({ userId: u.id });
+      await userClient.adminBanUser({ userId: u.id, reason: reason.trim() });
       await loadPage(currentToken);
     } catch (e: any) {
       alert(`실패: ${e?.message ?? String(e)}`);
@@ -219,6 +316,38 @@ function UsersPanel({ self }: { self: User }) {
     setActingId(u.id);
     try {
       await userClient.adminUnbanUser({ userId: u.id });
+      await loadPage(currentToken);
+    } catch (e: any) {
+      alert(`실패: ${e?.message ?? String(e)}`);
+    } finally {
+      setActingId(null);
+    }
+  };
+
+  const handleUpdateReason = async (u: User) => {
+    const current = u.activeBan?.reason ?? "";
+    const reason = prompt(`"${u.username}" 차단 사유 변경 (비워두면 기본값):`, current);
+    if (reason == null) return;
+    setActingId(u.id);
+    try {
+      await userClient.adminUpdateBanReason({
+        userId: u.id,
+        reason: reason.trim(),
+      });
+      await loadPage(currentToken);
+    } catch (e: any) {
+      alert(`실패: ${e?.message ?? String(e)}`);
+    } finally {
+      setActingId(null);
+    }
+  };
+
+  const handleSetRole = async (u: User, role: "user" | "admin") => {
+    const label = role === "admin" ? "관리자" : "일반 유저";
+    if (!confirm(`"${u.username}" 을(를) ${label}(으)로 변경합니다.`)) return;
+    setActingId(u.id);
+    try {
+      await userClient.adminSetUserRole({ userId: u.id, role });
       await loadPage(currentToken);
     } catch (e: any) {
       alert(`실패: ${e?.message ?? String(e)}`);
@@ -285,7 +414,14 @@ function UsersPanel({ self }: { self: User }) {
                   </td>
                   <td>
                     {u.isBanned ? (
-                      <span className="status-banned">차단됨</span>
+                      <div>
+                        <span className="status-banned">차단됨</span>
+                        {u.activeBan?.reason && (
+                          <div className="ban-reason" title={u.activeBan.reason}>
+                            {u.activeBan.reason}
+                          </div>
+                        )}
+                      </div>
                     ) : (
                       <span className="status-active">정상</span>
                     )}
@@ -293,22 +429,45 @@ function UsersPanel({ self }: { self: User }) {
                   <td>
                     {u.id === self.id ? (
                       <span style={{ color: "var(--muted)" }}>본인</span>
-                    ) : u.isBanned ? (
-                      <button
-                        className="btn btn-success"
-                        disabled={actingId === u.id}
-                        onClick={() => handleUnban(u)}
-                      >
-                        차단 해제
-                      </button>
                     ) : (
-                      <button
-                        className="btn btn-danger"
-                        disabled={actingId === u.id}
-                        onClick={() => handleBan(u)}
-                      >
-                        차단
-                      </button>
+                      <ActionMenu
+                        items={[
+                          ...(u.isBanned
+                            ? [
+                                {
+                                  label: "차단 사유 변경",
+                                  disabled: actingId === u.id,
+                                  onClick: () => handleUpdateReason(u),
+                                },
+                                {
+                                  label: "차단 해제",
+                                  variant: "success" as const,
+                                  disabled: actingId === u.id,
+                                  onClick: () => handleUnban(u),
+                                },
+                              ]
+                            : [
+                                {
+                                  label: "차단",
+                                  variant: "danger" as const,
+                                  disabled: actingId === u.id,
+                                  onClick: () => handleBan(u),
+                                },
+                              ]),
+                          {
+                            label:
+                              u.role === "admin"
+                                ? "일반 유저로 변경"
+                                : "관리자로 변경",
+                            disabled: actingId === u.id,
+                            onClick: () =>
+                              handleSetRole(
+                                u,
+                                u.role === "admin" ? "user" : "admin",
+                              ),
+                          },
+                        ]}
+                      />
                     )}
                   </td>
                 </tr>
@@ -375,6 +534,16 @@ function SubmissionsPanel() {
   const currentToken = pageStack[pageStack.length - 1] ?? "";
   const reload = () => loadPage(currentToken);
 
+  const handleDelete = async (s: Submission) => {
+    if (!confirm(`제출 #${s.id.toString()} 를 삭제하시겠습니까?`)) return;
+    try {
+      await submissionClient.deleteSubmission({ submissionId: s.id });
+      await loadPage(currentToken);
+    } catch (e: any) {
+      alert(`삭제 실패: ${e?.message ?? String(e)}`);
+    }
+  };
+
   return (
     <>
       <div className="toolbar">
@@ -438,9 +607,19 @@ function SubmissionsPanel() {
                     {s.memoryUsageKb > 0 ? `${s.memoryUsageKb}KB` : "-"}
                   </td>
                   <td>
-                    <button className="btn" onClick={() => setSelected(s)}>
-                      코드 보기
-                    </button>
+                    <ActionMenu
+                      items={[
+                        {
+                          label: "코드 보기",
+                          onClick: () => setSelected(s),
+                        },
+                        {
+                          label: "제출 삭제",
+                          variant: "danger",
+                          onClick: () => handleDelete(s),
+                        },
+                      ]}
+                    />
                   </td>
                 </tr>
               ))}

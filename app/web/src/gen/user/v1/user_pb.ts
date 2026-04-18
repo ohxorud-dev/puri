@@ -14,7 +14,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file user/v1/user.proto.
  */
 export const file_user_v1_user: GenFile = /*@__PURE__*/
-  fileDesc("ChJ1c2VyL3YxL3VzZXIucHJvdG8SDHB1cmkudXNlci52MSKgAgoEVXNlchITCgJpZBgBIAEoA0IHukgEIgIoARIsCgh1c2VybmFtZRgCIAEoCUIaukgXchUQAxggMg9eW2EtekEtWjAtOV9dKyQSGQoFZW1haWwYAyABKAlCCrpIB3IFGMACYAESHQoMZGlzcGxheV9uYW1lGAQgASgJQge6SARyAhhAEhsKCmJval9oYW5kbGUYBSABKAlCB7pIBHICGCASLgoKY3JlYXRlZF9hdBgGIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASDAoEcm9sZRgHIAEoCRIRCglpc19iYW5uZWQYCCABKAgSLQoJYmFubmVkX2F0GAkgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcCJ4Cg9SZWdpc3RlclJlcXVlc3QSGQoFZW1haWwYASABKAlCCrpIB3IFGMACYAESLAoIdXNlcm5hbWUYAiABKAlCGrpIF3IVEAMYIDIPXlthLXpBLVowLTlfXSskEhwKCHBhc3N3b3JkGAMgASgJQgq6SAdyBRAIGIABIjQKEFJlZ2lzdGVyUmVzcG9uc2USIAoEdXNlchgBIAEoCzISLnB1cmkudXNlci52MS5Vc2VyIloKDExvZ2luUmVxdWVzdBIsCgh1c2VybmFtZRgBIAEoCUIaukgXchUQAxggMg9eW2EtekEtWjAtOV9dKyQSHAoIcGFzc3dvcmQYAiABKAlCCrpIB3IFEAgYgAEiMQoNTG9naW5SZXNwb25zZRIgCgR1c2VyGAEgASgLMhIucHVyaS51c2VyLnYxLlVzZXIiDwoNTG9nb3V0UmVxdWVzdCIQCg5Mb2dvdXRSZXNwb25zZSITChFHZXRQcm9maWxlUmVxdWVzdCI2ChJHZXRQcm9maWxlUmVzcG9uc2USIAoEdXNlchgBIAEoCzISLnB1cmkudXNlci52MS5Vc2VyInwKFFVwZGF0ZVByb2ZpbGVSZXF1ZXN0EiIKDGRpc3BsYXlfbmFtZRgBIAEoCUIHukgEcgIYQEgAiAEBEiAKCmJval9oYW5kbGUYAiABKAlCB7pIBHICGCBIAYgBAUIPCg1fZGlzcGxheV9uYW1lQg0KC19ib2pfaGFuZGxlIjkKFVVwZGF0ZVByb2ZpbGVSZXNwb25zZRIgCgR1c2VyGAEgASgLMhIucHVyaS51c2VyLnYxLlVzZXIiSAoYR2V0VXNlckJ5VXNlcm5hbWVSZXF1ZXN0EiwKCHVzZXJuYW1lGAEgASgJQhq6SBdyFRADGCAyD15bYS16QS1aMC05X10rJCI9ChlHZXRVc2VyQnlVc2VybmFtZVJlc3BvbnNlEiAKBHVzZXIYASABKAsyEi5wdXJpLnVzZXIudjEuVXNlciJsCglSYW5rRW50cnkSDAoEcmFuaxgBIAEoBRIPCgd1c2VyX2lkGAIgASgDEhAKCHVzZXJuYW1lGAMgASgJEhQKDHNvbHZlZF9jb3VudBgEIAEoBRIYChBzdWJtaXNzaW9uX2NvdW50GAUgASgFIjoKEUdldFJhbmtpbmdSZXF1ZXN0EhEKCXBhZ2Vfc2l6ZRgBIAEoBRISCgpwYWdlX3Rva2VuGAIgASgJIlcKEkdldFJhbmtpbmdSZXNwb25zZRIoCgdlbnRyaWVzGAEgAygLMhcucHVyaS51c2VyLnYxLlJhbmtFbnRyeRIXCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAkiPgoVQWRtaW5MaXN0VXNlcnNSZXF1ZXN0EhEKCXBhZ2Vfc2l6ZRgBIAEoBRISCgpwYWdlX3Rva2VuGAIgASgJIlQKFkFkbWluTGlzdFVzZXJzUmVzcG9uc2USIQoFdXNlcnMYASADKAsyEi5wdXJpLnVzZXIudjEuVXNlchIXCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAkiLwoTQWRtaW5CYW5Vc2VyUmVxdWVzdBIYCgd1c2VyX2lkGAEgASgDQge6SAQiAigBIjgKFEFkbWluQmFuVXNlclJlc3BvbnNlEiAKBHVzZXIYASABKAsyEi5wdXJpLnVzZXIudjEuVXNlciIxChVBZG1pblVuYmFuVXNlclJlcXVlc3QSGAoHdXNlcl9pZBgBIAEoA0IHukgEIgIoASI6ChZBZG1pblVuYmFuVXNlclJlc3BvbnNlEiAKBHVzZXIYASABKAsyEi5wdXJpLnVzZXIudjEuVXNlcjKYBwoLVXNlclNlcnZpY2USUQoIUmVnaXN0ZXISHS5wdXJpLnVzZXIudjEuUmVnaXN0ZXJSZXF1ZXN0Gh4ucHVyaS51c2VyLnYxLlJlZ2lzdGVyUmVzcG9uc2UiBoq1GAIIARJICgVMb2dpbhIaLnB1cmkudXNlci52MS5Mb2dpblJlcXVlc3QaGy5wdXJpLnVzZXIudjEuTG9naW5SZXNwb25zZSIGirUYAggBEksKBkxvZ291dBIbLnB1cmkudXNlci52MS5Mb2dvdXRSZXF1ZXN0GhwucHVyaS51c2VyLnYxLkxvZ291dFJlc3BvbnNlIgaKtRgCCAESVQoKR2V0UHJvZmlsZRIfLnB1cmkudXNlci52MS5HZXRQcm9maWxlUmVxdWVzdBogLnB1cmkudXNlci52MS5HZXRQcm9maWxlUmVzcG9uc2UiBIq1GAASXgoNVXBkYXRlUHJvZmlsZRIiLnB1cmkudXNlci52MS5VcGRhdGVQcm9maWxlUmVxdWVzdBojLnB1cmkudXNlci52MS5VcGRhdGVQcm9maWxlUmVzcG9uc2UiBIq1GAASVwoKR2V0UmFua2luZxIfLnB1cmkudXNlci52MS5HZXRSYW5raW5nUmVxdWVzdBogLnB1cmkudXNlci52MS5HZXRSYW5raW5nUmVzcG9uc2UiBoq1GAIIARJsChFHZXRVc2VyQnlVc2VybmFtZRImLnB1cmkudXNlci52MS5HZXRVc2VyQnlVc2VybmFtZVJlcXVlc3QaJy5wdXJpLnVzZXIudjEuR2V0VXNlckJ5VXNlcm5hbWVSZXNwb25zZSIGirUYAggBEmEKDkFkbWluTGlzdFVzZXJzEiMucHVyaS51c2VyLnYxLkFkbWluTGlzdFVzZXJzUmVxdWVzdBokLnB1cmkudXNlci52MS5BZG1pbkxpc3RVc2Vyc1Jlc3BvbnNlIgSKtRgAElsKDEFkbWluQmFuVXNlchIhLnB1cmkudXNlci52MS5BZG1pbkJhblVzZXJSZXF1ZXN0GiIucHVyaS51c2VyLnYxLkFkbWluQmFuVXNlclJlc3BvbnNlIgSKtRgAEmEKDkFkbWluVW5iYW5Vc2VyEiMucHVyaS51c2VyLnYxLkFkbWluVW5iYW5Vc2VyUmVxdWVzdBokLnB1cmkudXNlci52MS5BZG1pblVuYmFuVXNlclJlc3BvbnNlIgSKtRgAQixaKmdpdGh1Yi5jb20vcHVyaS1jcC9wdXJpL2dlbi91c2VyL3YxO3VzZXJ2MWIGcHJvdG8z", [file_buf_validate_validate, file_google_protobuf_timestamp, file_common_v1_endpoint_security]);
+  fileDesc("ChJ1c2VyL3YxL3VzZXIucHJvdG8SDHB1cmkudXNlci52MSLHAgoEVXNlchITCgJpZBgBIAEoA0IHukgEIgIoARIsCgh1c2VybmFtZRgCIAEoCUIaukgXchUQAxggMg9eW2EtekEtWjAtOV9dKyQSGQoFZW1haWwYAyABKAlCCrpIB3IFGMACYAESHQoMZGlzcGxheV9uYW1lGAQgASgJQge6SARyAhhAEhsKCmJval9oYW5kbGUYBSABKAlCB7pIBHICGCASLgoKY3JlYXRlZF9hdBgGIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASDAoEcm9sZRgHIAEoCRIRCglpc19iYW5uZWQYCCABKAgSLQoJYmFubmVkX2F0GAkgASgLMhouZ29vZ2xlLnByb3RvYnVmLlRpbWVzdGFtcBIlCgphY3RpdmVfYmFuGAogASgLMhEucHVyaS51c2VyLnYxLkJhbiJ4Cg9SZWdpc3RlclJlcXVlc3QSGQoFZW1haWwYASABKAlCCrpIB3IFGMACYAESLAoIdXNlcm5hbWUYAiABKAlCGrpIF3IVEAMYIDIPXlthLXpBLVowLTlfXSskEhwKCHBhc3N3b3JkGAMgASgJQgq6SAdyBRAIGIABIjQKEFJlZ2lzdGVyUmVzcG9uc2USIAoEdXNlchgBIAEoCzISLnB1cmkudXNlci52MS5Vc2VyIloKDExvZ2luUmVxdWVzdBIsCgh1c2VybmFtZRgBIAEoCUIaukgXchUQAxggMg9eW2EtekEtWjAtOV9dKyQSHAoIcGFzc3dvcmQYAiABKAlCCrpIB3IFEAgYgAEiMQoNTG9naW5SZXNwb25zZRIgCgR1c2VyGAEgASgLMhIucHVyaS51c2VyLnYxLlVzZXIiDwoNTG9nb3V0UmVxdWVzdCIQCg5Mb2dvdXRSZXNwb25zZSITChFHZXRQcm9maWxlUmVxdWVzdCI2ChJHZXRQcm9maWxlUmVzcG9uc2USIAoEdXNlchgBIAEoCzISLnB1cmkudXNlci52MS5Vc2VyInwKFFVwZGF0ZVByb2ZpbGVSZXF1ZXN0EiIKDGRpc3BsYXlfbmFtZRgBIAEoCUIHukgEcgIYQEgAiAEBEiAKCmJval9oYW5kbGUYAiABKAlCB7pIBHICGCBIAYgBAUIPCg1fZGlzcGxheV9uYW1lQg0KC19ib2pfaGFuZGxlIjkKFVVwZGF0ZVByb2ZpbGVSZXNwb25zZRIgCgR1c2VyGAEgASgLMhIucHVyaS51c2VyLnYxLlVzZXIiSAoYR2V0VXNlckJ5VXNlcm5hbWVSZXF1ZXN0EiwKCHVzZXJuYW1lGAEgASgJQhq6SBdyFRADGCAyD15bYS16QS1aMC05X10rJCI9ChlHZXRVc2VyQnlVc2VybmFtZVJlc3BvbnNlEiAKBHVzZXIYASABKAsyEi5wdXJpLnVzZXIudjEuVXNlciJsCglSYW5rRW50cnkSDAoEcmFuaxgBIAEoBRIPCgd1c2VyX2lkGAIgASgDEhAKCHVzZXJuYW1lGAMgASgJEhQKDHNvbHZlZF9jb3VudBgEIAEoBRIYChBzdWJtaXNzaW9uX2NvdW50GAUgASgFIjoKEUdldFJhbmtpbmdSZXF1ZXN0EhEKCXBhZ2Vfc2l6ZRgBIAEoBRISCgpwYWdlX3Rva2VuGAIgASgJIlcKEkdldFJhbmtpbmdSZXNwb25zZRIoCgdlbnRyaWVzGAEgAygLMhcucHVyaS51c2VyLnYxLlJhbmtFbnRyeRIXCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAkiPgoVQWRtaW5MaXN0VXNlcnNSZXF1ZXN0EhEKCXBhZ2Vfc2l6ZRgBIAEoBRISCgpwYWdlX3Rva2VuGAIgASgJIlQKFkFkbWluTGlzdFVzZXJzUmVzcG9uc2USIQoFdXNlcnMYASADKAsyEi5wdXJpLnVzZXIudjEuVXNlchIXCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAki1gEKA0JhbhIKCgJpZBgBIAEoAxIPCgd1c2VyX2lkGAIgASgDEg4KBnJlYXNvbhgDIAEoCRIRCgliYW5uZWRfYnkYBCABKAMSGgoSYmFubmVkX2J5X3VzZXJuYW1lGAUgASgJEi0KCWJhbm5lZF9hdBgGIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXASLwoLdW5iYW5uZWRfYXQYByABKAsyGi5nb29nbGUucHJvdG9idWYuVGltZXN0YW1wEhMKC3VuYmFubmVkX2J5GAggASgDIkkKE0FkbWluQmFuVXNlclJlcXVlc3QSGAoHdXNlcl9pZBgBIAEoA0IHukgEIgIoARIYCgZyZWFzb24YAiABKAlCCLpIBXIDGOgHIlgKFEFkbWluQmFuVXNlclJlc3BvbnNlEiAKBHVzZXIYASABKAsyEi5wdXJpLnVzZXIudjEuVXNlchIeCgNiYW4YAiABKAsyES5wdXJpLnVzZXIudjEuQmFuIjEKFUFkbWluVW5iYW5Vc2VyUmVxdWVzdBIYCgd1c2VyX2lkGAEgASgDQge6SAQiAigBIjoKFkFkbWluVW5iYW5Vc2VyUmVzcG9uc2USIAoEdXNlchgBIAEoCzISLnB1cmkudXNlci52MS5Vc2VyIlEKG0FkbWluVXBkYXRlQmFuUmVhc29uUmVxdWVzdBIYCgd1c2VyX2lkGAEgASgDQge6SAQiAigBEhgKBnJlYXNvbhgCIAEoCUIIukgFcgMY6AciPgocQWRtaW5VcGRhdGVCYW5SZWFzb25SZXNwb25zZRIeCgNiYW4YASABKAsyES5wdXJpLnVzZXIudjEuQmFuIlgKF0FkbWluU2V0VXNlclJvbGVSZXF1ZXN0EhgKB3VzZXJfaWQYASABKANCB7pIBCICKAESIwoEcm9sZRgCIAEoCUIVukgSchAyDl4odXNlcnxhZG1pbikkIjwKGEFkbWluU2V0VXNlclJvbGVSZXNwb25zZRIgCgR1c2VyGAEgASgLMhIucHVyaS51c2VyLnYxLlVzZXIy9ggKC1VzZXJTZXJ2aWNlElEKCFJlZ2lzdGVyEh0ucHVyaS51c2VyLnYxLlJlZ2lzdGVyUmVxdWVzdBoeLnB1cmkudXNlci52MS5SZWdpc3RlclJlc3BvbnNlIgaKtRgCCAESSAoFTG9naW4SGi5wdXJpLnVzZXIudjEuTG9naW5SZXF1ZXN0GhsucHVyaS51c2VyLnYxLkxvZ2luUmVzcG9uc2UiBoq1GAIIARJLCgZMb2dvdXQSGy5wdXJpLnVzZXIudjEuTG9nb3V0UmVxdWVzdBocLnB1cmkudXNlci52MS5Mb2dvdXRSZXNwb25zZSIGirUYAggBElUKCkdldFByb2ZpbGUSHy5wdXJpLnVzZXIudjEuR2V0UHJvZmlsZVJlcXVlc3QaIC5wdXJpLnVzZXIudjEuR2V0UHJvZmlsZVJlc3BvbnNlIgSKtRgAEl4KDVVwZGF0ZVByb2ZpbGUSIi5wdXJpLnVzZXIudjEuVXBkYXRlUHJvZmlsZVJlcXVlc3QaIy5wdXJpLnVzZXIudjEuVXBkYXRlUHJvZmlsZVJlc3BvbnNlIgSKtRgAElcKCkdldFJhbmtpbmcSHy5wdXJpLnVzZXIudjEuR2V0UmFua2luZ1JlcXVlc3QaIC5wdXJpLnVzZXIudjEuR2V0UmFua2luZ1Jlc3BvbnNlIgaKtRgCCAESbAoRR2V0VXNlckJ5VXNlcm5hbWUSJi5wdXJpLnVzZXIudjEuR2V0VXNlckJ5VXNlcm5hbWVSZXF1ZXN0GicucHVyaS51c2VyLnYxLkdldFVzZXJCeVVzZXJuYW1lUmVzcG9uc2UiBoq1GAIIARJhCg5BZG1pbkxpc3RVc2VycxIjLnB1cmkudXNlci52MS5BZG1pbkxpc3RVc2Vyc1JlcXVlc3QaJC5wdXJpLnVzZXIudjEuQWRtaW5MaXN0VXNlcnNSZXNwb25zZSIEirUYABJbCgxBZG1pbkJhblVzZXISIS5wdXJpLnVzZXIudjEuQWRtaW5CYW5Vc2VyUmVxdWVzdBoiLnB1cmkudXNlci52MS5BZG1pbkJhblVzZXJSZXNwb25zZSIEirUYABJhCg5BZG1pblVuYmFuVXNlchIjLnB1cmkudXNlci52MS5BZG1pblVuYmFuVXNlclJlcXVlc3QaJC5wdXJpLnVzZXIudjEuQWRtaW5VbmJhblVzZXJSZXNwb25zZSIEirUYABJzChRBZG1pblVwZGF0ZUJhblJlYXNvbhIpLnB1cmkudXNlci52MS5BZG1pblVwZGF0ZUJhblJlYXNvblJlcXVlc3QaKi5wdXJpLnVzZXIudjEuQWRtaW5VcGRhdGVCYW5SZWFzb25SZXNwb25zZSIEirUYABJnChBBZG1pblNldFVzZXJSb2xlEiUucHVyaS51c2VyLnYxLkFkbWluU2V0VXNlclJvbGVSZXF1ZXN0GiYucHVyaS51c2VyLnYxLkFkbWluU2V0VXNlclJvbGVSZXNwb25zZSIEirUYAEIsWipnaXRodWIuY29tL3B1cmktY3AvcHVyaS9nZW4vdXNlci92MTt1c2VydjFiBnByb3RvMw", [file_buf_validate_validate, file_google_protobuf_timestamp, file_common_v1_endpoint_security]);
 
 /**
  * @generated from message puri.user.v1.User
@@ -64,6 +64,11 @@ export type User = Message<"puri.user.v1.User"> & {
    * @generated from field: google.protobuf.Timestamp banned_at = 9;
    */
   bannedAt?: Timestamp;
+
+  /**
+   * @generated from field: puri.user.v1.Ban active_ban = 10;
+   */
+  activeBan?: Ban;
 };
 
 /**
@@ -411,6 +416,58 @@ export const AdminListUsersResponseSchema: GenMessage<AdminListUsersResponse> = 
   messageDesc(file_user_v1_user, 17);
 
 /**
+ * @generated from message puri.user.v1.Ban
+ */
+export type Ban = Message<"puri.user.v1.Ban"> & {
+  /**
+   * @generated from field: int64 id = 1;
+   */
+  id: bigint;
+
+  /**
+   * @generated from field: int64 user_id = 2;
+   */
+  userId: bigint;
+
+  /**
+   * @generated from field: string reason = 3;
+   */
+  reason: string;
+
+  /**
+   * @generated from field: int64 banned_by = 4;
+   */
+  bannedBy: bigint;
+
+  /**
+   * @generated from field: string banned_by_username = 5;
+   */
+  bannedByUsername: string;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp banned_at = 6;
+   */
+  bannedAt?: Timestamp;
+
+  /**
+   * @generated from field: google.protobuf.Timestamp unbanned_at = 7;
+   */
+  unbannedAt?: Timestamp;
+
+  /**
+   * @generated from field: int64 unbanned_by = 8;
+   */
+  unbannedBy: bigint;
+};
+
+/**
+ * Describes the message puri.user.v1.Ban.
+ * Use `create(BanSchema)` to create a new message.
+ */
+export const BanSchema: GenMessage<Ban> = /*@__PURE__*/
+  messageDesc(file_user_v1_user, 18);
+
+/**
  * @generated from message puri.user.v1.AdminBanUserRequest
  */
 export type AdminBanUserRequest = Message<"puri.user.v1.AdminBanUserRequest"> & {
@@ -418,6 +475,11 @@ export type AdminBanUserRequest = Message<"puri.user.v1.AdminBanUserRequest"> & 
    * @generated from field: int64 user_id = 1;
    */
   userId: bigint;
+
+  /**
+   * @generated from field: string reason = 2;
+   */
+  reason: string;
 };
 
 /**
@@ -425,7 +487,7 @@ export type AdminBanUserRequest = Message<"puri.user.v1.AdminBanUserRequest"> & 
  * Use `create(AdminBanUserRequestSchema)` to create a new message.
  */
 export const AdminBanUserRequestSchema: GenMessage<AdminBanUserRequest> = /*@__PURE__*/
-  messageDesc(file_user_v1_user, 18);
+  messageDesc(file_user_v1_user, 19);
 
 /**
  * @generated from message puri.user.v1.AdminBanUserResponse
@@ -435,6 +497,11 @@ export type AdminBanUserResponse = Message<"puri.user.v1.AdminBanUserResponse"> 
    * @generated from field: puri.user.v1.User user = 1;
    */
   user?: User;
+
+  /**
+   * @generated from field: puri.user.v1.Ban ban = 2;
+   */
+  ban?: Ban;
 };
 
 /**
@@ -442,7 +509,7 @@ export type AdminBanUserResponse = Message<"puri.user.v1.AdminBanUserResponse"> 
  * Use `create(AdminBanUserResponseSchema)` to create a new message.
  */
 export const AdminBanUserResponseSchema: GenMessage<AdminBanUserResponse> = /*@__PURE__*/
-  messageDesc(file_user_v1_user, 19);
+  messageDesc(file_user_v1_user, 20);
 
 /**
  * @generated from message puri.user.v1.AdminUnbanUserRequest
@@ -459,7 +526,7 @@ export type AdminUnbanUserRequest = Message<"puri.user.v1.AdminUnbanUserRequest"
  * Use `create(AdminUnbanUserRequestSchema)` to create a new message.
  */
 export const AdminUnbanUserRequestSchema: GenMessage<AdminUnbanUserRequest> = /*@__PURE__*/
-  messageDesc(file_user_v1_user, 20);
+  messageDesc(file_user_v1_user, 21);
 
 /**
  * @generated from message puri.user.v1.AdminUnbanUserResponse
@@ -476,7 +543,85 @@ export type AdminUnbanUserResponse = Message<"puri.user.v1.AdminUnbanUserRespons
  * Use `create(AdminUnbanUserResponseSchema)` to create a new message.
  */
 export const AdminUnbanUserResponseSchema: GenMessage<AdminUnbanUserResponse> = /*@__PURE__*/
-  messageDesc(file_user_v1_user, 21);
+  messageDesc(file_user_v1_user, 22);
+
+/**
+ * @generated from message puri.user.v1.AdminUpdateBanReasonRequest
+ */
+export type AdminUpdateBanReasonRequest = Message<"puri.user.v1.AdminUpdateBanReasonRequest"> & {
+  /**
+   * @generated from field: int64 user_id = 1;
+   */
+  userId: bigint;
+
+  /**
+   * @generated from field: string reason = 2;
+   */
+  reason: string;
+};
+
+/**
+ * Describes the message puri.user.v1.AdminUpdateBanReasonRequest.
+ * Use `create(AdminUpdateBanReasonRequestSchema)` to create a new message.
+ */
+export const AdminUpdateBanReasonRequestSchema: GenMessage<AdminUpdateBanReasonRequest> = /*@__PURE__*/
+  messageDesc(file_user_v1_user, 23);
+
+/**
+ * @generated from message puri.user.v1.AdminUpdateBanReasonResponse
+ */
+export type AdminUpdateBanReasonResponse = Message<"puri.user.v1.AdminUpdateBanReasonResponse"> & {
+  /**
+   * @generated from field: puri.user.v1.Ban ban = 1;
+   */
+  ban?: Ban;
+};
+
+/**
+ * Describes the message puri.user.v1.AdminUpdateBanReasonResponse.
+ * Use `create(AdminUpdateBanReasonResponseSchema)` to create a new message.
+ */
+export const AdminUpdateBanReasonResponseSchema: GenMessage<AdminUpdateBanReasonResponse> = /*@__PURE__*/
+  messageDesc(file_user_v1_user, 24);
+
+/**
+ * @generated from message puri.user.v1.AdminSetUserRoleRequest
+ */
+export type AdminSetUserRoleRequest = Message<"puri.user.v1.AdminSetUserRoleRequest"> & {
+  /**
+   * @generated from field: int64 user_id = 1;
+   */
+  userId: bigint;
+
+  /**
+   * @generated from field: string role = 2;
+   */
+  role: string;
+};
+
+/**
+ * Describes the message puri.user.v1.AdminSetUserRoleRequest.
+ * Use `create(AdminSetUserRoleRequestSchema)` to create a new message.
+ */
+export const AdminSetUserRoleRequestSchema: GenMessage<AdminSetUserRoleRequest> = /*@__PURE__*/
+  messageDesc(file_user_v1_user, 25);
+
+/**
+ * @generated from message puri.user.v1.AdminSetUserRoleResponse
+ */
+export type AdminSetUserRoleResponse = Message<"puri.user.v1.AdminSetUserRoleResponse"> & {
+  /**
+   * @generated from field: puri.user.v1.User user = 1;
+   */
+  user?: User;
+};
+
+/**
+ * Describes the message puri.user.v1.AdminSetUserRoleResponse.
+ * Use `create(AdminSetUserRoleResponseSchema)` to create a new message.
+ */
+export const AdminSetUserRoleResponseSchema: GenMessage<AdminSetUserRoleResponse> = /*@__PURE__*/
+  messageDesc(file_user_v1_user, 26);
 
 /**
  * @generated from service puri.user.v1.UserService
@@ -561,6 +706,22 @@ export const UserService: GenService<{
     methodKind: "unary";
     input: typeof AdminUnbanUserRequestSchema;
     output: typeof AdminUnbanUserResponseSchema;
+  },
+  /**
+   * @generated from rpc puri.user.v1.UserService.AdminUpdateBanReason
+   */
+  adminUpdateBanReason: {
+    methodKind: "unary";
+    input: typeof AdminUpdateBanReasonRequestSchema;
+    output: typeof AdminUpdateBanReasonResponseSchema;
+  },
+  /**
+   * @generated from rpc puri.user.v1.UserService.AdminSetUserRole
+   */
+  adminSetUserRole: {
+    methodKind: "unary";
+    input: typeof AdminSetUserRoleRequestSchema;
+    output: typeof AdminSetUserRoleResponseSchema;
   },
 }> = /*@__PURE__*/
   serviceDesc(file_user_v1_user, 0);

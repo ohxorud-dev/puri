@@ -108,15 +108,127 @@ func (r *UserRepository) UpdateProfile(ctx context.Context, id int64, displayNam
 	return &user, nil
 }
 
-func (r *UserRepository) SetBanned(ctx context.Context, id int64, banned bool) (*User, error) {
+type Ban struct {
+	ID               int64
+	UserID           int64
+	Reason           string
+	BannedBy         int64
+	BannedByUsername string
+	BannedAt         time.Time
+	UnbannedAt       *time.Time
+	UnbannedBy       *int64
+}
+
+func (r *UserRepository) BanUser(ctx context.Context, id int64, reason string, bannedBy int64) (*User, *Ban, error) {
+	tx, err := r.pool.Begin(ctx)
+	if err != nil {
+		return nil, nil, err
+	}
+	defer tx.Rollback(ctx)
+
+	var ban Ban
+	if reason == "" {
+		err = tx.QueryRow(ctx,
+			`INSERT INTO bans (user_id, banned_by)
+			 VALUES ($1, $2)
+			 RETURNING id, user_id, reason, banned_by, banned_at, unbanned_at, unbanned_by`,
+			id, bannedBy,
+		).Scan(&ban.ID, &ban.UserID, &ban.Reason, &ban.BannedBy, &ban.BannedAt, &ban.UnbannedAt, &ban.UnbannedBy)
+	} else {
+		err = tx.QueryRow(ctx,
+			`INSERT INTO bans (user_id, reason, banned_by)
+			 VALUES ($1, $2, $3)
+			 RETURNING id, user_id, reason, banned_by, banned_at, unbanned_at, unbanned_by`,
+			id, reason, bannedBy,
+		).Scan(&ban.ID, &ban.UserID, &ban.Reason, &ban.BannedBy, &ban.BannedAt, &ban.UnbannedAt, &ban.UnbannedBy)
+	}
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var user User
+	err = scanUser(tx.QueryRow(ctx,
+		`UPDATE users SET is_banned = true, banned_at = NOW() WHERE id = $1 RETURNING `+userColumns,
+		id,
+	), &user)
+	if err == pgx.ErrNoRows {
+		return nil, nil, nil
+	}
+	if err != nil {
+		return nil, nil, err
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		return nil, nil, err
+	}
+	return &user, &ban, nil
+}
+
+func (r *UserRepository) UnbanUser(ctx context.Context, id int64, unbannedBy int64) (*User, error) {
+	tx, err := r.pool.Begin(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback(ctx)
+
+	if _, err := tx.Exec(ctx,
+		`UPDATE bans SET unbanned_at = NOW(), unbanned_by = $2
+		 WHERE user_id = $1 AND unbanned_at IS NULL`,
+		id, unbannedBy,
+	); err != nil {
+		return nil, err
+	}
+
+	var user User
+	err = scanUser(tx.QueryRow(ctx,
+		`UPDATE users SET is_banned = false, banned_at = NULL WHERE id = $1 RETURNING `+userColumns,
+		id,
+	), &user)
+	if err == pgx.ErrNoRows {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
+
+func (r *UserRepository) UpdateBanReason(ctx context.Context, userID int64, reason string) (*Ban, error) {
+	var b Ban
+	var err error
+	if reason == "" {
+		err = r.pool.QueryRow(ctx,
+			`UPDATE bans SET reason = DEFAULT
+			 WHERE user_id = $1 AND unbanned_at IS NULL
+			 RETURNING id, user_id, reason, banned_by, banned_at, unbanned_at, unbanned_by`,
+			userID,
+		).Scan(&b.ID, &b.UserID, &b.Reason, &b.BannedBy, &b.BannedAt, &b.UnbannedAt, &b.UnbannedBy)
+	} else {
+		err = r.pool.QueryRow(ctx,
+			`UPDATE bans SET reason = $2
+			 WHERE user_id = $1 AND unbanned_at IS NULL
+			 RETURNING id, user_id, reason, banned_by, banned_at, unbanned_at, unbanned_by`,
+			userID, reason,
+		).Scan(&b.ID, &b.UserID, &b.Reason, &b.BannedBy, &b.BannedAt, &b.UnbannedAt, &b.UnbannedBy)
+	}
+	if err == pgx.ErrNoRows {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	return &b, nil
+}
+
+func (r *UserRepository) SetRole(ctx context.Context, id int64, role string) (*User, error) {
 	var user User
 	err := scanUser(r.pool.QueryRow(ctx,
-		`UPDATE users
-		 SET is_banned = $2,
-		     banned_at = CASE WHEN $2 THEN NOW() ELSE NULL END
-		 WHERE id = $1
-		 RETURNING `+userColumns,
-		id, banned,
+		`UPDATE users SET role = $2 WHERE id = $1 RETURNING `+userColumns,
+		id, role,
 	), &user)
 	if err == pgx.ErrNoRows {
 		return nil, nil
@@ -125,6 +237,23 @@ func (r *UserRepository) SetBanned(ctx context.Context, id int64, banned bool) (
 		return nil, err
 	}
 	return &user, nil
+}
+
+func (r *UserRepository) GetActiveBan(ctx context.Context, userID int64) (*Ban, error) {
+	var b Ban
+	err := r.pool.QueryRow(ctx,
+		`SELECT b.id, b.user_id, b.reason, b.banned_by, COALESCE(u.username, ''), b.banned_at, b.unbanned_at, b.unbanned_by
+		 FROM bans b LEFT JOIN users u ON u.id = b.banned_by
+		 WHERE b.user_id = $1 AND b.unbanned_at IS NULL`,
+		userID,
+	).Scan(&b.ID, &b.UserID, &b.Reason, &b.BannedBy, &b.BannedByUsername, &b.BannedAt, &b.UnbannedAt, &b.UnbannedBy)
+	if err == pgx.ErrNoRows {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	return &b, nil
 }
 
 func (r *UserRepository) IsBanned(ctx context.Context, id int64) (bool, error) {

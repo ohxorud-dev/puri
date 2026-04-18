@@ -199,6 +199,24 @@ func toProtoUser(u *repository.User) *userv1.User {
 	return user
 }
 
+func toProtoBan(b *repository.Ban) *userv1.Ban {
+	pb := &userv1.Ban{
+		Id:               b.ID,
+		UserId:           b.UserID,
+		Reason:           b.Reason,
+		BannedBy:         b.BannedBy,
+		BannedByUsername: b.BannedByUsername,
+		BannedAt:         timestamppb.New(b.BannedAt),
+	}
+	if b.UnbannedAt != nil {
+		pb.UnbannedAt = timestamppb.New(*b.UnbannedAt)
+	}
+	if b.UnbannedBy != nil {
+		pb.UnbannedBy = *b.UnbannedBy
+	}
+	return pb
+}
+
 func (h *UserServiceHandler) requireAdmin(ctx context.Context) (*repository.User, error) {
 	userID, ok := auth.UserIDFromContext(ctx)
 	if !ok {
@@ -238,7 +256,13 @@ func (h *UserServiceHandler) AdminListUsers(ctx context.Context, req *connect.Re
 
 	protoUsers := make([]*userv1.User, 0, len(users))
 	for _, u := range users {
-		protoUsers = append(protoUsers, toProtoUser(u))
+		pu := toProtoUser(u)
+		if u.IsBanned {
+			if ban, err := h.repo.GetActiveBan(ctx, u.ID); err == nil && ban != nil {
+				pu.ActiveBan = toProtoBan(ban)
+			}
+		}
+		protoUsers = append(protoUsers, pu)
 	}
 
 	nextPageToken := ""
@@ -257,21 +281,25 @@ func (h *UserServiceHandler) AdminBanUser(ctx context.Context, req *connect.Requ
 	if admin.ID == req.Msg.UserId {
 		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("cannot ban yourself"))
 	}
-	user, err := h.repo.SetBanned(ctx, req.Msg.UserId, true)
+	user, ban, err := h.repo.BanUser(ctx, req.Msg.UserId, req.Msg.Reason, admin.ID)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error"))
 	}
 	if user == nil {
 		return nil, connect.NewError(connect.CodeNotFound, fmt.Errorf("user not found"))
 	}
-	return connect.NewResponse(&userv1.AdminBanUserResponse{User: toProtoUser(user)}), nil
+	pu := toProtoUser(user)
+	pb := toProtoBan(ban)
+	pu.ActiveBan = pb
+	return connect.NewResponse(&userv1.AdminBanUserResponse{User: pu, Ban: pb}), nil
 }
 
 func (h *UserServiceHandler) AdminUnbanUser(ctx context.Context, req *connect.Request[userv1.AdminUnbanUserRequest]) (*connect.Response[userv1.AdminUnbanUserResponse], error) {
-	if _, err := h.requireAdmin(ctx); err != nil {
+	admin, err := h.requireAdmin(ctx)
+	if err != nil {
 		return nil, err
 	}
-	user, err := h.repo.SetBanned(ctx, req.Msg.UserId, false)
+	user, err := h.repo.UnbanUser(ctx, req.Msg.UserId, admin.ID)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error"))
 	}
@@ -279,4 +307,36 @@ func (h *UserServiceHandler) AdminUnbanUser(ctx context.Context, req *connect.Re
 		return nil, connect.NewError(connect.CodeNotFound, fmt.Errorf("user not found"))
 	}
 	return connect.NewResponse(&userv1.AdminUnbanUserResponse{User: toProtoUser(user)}), nil
+}
+
+func (h *UserServiceHandler) AdminUpdateBanReason(ctx context.Context, req *connect.Request[userv1.AdminUpdateBanReasonRequest]) (*connect.Response[userv1.AdminUpdateBanReasonResponse], error) {
+	if _, err := h.requireAdmin(ctx); err != nil {
+		return nil, err
+	}
+	ban, err := h.repo.UpdateBanReason(ctx, req.Msg.UserId, req.Msg.Reason)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error"))
+	}
+	if ban == nil {
+		return nil, connect.NewError(connect.CodeNotFound, fmt.Errorf("no active ban for this user"))
+	}
+	return connect.NewResponse(&userv1.AdminUpdateBanReasonResponse{Ban: toProtoBan(ban)}), nil
+}
+
+func (h *UserServiceHandler) AdminSetUserRole(ctx context.Context, req *connect.Request[userv1.AdminSetUserRoleRequest]) (*connect.Response[userv1.AdminSetUserRoleResponse], error) {
+	admin, err := h.requireAdmin(ctx)
+	if err != nil {
+		return nil, err
+	}
+	if admin.ID == req.Msg.UserId {
+		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("cannot change your own role"))
+	}
+	user, err := h.repo.SetRole(ctx, req.Msg.UserId, req.Msg.Role)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error"))
+	}
+	if user == nil {
+		return nil, connect.NewError(connect.CodeNotFound, fmt.Errorf("user not found"))
+	}
+	return connect.NewResponse(&userv1.AdminSetUserRoleResponse{User: toProtoUser(user)}), nil
 }

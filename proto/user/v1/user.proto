@@ -37,6 +37,12 @@ service UserService {
   rpc AdminUnbanUser(AdminUnbanUserRequest) returns (AdminUnbanUserResponse) {
     option (puri.common.v1.endpoint_rule) = { isPublic: false };
   }
+  rpc AdminUpdateBanReason(AdminUpdateBanReasonRequest) returns (AdminUpdateBanReasonResponse) {
+    option (puri.common.v1.endpoint_rule) = { isPublic: false };
+  }
+  rpc AdminSetUserRole(AdminSetUserRoleRequest) returns (AdminSetUserRoleResponse) {
+    option (puri.common.v1.endpoint_rule) = { isPublic: false };
+  }
 }
 
 message User {
@@ -49,6 +55,7 @@ message User {
   string role = 7;
   bool is_banned = 8;
   google.protobuf.Timestamp banned_at = 9;
+  Ban active_ban = 10;
 }
 
 message RegisterRequest {
@@ -122,12 +129,25 @@ message AdminListUsersResponse {
   string next_page_token = 2;
 }
 
+message Ban {
+  int64 id = 1;
+  int64 user_id = 2;
+  string reason = 3;
+  int64 banned_by = 4;
+  string banned_by_username = 5;
+  google.protobuf.Timestamp banned_at = 6;
+  google.protobuf.Timestamp unbanned_at = 7;
+  int64 unbanned_by = 8;
+}
+
 message AdminBanUserRequest {
   int64 user_id = 1 [(buf.validate.field).int64.gte = 1];
+  string reason = 2 [(buf.validate.field).string.max_len = 1000];
 }
 
 message AdminBanUserResponse {
   User user = 1;
+  Ban ban = 2;
 }
 
 message AdminUnbanUserRequest {
@@ -135,5 +155,23 @@ message AdminUnbanUserRequest {
 }
 
 message AdminUnbanUserResponse {
+  User user = 1;
+}
+
+message AdminUpdateBanReasonRequest {
+  int64 user_id = 1 [(buf.validate.field).int64.gte = 1];
+  string reason = 2 [(buf.validate.field).string.max_len = 1000];
+}
+
+message AdminUpdateBanReasonResponse {
+  Ban ban = 1;
+}
+
+message AdminSetUserRoleRequest {
+  int64 user_id = 1 [(buf.validate.field).int64.gte = 1];
+  string role = 2 [(buf.validate.field).string.pattern = "^(user|admin)$"];
+}
+
+message AdminSetUserRoleResponse {
   User user = 1;
 }

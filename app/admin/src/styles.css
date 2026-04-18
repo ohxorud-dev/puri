@@ -74,6 +74,7 @@ button {
   border-radius: 8px;
   font-weight: 600;
   font-size: 0.9rem;
+  white-space: nowrap;
   transition: background 0.15s;
 }
 .btn:hover:not(:disabled) {
@@ -228,6 +229,15 @@ tbody tr:hover {
   color: var(--success);
   font-weight: 700;
 }
+.ban-reason {
+  color: var(--muted);
+  font-size: 0.8rem;
+  margin-top: 0.2rem;
+  max-width: 240px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
 .pagination {
   display: flex;
@@ -320,6 +330,63 @@ tbody tr:hover {
   display: flex;
   gap: 0.5rem;
 }
+.icon-btn {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  font-size: 1.3rem;
+  line-height: 1;
+  padding: 0.25rem 0.6rem;
+  border-radius: 6px;
+  transition: background 0.15s, color 0.15s;
+}
+.icon-btn:hover {
+  background: var(--border);
+  color: var(--text);
+}
+.action-menu-dropdown {
+  position: fixed;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
+  min-width: 140px;
+  padding: 0.25rem;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+}
+.action-menu-item {
+  background: transparent;
+  border: none;
+  text-align: left;
+  padding: 0.55rem 0.8rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text);
+  white-space: nowrap;
+}
+.action-menu-item:hover:not(:disabled) {
+  background: var(--border);
+}
+.action-menu-item:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.action-menu-item-danger {
+  color: var(--danger);
+}
+.action-menu-item-danger:hover:not(:disabled) {
+  background: rgba(224, 49, 49, 0.12);
+}
+.action-menu-item-success {
+  color: var(--success);
+}
+.action-menu-item-success:hover:not(:disabled) {
+  background: rgba(47, 158, 68, 0.12);
+}
+
 .code-block {
   margin: 0;
   padding: 1.25rem;

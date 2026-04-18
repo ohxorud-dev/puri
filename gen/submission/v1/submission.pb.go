@@ -852,6 +852,86 @@ func (x *ListSubmissionsResponse) GetNextPageToken() string {
 	return ""
 }
 
+type DeleteSubmissionRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	SubmissionId  int64                  `protobuf:"varint,1,opt,name=submission_id,json=submissionId,proto3" json:"submission_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteSubmissionRequest) Reset() {
+	*x = DeleteSubmissionRequest{}
+	mi := &file_submission_v1_submission_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteSubmissionRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteSubmissionRequest) ProtoMessage() {}
+
+func (x *DeleteSubmissionRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_submission_v1_submission_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteSubmissionRequest.ProtoReflect.Descriptor instead.
+func (*DeleteSubmissionRequest) Descriptor() ([]byte, []int) {
+	return file_submission_v1_submission_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *DeleteSubmissionRequest) GetSubmissionId() int64 {
+	if x != nil {
+		return x.SubmissionId
+	}
+	return 0
+}
+
+type DeleteSubmissionResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteSubmissionResponse) Reset() {
+	*x = DeleteSubmissionResponse{}
+	mi := &file_submission_v1_submission_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteSubmissionResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteSubmissionResponse) ProtoMessage() {}
+
+func (x *DeleteSubmissionResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_submission_v1_submission_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteSubmissionResponse.ProtoReflect.Descriptor instead.
+func (*DeleteSubmissionResponse) Descriptor() ([]byte, []int) {
+	return file_submission_v1_submission_proto_rawDescGZIP(), []int{14}
+}
+
 type StreamSubmissionStatusRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	SubmissionId  int64                  `protobuf:"varint,1,opt,name=submission_id,json=submissionId,proto3" json:"submission_id,omitempty"`
@@ -861,7 +941,7 @@ type StreamSubmissionStatusRequest struct {
 
 func (x *StreamSubmissionStatusRequest) Reset() {
 	*x = StreamSubmissionStatusRequest{}
-	mi := &file_submission_v1_submission_proto_msgTypes[13]
+	mi := &file_submission_v1_submission_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -873,7 +953,7 @@ func (x *StreamSubmissionStatusRequest) String() string {
 func (*StreamSubmissionStatusRequest) ProtoMessage() {}
 
 func (x *StreamSubmissionStatusRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_submission_v1_submission_proto_msgTypes[13]
+	mi := &file_submission_v1_submission_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -886,7 +966,7 @@ func (x *StreamSubmissionStatusRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StreamSubmissionStatusRequest.ProtoReflect.Descriptor instead.
 func (*StreamSubmissionStatusRequest) Descriptor() ([]byte, []int) {
-	return file_submission_v1_submission_proto_rawDescGZIP(), []int{13}
+	return file_submission_v1_submission_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *StreamSubmissionStatusRequest) GetSubmissionId() int64 {
@@ -909,7 +989,7 @@ type StreamSubmissionStatusResponse struct {
 
 func (x *StreamSubmissionStatusResponse) Reset() {
 	*x = StreamSubmissionStatusResponse{}
-	mi := &file_submission_v1_submission_proto_msgTypes[14]
+	mi := &file_submission_v1_submission_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -921,7 +1001,7 @@ func (x *StreamSubmissionStatusResponse) String() string {
 func (*StreamSubmissionStatusResponse) ProtoMessage() {}
 
 func (x *StreamSubmissionStatusResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_submission_v1_submission_proto_msgTypes[14]
+	mi := &file_submission_v1_submission_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -934,7 +1014,7 @@ func (x *StreamSubmissionStatusResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StreamSubmissionStatusResponse.ProtoReflect.Descriptor instead.
 func (*StreamSubmissionStatusResponse) Descriptor() ([]byte, []int) {
-	return file_submission_v1_submission_proto_rawDescGZIP(), []int{14}
+	return file_submission_v1_submission_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *StreamSubmissionStatusResponse) GetSubmissionId() int64 {
@@ -1056,7 +1136,10 @@ const file_submission_v1_submission_proto_rawDesc = "" +
 	"\v_problem_id\"\x83\x01\n" +
 	"\x17ListSubmissionsResponse\x12@\n" +
 	"\vsubmissions\x18\x01 \x03(\v2\x1e.puri.submission.v1.SubmissionR\vsubmissions\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"N\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken\"G\n" +
+	"\x17DeleteSubmissionRequest\x12,\n" +
+	"\rsubmission_id\x18\x01 \x01(\x03B\a\xbaH\x04\"\x02(\x01R\fsubmissionId\"\x1a\n" +
+	"\x18DeleteSubmissionResponse\"N\n" +
 	"\x1dStreamSubmissionStatusRequest\x12-\n" +
 	"\rsubmission_id\x18\x01 \x01(\x03B\b\xbaH\x05\"\x03(\xe8\aR\fsubmissionId\"\x91\x02\n" +
 	"\x1eStreamSubmissionStatusResponse\x12-\n" +
@@ -1064,14 +1147,15 @@ const file_submission_v1_submission_proto_rawDesc = "" +
 	"\x06status\x18\x02 \x01(\x0e2 .puri.common.v1.SubmissionStatusB\b\xbaH\x05\x82\x01\x02\x10\x01R\x06status\x12\x16\n" +
 	"\x06result\x18\x03 \x01(\tR\x06result\x123\n" +
 	"\x11execution_time_ms\x18\x04 \x01(\x05B\a\xbaH\x04\x1a\x02(\x00R\x0fexecutionTimeMs\x12/\n" +
-	"\x0fmemory_usage_kb\x18\x05 \x01(\x05B\a\xbaH\x04\x1a\x02(\x00R\rmemoryUsageKb2\xb6\x05\n" +
+	"\x0fmemory_usage_kb\x18\x05 \x01(\x05B\a\xbaH\x04\x1a\x02(\x00R\rmemoryUsageKb2\xab\x06\n" +
 	"\x11SubmissionService\x12s\n" +
 	"\x10CreateSubmission\x12+.puri.submission.v1.CreateSubmissionRequest\x1a,.puri.submission.v1.CreateSubmissionResponse\"\x04\x8a\xb5\x18\x00\x12X\n" +
 	"\aRunTest\x12\".puri.submission.v1.RunTestRequest\x1a#.puri.submission.v1.RunTestResponse\"\x04\x8a\xb5\x18\x00\x12d\n" +
 	"\vRunExamples\x12&.puri.submission.v1.RunExamplesRequest\x1a'.puri.submission.v1.RunExamplesResponse\"\x04\x8a\xb5\x18\x00\x12l\n" +
 	"\rGetSubmission\x12(.puri.submission.v1.GetSubmissionRequest\x1a).puri.submission.v1.GetSubmissionResponse\"\x06\x8a\xb5\x18\x02\b\x01\x12r\n" +
 	"\x0fListSubmissions\x12*.puri.submission.v1.ListSubmissionsRequest\x1a+.puri.submission.v1.ListSubmissionsResponse\"\x06\x8a\xb5\x18\x02\b\x01\x12\x89\x01\n" +
-	"\x16StreamSubmissionStatus\x121.puri.submission.v1.StreamSubmissionStatusRequest\x1a2.puri.submission.v1.StreamSubmissionStatusResponse\"\x06\x8a\xb5\x18\x02\b\x010\x01B8Z6github.com/puri-cp/puri/gen/submission/v1;submissionv1b\x06proto3"
+	"\x16StreamSubmissionStatus\x121.puri.submission.v1.StreamSubmissionStatusRequest\x1a2.puri.submission.v1.StreamSubmissionStatusResponse\"\x06\x8a\xb5\x18\x02\b\x010\x01\x12s\n" +
+	"\x10DeleteSubmission\x12+.puri.submission.v1.DeleteSubmissionRequest\x1a,.puri.submission.v1.DeleteSubmissionResponse\"\x04\x8a\xb5\x18\x00B8Z6github.com/puri-cp/puri/gen/submission/v1;submissionv1b\x06proto3"
 
 var (
 	file_submission_v1_submission_proto_rawDescOnce sync.Once
@@ -1085,7 +1169,7 @@ func file_submission_v1_submission_proto_rawDescGZIP() []byte {
 	return file_submission_v1_submission_proto_rawDescData
 }
 
-var file_submission_v1_submission_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
+var file_submission_v1_submission_proto_msgTypes = make([]protoimpl.MessageInfo, 17)
 var file_submission_v1_submission_proto_goTypes = []any{
 	(*Submission)(nil),                     // 0: puri.submission.v1.Submission
 	(*CreateSubmissionRequest)(nil),        // 1: puri.submission.v1.CreateSubmissionRequest
@@ -1100,40 +1184,44 @@ var file_submission_v1_submission_proto_goTypes = []any{
 	(*GetSubmissionResponse)(nil),          // 10: puri.submission.v1.GetSubmissionResponse
 	(*ListSubmissionsRequest)(nil),         // 11: puri.submission.v1.ListSubmissionsRequest
 	(*ListSubmissionsResponse)(nil),        // 12: puri.submission.v1.ListSubmissionsResponse
-	(*StreamSubmissionStatusRequest)(nil),  // 13: puri.submission.v1.StreamSubmissionStatusRequest
-	(*StreamSubmissionStatusResponse)(nil), // 14: puri.submission.v1.StreamSubmissionStatusResponse
-	(v1.Language)(0),                       // 15: puri.common.v1.Language
-	(v1.SubmissionStatus)(0),               // 16: puri.common.v1.SubmissionStatus
-	(*timestamppb.Timestamp)(nil),          // 17: google.protobuf.Timestamp
+	(*DeleteSubmissionRequest)(nil),        // 13: puri.submission.v1.DeleteSubmissionRequest
+	(*DeleteSubmissionResponse)(nil),       // 14: puri.submission.v1.DeleteSubmissionResponse
+	(*StreamSubmissionStatusRequest)(nil),  // 15: puri.submission.v1.StreamSubmissionStatusRequest
+	(*StreamSubmissionStatusResponse)(nil), // 16: puri.submission.v1.StreamSubmissionStatusResponse
+	(v1.Language)(0),                       // 17: puri.common.v1.Language
+	(v1.SubmissionStatus)(0),               // 18: puri.common.v1.SubmissionStatus
+	(*timestamppb.Timestamp)(nil),          // 19: google.protobuf.Timestamp
 }
 var file_submission_v1_submission_proto_depIdxs = []int32{
-	15, // 0: puri.submission.v1.Submission.language:type_name -> puri.common.v1.Language
-	16, // 1: puri.submission.v1.Submission.status:type_name -> puri.common.v1.SubmissionStatus
-	17, // 2: puri.submission.v1.Submission.created_at:type_name -> google.protobuf.Timestamp
-	15, // 3: puri.submission.v1.CreateSubmissionRequest.language:type_name -> puri.common.v1.Language
+	17, // 0: puri.submission.v1.Submission.language:type_name -> puri.common.v1.Language
+	18, // 1: puri.submission.v1.Submission.status:type_name -> puri.common.v1.SubmissionStatus
+	19, // 2: puri.submission.v1.Submission.created_at:type_name -> google.protobuf.Timestamp
+	17, // 3: puri.submission.v1.CreateSubmissionRequest.language:type_name -> puri.common.v1.Language
 	0,  // 4: puri.submission.v1.CreateSubmissionResponse.submission:type_name -> puri.submission.v1.Submission
-	15, // 5: puri.submission.v1.RunTestRequest.language:type_name -> puri.common.v1.Language
+	17, // 5: puri.submission.v1.RunTestRequest.language:type_name -> puri.common.v1.Language
 	4,  // 6: puri.submission.v1.RunTestResponse.test_cases:type_name -> puri.submission.v1.TestCaseResult
-	15, // 7: puri.submission.v1.RunExamplesRequest.language:type_name -> puri.common.v1.Language
+	17, // 7: puri.submission.v1.RunExamplesRequest.language:type_name -> puri.common.v1.Language
 	6,  // 8: puri.submission.v1.RunExamplesRequest.examples:type_name -> puri.submission.v1.ExamplePair
 	4,  // 9: puri.submission.v1.RunExamplesResponse.test_cases:type_name -> puri.submission.v1.TestCaseResult
 	0,  // 10: puri.submission.v1.GetSubmissionResponse.submission:type_name -> puri.submission.v1.Submission
 	0,  // 11: puri.submission.v1.ListSubmissionsResponse.submissions:type_name -> puri.submission.v1.Submission
-	16, // 12: puri.submission.v1.StreamSubmissionStatusResponse.status:type_name -> puri.common.v1.SubmissionStatus
+	18, // 12: puri.submission.v1.StreamSubmissionStatusResponse.status:type_name -> puri.common.v1.SubmissionStatus
 	1,  // 13: puri.submission.v1.SubmissionService.CreateSubmission:input_type -> puri.submission.v1.CreateSubmissionRequest
 	3,  // 14: puri.submission.v1.SubmissionService.RunTest:input_type -> puri.submission.v1.RunTestRequest
 	7,  // 15: puri.submission.v1.SubmissionService.RunExamples:input_type -> puri.submission.v1.RunExamplesRequest
 	9,  // 16: puri.submission.v1.SubmissionService.GetSubmission:input_type -> puri.submission.v1.GetSubmissionRequest
 	11, // 17: puri.submission.v1.SubmissionService.ListSubmissions:input_type -> puri.submission.v1.ListSubmissionsRequest
-	13, // 18: puri.submission.v1.SubmissionService.StreamSubmissionStatus:input_type -> puri.submission.v1.StreamSubmissionStatusRequest
-	2,  // 19: puri.submission.v1.SubmissionService.CreateSubmission:output_type -> puri.submission.v1.CreateSubmissionResponse
-	5,  // 20: puri.submission.v1.SubmissionService.RunTest:output_type -> puri.submission.v1.RunTestResponse
-	8,  // 21: puri.submission.v1.SubmissionService.RunExamples:output_type -> puri.submission.v1.RunExamplesResponse
-	10, // 22: puri.submission.v1.SubmissionService.GetSubmission:output_type -> puri.submission.v1.GetSubmissionResponse
-	12, // 23: puri.submission.v1.SubmissionService.ListSubmissions:output_type -> puri.submission.v1.ListSubmissionsResponse
-	14, // 24: puri.submission.v1.SubmissionService.StreamSubmissionStatus:output_type -> puri.submission.v1.StreamSubmissionStatusResponse
-	19, // [19:25] is the sub-list for method output_type
-	13, // [13:19] is the sub-list for method input_type
+	15, // 18: puri.submission.v1.SubmissionService.StreamSubmissionStatus:input_type -> puri.submission.v1.StreamSubmissionStatusRequest
+	13, // 19: puri.submission.v1.SubmissionService.DeleteSubmission:input_type -> puri.submission.v1.DeleteSubmissionRequest
+	2,  // 20: puri.submission.v1.SubmissionService.CreateSubmission:output_type -> puri.submission.v1.CreateSubmissionResponse
+	5,  // 21: puri.submission.v1.SubmissionService.RunTest:output_type -> puri.submission.v1.RunTestResponse
+	8,  // 22: puri.submission.v1.SubmissionService.RunExamples:output_type -> puri.submission.v1.RunExamplesResponse
+	10, // 23: puri.submission.v1.SubmissionService.GetSubmission:output_type -> puri.submission.v1.GetSubmissionResponse
+	12, // 24: puri.submission.v1.SubmissionService.ListSubmissions:output_type -> puri.submission.v1.ListSubmissionsResponse
+	16, // 25: puri.submission.v1.SubmissionService.StreamSubmissionStatus:output_type -> puri.submission.v1.StreamSubmissionStatusResponse
+	14, // 26: puri.submission.v1.SubmissionService.DeleteSubmission:output_type -> puri.submission.v1.DeleteSubmissionResponse
+	20, // [20:27] is the sub-list for method output_type
+	13, // [13:20] is the sub-list for method input_type
 	13, // [13:13] is the sub-list for extension type_name
 	13, // [13:13] is the sub-list for extension extendee
 	0,  // [0:13] is the sub-list for field type_name
@@ -1151,7 +1239,7 @@ func file_submission_v1_submission_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_submission_v1_submission_proto_rawDesc), len(file_submission_v1_submission_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   15,
+			NumMessages:   17,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

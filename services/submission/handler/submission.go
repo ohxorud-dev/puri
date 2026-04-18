@@ -193,6 +193,17 @@ func (h *SubmissionServiceHandler) StreamSubmissionStatus(ctx context.Context, r
 	return connect.NewError(connect.CodeUnimplemented, fmt.Errorf("StreamSubmissionStatus is not implemented yet"))
 }
 
+func (h *SubmissionServiceHandler) DeleteSubmission(ctx context.Context, req *connect.Request[submissionv1.DeleteSubmissionRequest]) (*connect.Response[submissionv1.DeleteSubmissionResponse], error) {
+	ok, err := h.repo.Delete(ctx, req.Msg.SubmissionId)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error"))
+	}
+	if !ok {
+		return nil, connect.NewError(connect.CodeNotFound, fmt.Errorf("submission not found"))
+	}
+	return connect.NewResponse(&submissionv1.DeleteSubmissionResponse{}), nil
+}
+
 func toProtoSubmission(s *repository.Submission) *submissionv1.Submission {
 	sub := &submissionv1.Submission{
 		Id:         s.ID,

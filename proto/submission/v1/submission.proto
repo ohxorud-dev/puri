@@ -26,6 +26,9 @@ service SubmissionService {
   rpc StreamSubmissionStatus(StreamSubmissionStatusRequest) returns (stream StreamSubmissionStatusResponse) {
     option (puri.common.v1.endpoint_rule) = { isPublic: true };
   }
+  rpc DeleteSubmission(DeleteSubmissionRequest) returns (DeleteSubmissionResponse) {
+    option (puri.common.v1.endpoint_rule) = { isPublic: false };
+  }
 }
 
 message Submission {
@@ -111,6 +114,12 @@ message ListSubmissionsResponse {
   repeated Submission submissions = 1;
   string next_page_token = 2;
 }
+
+message DeleteSubmissionRequest {
+  int64 submission_id = 1 [(buf.validate.field).int64.gte = 1];
+}
+
+message DeleteSubmissionResponse {}
 
 message StreamSubmissionStatusRequest {
   int64 submission_id = 1 [(buf.validate.field).int64.gte = 1000];

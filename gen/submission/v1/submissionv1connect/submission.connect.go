@@ -51,6 +51,9 @@ const (
 	// SubmissionServiceStreamSubmissionStatusProcedure is the fully-qualified name of the
 	// SubmissionService's StreamSubmissionStatus RPC.
 	SubmissionServiceStreamSubmissionStatusProcedure = "/puri.submission.v1.SubmissionService/StreamSubmissionStatus"
+	// SubmissionServiceDeleteSubmissionProcedure is the fully-qualified name of the SubmissionService's
+	// DeleteSubmission RPC.
+	SubmissionServiceDeleteSubmissionProcedure = "/puri.submission.v1.SubmissionService/DeleteSubmission"
 )
 
 // SubmissionServiceClient is a client for the puri.submission.v1.SubmissionService service.
@@ -61,6 +64,7 @@ type SubmissionServiceClient interface {
 	GetSubmission(context.Context, *connect.Request[v1.GetSubmissionRequest]) (*connect.Response[v1.GetSubmissionResponse], error)
 	ListSubmissions(context.Context, *connect.Request[v1.ListSubmissionsRequest]) (*connect.Response[v1.ListSubmissionsResponse], error)
 	StreamSubmissionStatus(context.Context, *connect.Request[v1.StreamSubmissionStatusRequest]) (*connect.ServerStreamForClient[v1.StreamSubmissionStatusResponse], error)
+	DeleteSubmission(context.Context, *connect.Request[v1.DeleteSubmissionRequest]) (*connect.Response[v1.DeleteSubmissionResponse], error)
 }
 
 // NewSubmissionServiceClient constructs a client for the puri.submission.v1.SubmissionService
@@ -110,6 +114,12 @@ func NewSubmissionServiceClient(httpClient connect.HTTPClient, baseURL string, o
 			connect.WithSchema(submissionServiceMethods.ByName("StreamSubmissionStatus")),
 			connect.WithClientOptions(opts...),
 		),
+		deleteSubmission: connect.NewClient[v1.DeleteSubmissionRequest, v1.DeleteSubmissionResponse](
+			httpClient,
+			baseURL+SubmissionServiceDeleteSubmissionProcedure,
+			connect.WithSchema(submissionServiceMethods.ByName("DeleteSubmission")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -121,6 +131,7 @@ type submissionServiceClient struct {
 	getSubmission          *connect.Client[v1.GetSubmissionRequest, v1.GetSubmissionResponse]
 	listSubmissions        *connect.Client[v1.ListSubmissionsRequest, v1.ListSubmissionsResponse]
 	streamSubmissionStatus *connect.Client[v1.StreamSubmissionStatusRequest, v1.StreamSubmissionStatusResponse]
+	deleteSubmission       *connect.Client[v1.DeleteSubmissionRequest, v1.DeleteSubmissionResponse]
 }
 
 // CreateSubmission calls puri.submission.v1.SubmissionService.CreateSubmission.
@@ -153,6 +164,11 @@ func (c *submissionServiceClient) StreamSubmissionStatus(ctx context.Context, re
 	return c.streamSubmissionStatus.CallServerStream(ctx, req)
 }
 
+// DeleteSubmission calls puri.submission.v1.SubmissionService.DeleteSubmission.
+func (c *submissionServiceClient) DeleteSubmission(ctx context.Context, req *connect.Request[v1.DeleteSubmissionRequest]) (*connect.Response[v1.DeleteSubmissionResponse], error) {
+	return c.deleteSubmission.CallUnary(ctx, req)
+}
+
 // SubmissionServiceHandler is an implementation of the puri.submission.v1.SubmissionService
 // service.
 type SubmissionServiceHandler interface {
@@ -162,6 +178,7 @@ type SubmissionServiceHandler interface {
 	GetSubmission(context.Context, *connect.Request[v1.GetSubmissionRequest]) (*connect.Response[v1.GetSubmissionResponse], error)
 	ListSubmissions(context.Context, *connect.Request[v1.ListSubmissionsRequest]) (*connect.Response[v1.ListSubmissionsResponse], error)
 	StreamSubmissionStatus(context.Context, *connect.Request[v1.StreamSubmissionStatusRequest], *connect.ServerStream[v1.StreamSubmissionStatusResponse]) error
+	DeleteSubmission(context.Context, *connect.Request[v1.DeleteSubmissionRequest]) (*connect.Response[v1.DeleteSubmissionResponse], error)
 }
 
 // NewSubmissionServiceHandler builds an HTTP handler from the service implementation. It returns
@@ -207,6 +224,12 @@ func NewSubmissionServiceHandler(svc SubmissionServiceHandler, opts ...connect.H
 		connect.WithSchema(submissionServiceMethods.ByName("StreamSubmissionStatus")),
 		connect.WithHandlerOptions(opts...),
 	)
+	submissionServiceDeleteSubmissionHandler := connect.NewUnaryHandler(
+		SubmissionServiceDeleteSubmissionProcedure,
+		svc.DeleteSubmission,
+		connect.WithSchema(submissionServiceMethods.ByName("DeleteSubmission")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/puri.submission.v1.SubmissionService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case SubmissionServiceCreateSubmissionProcedure:
@@ -221,6 +244,8 @@ func NewSubmissionServiceHandler(svc SubmissionServiceHandler, opts ...connect.H
 			submissionServiceListSubmissionsHandler.ServeHTTP(w, r)
 		case SubmissionServiceStreamSubmissionStatusProcedure:
 			submissionServiceStreamSubmissionStatusHandler.ServeHTTP(w, r)
+		case SubmissionServiceDeleteSubmissionProcedure:
+			submissionServiceDeleteSubmissionHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -252,4 +277,8 @@ func (UnimplementedSubmissionServiceHandler) ListSubmissions(context.Context, *c
 
 func (UnimplementedSubmissionServiceHandler) StreamSubmissionStatus(context.Context, *connect.Request[v1.StreamSubmissionStatusRequest], *connect.ServerStream[v1.StreamSubmissionStatusResponse]) error {
 	return connect.NewError(connect.CodeUnimplemented, errors.New("puri.submission.v1.SubmissionService.StreamSubmissionStatus is not implemented"))
+}
+
+func (UnimplementedSubmissionServiceHandler) DeleteSubmission(context.Context, *connect.Request[v1.DeleteSubmissionRequest]) (*connect.Response[v1.DeleteSubmissionResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("puri.submission.v1.SubmissionService.DeleteSubmission is not implemented"))
 }

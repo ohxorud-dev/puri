@@ -79,6 +79,14 @@ func (r *SubmissionRepository) UpdateStatus(ctx context.Context, id int64, statu
 	return err
 }
 
+func (r *SubmissionRepository) Delete(ctx context.Context, id int64) (bool, error) {
+	tag, err := r.pool.Exec(ctx, `DELETE FROM submissions WHERE id = $1`, id)
+	if err != nil {
+		return false, err
+	}
+	return tag.RowsAffected() > 0, nil
+}
+
 func (r *SubmissionRepository) List(ctx context.Context, userID *int64, problemID *int32, limit int32, offset int32) ([]*Submission, error) {
 	query := `SELECT s.id, s.user_id, COALESCE(u.username, ''), s.problem_id, s.language, s.source_code, s.status, s.result, s.execution_time_ms, s.memory_usage_kb FROM submissions s LEFT JOIN users u ON s.user_id = u.id`
 	var args []interface{}
