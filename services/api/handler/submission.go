@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"sync"
+	"time"
 
 	"connectrpc.com/connect"
 
@@ -14,16 +16,35 @@ import (
 	"github.com/puri-cp/puri/services/api/repository"
 )
 
+const submissionCooldown = 10 * time.Second
+
 type SubmissionServiceHandler struct {
 	client   submissionv1connect.SubmissionServiceClient
 	userRepo repository.UserRepo
+
+	lastSubmitMu sync.Mutex
+	lastSubmit   map[int64]time.Time
 }
 
 func NewSubmissionServiceHandler(baseURL string, userRepo repository.UserRepo) *SubmissionServiceHandler {
 	return &SubmissionServiceHandler{
-		client:   submissionv1connect.NewSubmissionServiceClient(http.DefaultClient, baseURL),
-		userRepo: userRepo,
+		client:     submissionv1connect.NewSubmissionServiceClient(http.DefaultClient, baseURL),
+		userRepo:   userRepo,
+		lastSubmit: make(map[int64]time.Time),
 	}
+}
+
+func (h *SubmissionServiceHandler) checkSubmissionCooldown(userID int64) error {
+	h.lastSubmitMu.Lock()
+	defer h.lastSubmitMu.Unlock()
+	now := time.Now()
+	if last, ok := h.lastSubmit[userID]; ok {
+		if remaining := submissionCooldown - now.Sub(last); remaining > 0 {
+			return fmt.Errorf("please wait %.1fs before submitting again", remaining.Seconds())
+		}
+	}
+	h.lastSubmit[userID] = now
+	return nil
 }
 
 func (h *SubmissionServiceHandler) viewerIsAdmin(ctx context.Context) bool {
@@ -42,6 +63,9 @@ func (h *SubmissionServiceHandler) CreateSubmission(ctx context.Context, req *co
 	userID, ok := auth.UserIDFromContext(ctx)
 	if !ok {
 		return nil, connect.NewError(connect.CodeUnauthenticated, fmt.Errorf("unauthenticated"))
+	}
+	if err := h.checkSubmissionCooldown(userID); err != nil {
+		return nil, connect.NewError(connect.CodeResourceExhausted, err)
 	}
 	outReq := connect.NewRequest(req.Msg)
 	outReq.Header().Set("X-User-Id", strconv.FormatInt(userID, 10))
