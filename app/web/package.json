@@ -9,12 +9,12 @@
     "check": "astro check"
   },
   "dependencies": {
-    "@astrojs/cloudflare": "^12.6.13",
+    "@astrojs/cloudflare": "^13.1.10",
     "@astrojs/sitemap": "^3.7.2",
     "@bufbuild/protobuf": "^2.11.0",
     "@connectrpc/connect": "^2.1.1",
     "@connectrpc/connect-web": "^2.1.1",
-    "astro": "^5.7.2",
+    "astro": "^6.1.8",
     "rehype-katex": "^7.0.1",
     "remark-math": "^6.0.0"
   },

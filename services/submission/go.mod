@@ -1,6 +1,6 @@
 module github.com/ohxorud-dev/puri/services/submission
 
-go 1.25.0
+go 1.25.9
 
 replace github.com/ohxorud-dev/puri => ../../
 
