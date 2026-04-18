@@ -60,6 +60,10 @@ func main() {
 	}
 	consumer.Start()
 
+	orphanCtx, orphanCancel := context.WithCancel(context.Background())
+	defer orphanCancel()
+	go runOrphanResetLoop(orphanCtx, subRepo)
+
 	valInterceptor, err := interceptor.NewValidationInterceptor()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "failed to create validation interceptor: %v\n", err)
@@ -99,6 +103,8 @@ func main() {
 	<-quit
 	fmt.Println("Shutting down...")
 
+	orphanCancel()
+
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
 
@@ -109,4 +115,33 @@ func main() {
 		fmt.Fprintf(os.Stderr, "consumer shutdown error: %v\n", err)
 	}
 	fmt.Println("Server stopped gracefully")
+}
+
+func runOrphanResetLoop(ctx context.Context, repo *repository.SubmissionRepository) {
+	const maxJudgingAge = 3 * time.Minute
+	ticker := time.NewTicker(60 * time.Second)
+	defer ticker.Stop()
+
+	resetOnce := func() {
+		opCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		n, err := repo.ResetOrphanedJudging(opCtx, maxJudgingAge)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "[orphan-reset] failed: %v\n", err)
+			return
+		}
+		if n > 0 {
+			fmt.Printf("[orphan-reset] reset %d stuck JUDGING submissions\n", n)
+		}
+	}
+
+	resetOnce()
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+			resetOnce()
+		}
+	}
 }

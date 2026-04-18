@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"strconv"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -88,6 +89,19 @@ func (r *SubmissionRepository) ClaimForJudging(ctx context.Context, id int64) (b
 		return false, err
 	}
 	return tag.RowsAffected() > 0, nil
+}
+
+func (r *SubmissionRepository) ResetOrphanedJudging(ctx context.Context, maxAge time.Duration) (int64, error) {
+	tag, err := r.pool.Exec(ctx,
+		`UPDATE submissions
+		 SET status = 'RUNTIME_ERROR', result = '채점 시간 초과 (자동 복구)'
+		 WHERE status = 'JUDGING' AND created_at < NOW() - make_interval(secs => $1)`,
+		maxAge.Seconds(),
+	)
+	if err != nil {
+		return 0, err
+	}
+	return tag.RowsAffected(), nil
 }
 
 func (r *SubmissionRepository) Delete(ctx context.Context, id int64) (bool, error) {
