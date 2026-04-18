@@ -4,6 +4,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 <BaseLayout title="프로필 - Puri">
   <div class="profile-container">
     <div id="profile-loading" style="text-align:center; padding:4rem; color:var(--color-text-muted);">불러오는 중...</div>
+    <div id="profile-error" style="display:none; text-align:center; padding:4rem; color:var(--color-text-muted);"></div>
     <div id="profile-content" style="display:none;">
       <div class="profile-header">
         <div class="profile-avatar">
@@ -13,7 +14,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
           <h1 class="profile-username"><span id="profile-username"></span></h1>
           <p class="profile-bio"><span id="profile-email"></span></p>
         </div>
-        <div class="profile-actions">
+        <div class="profile-actions" id="profile-actions" style="display:none;">
           <button class="btn-edit-profile" id="btn-logout">로그아웃</button>
         </div>
       </div>
@@ -26,7 +27,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
               <span class="stat-label">아이디</span>
               <span class="stat-value" id="stat-username" style="font-size:1.3rem;"></span>
             </div>
-            <div class="stat-item">
+            <div class="stat-item" id="stat-email-item" style="display:none;">
               <span class="stat-label">이메일</span>
               <span class="stat-value" id="stat-email" style="font-size:1.3rem;"></span>
             </div>
@@ -50,21 +51,63 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   import { userClient } from '../../lib/api';
 
   async function loadProfile() {
-    const user = await getUser();
-    if (!user) {
-      document.getElementById('profile-loading')!.innerHTML = '<p style="color:var(--color-text-muted);">로그인이 필요합니다. <a href="/login" style="color:var(--color-btn-1-bg); font-weight:600;">로그인</a></p>';
+    const loadingEl = document.getElementById('profile-loading')!;
+    const errorEl = document.getElementById('profile-error')!;
+    const contentEl = document.getElementById('profile-content')!;
+
+    const path = window.location.pathname.replace(/\/+$/, '');
+    const rest = path.substring('/profile'.length).replace(/^\/+/, '');
+    const requested = rest ? decodeURIComponent(rest) : '';
+
+    let target;
+    let me;
+    try {
+      me = await getUser();
+    } catch { me = null; }
+
+    if (requested) {
+      try {
+        const resp = await userClient.getUserByUsername({ username: requested });
+        target = resp.user;
+      } catch {
+        loadingEl.style.display = 'none';
+        errorEl.style.display = '';
+        errorEl.innerHTML = '<p>사용자를 찾을 수 없습니다.</p>';
+        return;
+      }
+    } else {
+      if (!me) {
+        loadingEl.innerHTML = '<p style="color:var(--color-text-muted);">로그인이 필요합니다. <a href="/login" style="color:var(--color-btn-1-bg); font-weight:600;">로그인</a></p>';
+        return;
+      }
+      target = me;
+    }
+
+    if (!target) {
+      loadingEl.style.display = 'none';
+      errorEl.style.display = '';
+      errorEl.innerHTML = '<p>사용자를 찾을 수 없습니다.</p>';
       return;
     }
 
-    document.getElementById('profile-loading')!.style.display = 'none';
-    document.getElementById('profile-content')!.style.display = '';
+    const isSelf = !!(me && me.id === target.id);
 
-    document.getElementById('profile-username')!.textContent = user.username;
-    document.getElementById('profile-email')!.textContent = user.email;
-    document.getElementById('stat-username')!.textContent = user.username;
-    document.getElementById('stat-email')!.textContent = user.email;
-    document.getElementById('stat-displayname')!.textContent = user.displayName || '-';
-    document.getElementById('stat-bojhandle')!.textContent = user.bojHandle || '-';
+    loadingEl.style.display = 'none';
+    contentEl.style.display = '';
+
+    document.getElementById('profile-username')!.textContent = target.username;
+    document.getElementById('profile-email')!.textContent = target.email || '';
+    document.getElementById('stat-username')!.textContent = target.username;
+    if (target.email) {
+      document.getElementById('stat-email-item')!.style.display = '';
+      document.getElementById('stat-email')!.textContent = target.email;
+    }
+    document.getElementById('stat-displayname')!.textContent = target.displayName || '-';
+    document.getElementById('stat-bojhandle')!.textContent = target.bojHandle || '-';
+
+    if (isSelf) {
+      document.getElementById('profile-actions')!.style.display = '';
+    }
   }
 
   document.getElementById('btn-logout')?.addEventListener('click', async () => {
@@ -79,175 +122,23 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 </script>
 
 <style>
-  .profile-container {
-    max-width: 1200px;
-    margin: 4rem auto;
-    padding: 0 1.5rem;
-  }
-  
-  /* Header Setup */
-  .profile-header {
-    display: flex;
-    align-items: center;
-    gap: 2rem;
-    padding-bottom: 2.5rem;
-    border-bottom: 1px solid var(--color-border);
-    margin-bottom: 3rem;
-  }
-  
-  .profile-avatar {
-    width: 90px;
-    height: 90px;
-    border-radius: 50%;
-    background: var(--color-surface);
-    border: 2px solid var(--color-border);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--color-text-muted);
-  }
-  
-  .profile-info {
-    flex: 1;
-  }
-  
-  .profile-username {
-    font-size: 2.2rem;
-    font-weight: 800;
-    margin: 0 0 0.5rem 0;
-    color: var(--color-text);
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-  }
-  
-  .profile-level {
-    font-size: 1rem;
-    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-    color: white;
-    padding: 0.3rem 0.8rem;
-    border-radius: 20px;
-    font-weight: 700;
-  }
-  
-  .profile-bio {
-    font-size: 1.05rem;
-    color: var(--color-text-muted);
-    margin: 0;
-  }
-  
-  .btn-edit-profile {
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    color: var(--color-text);
-    padding: 0.6rem 1.2rem;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .btn-edit-profile:hover {
-    background: var(--color-border);
-  }
-  
-  /* Grid Layout Setup */
-  .profile-grid {
-    display: grid;
-    grid-template-columns: 1.5fr 1fr;
-    gap: 2rem;
-  }
+  .profile-container { max-width: 1200px; margin: 4rem auto; padding: 0 1.5rem; }
+  .profile-header { display: flex; align-items: center; gap: 2rem; padding-bottom: 2.5rem; border-bottom: 1px solid var(--color-border); margin-bottom: 3rem; }
+  .profile-avatar { width: 90px; height: 90px; border-radius: 50%; background: var(--color-surface); border: 2px solid var(--color-border); display: flex; align-items: center; justify-content: center; color: var(--color-text-muted); }
+  .profile-info { flex: 1; }
+  .profile-username { font-size: 2.2rem; font-weight: 800; margin: 0 0 0.5rem 0; color: var(--color-text); display: flex; align-items: center; gap: 1rem; }
+  .profile-bio { font-size: 1.05rem; color: var(--color-text-muted); margin: 0; }
+  .btn-edit-profile { background: var(--color-surface); border: 1px solid var(--color-border); color: var(--color-text); padding: 0.6rem 1.2rem; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+  .btn-edit-profile:hover { background: var(--color-border); }
+  .profile-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 2rem; }
   @media (max-width: 800px) {
     .profile-grid { grid-template-columns: 1fr; }
     .profile-header { flex-direction: column; text-align: center; }
   }
-  
-  /* Card Design */
-  .stats-card, .recent-card {
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: 12px;
-    padding: 2rem;
-    height: fit-content;
-  }
-  
-  .card-title {
-    font-size: 1.3rem;
-    font-weight: 700;
-    margin: 0 0 1.5rem 0;
-    color: var(--color-text);
-  }
-  
-  /* Stats styling */
-  .stats-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
-  }
-  
-  .stat-item {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    background: var(--color-bg);
-    padding: 1.5rem;
-    border-radius: 8px;
-    border: 1px solid var(--color-border);
-  }
-  
-  .stat-label {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: var(--color-text-muted);
-  }
-  
-  .stat-value {
-    font-size: 2rem;
-    font-weight: 800;
-    color: var(--color-text);
-  }
-  .text-blue { color: #3b82f6 !important; }
-  .text-orange { color: #f97316 !important; }
-  
-  /* Activity List */
-  .activity-list {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .activity-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem 0;
-    border-bottom: 1px solid var(--color-border);
-  }
-  .activity-item:last-child {
-    border-bottom: none;
-    padding-bottom: 0;
-  }
-  
-  .activity-left {
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-  }
-  
-  .status-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-  }
-  .status-dot.success { background: #4ade80; box-shadow: 0 0 8px rgba(74, 222, 128, 0.4); }
-  .status-dot.fail { background: #f87171; }
-  
-  .activity-problem {
-    font-weight: 600;
-    color: var(--color-text);
-    font-size: 1rem;
-  }
-  
-  .activity-time {
-    font-size: 0.85rem;
-    color: var(--color-text-muted);
-  }
+  .stats-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 12px; padding: 2rem; height: fit-content; }
+  .card-title { font-size: 1.3rem; font-weight: 700; margin: 0 0 1.5rem 0; color: var(--color-text); }
+  .stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  .stat-item { display: flex; flex-direction: column; gap: 0.5rem; background: var(--color-bg); padding: 1.5rem; border-radius: 8px; border: 1px solid var(--color-border); }
+  .stat-label { font-size: 0.9rem; font-weight: 600; color: var(--color-text-muted); }
+  .stat-value { font-size: 2rem; font-weight: 800; color: var(--color-text); }
 </style>

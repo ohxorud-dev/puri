@@ -14,7 +14,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file user/v1/user.proto.
  */
 export const file_user_v1_user: GenFile = /*@__PURE__*/
-  fileDesc("ChJ1c2VyL3YxL3VzZXIucHJvdG8SDHB1cmkudXNlci52MSLQAQoEVXNlchITCgJpZBgBIAEoA0IHukgEIgIoARIsCgh1c2VybmFtZRgCIAEoCUIaukgXchUQAxggMg9eW2EtekEtWjAtOV9dKyQSGQoFZW1haWwYAyABKAlCCrpIB3IFGMACYAESHQoMZGlzcGxheV9uYW1lGAQgASgJQge6SARyAhhAEhsKCmJval9oYW5kbGUYBSABKAlCB7pIBHICGCASLgoKY3JlYXRlZF9hdBgGIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAieAoPUmVnaXN0ZXJSZXF1ZXN0EhkKBWVtYWlsGAEgASgJQgq6SAdyBRjAAmABEiwKCHVzZXJuYW1lGAIgASgJQhq6SBdyFRADGCAyD15bYS16QS1aMC05X10rJBIcCghwYXNzd29yZBgDIAEoCUIKukgHcgUQCBiAASI0ChBSZWdpc3RlclJlc3BvbnNlEiAKBHVzZXIYASABKAsyEi5wdXJpLnVzZXIudjEuVXNlciJaCgxMb2dpblJlcXVlc3QSLAoIdXNlcm5hbWUYASABKAlCGrpIF3IVEAMYIDIPXlthLXpBLVowLTlfXSskEhwKCHBhc3N3b3JkGAIgASgJQgq6SAdyBRAIGIABIjEKDUxvZ2luUmVzcG9uc2USIAoEdXNlchgBIAEoCzISLnB1cmkudXNlci52MS5Vc2VyIg8KDUxvZ291dFJlcXVlc3QiEAoOTG9nb3V0UmVzcG9uc2UiEwoRR2V0UHJvZmlsZVJlcXVlc3QiNgoSR2V0UHJvZmlsZVJlc3BvbnNlEiAKBHVzZXIYASABKAsyEi5wdXJpLnVzZXIudjEuVXNlciJ8ChRVcGRhdGVQcm9maWxlUmVxdWVzdBIiCgxkaXNwbGF5X25hbWUYASABKAlCB7pIBHICGEBIAIgBARIgCgpib2pfaGFuZGxlGAIgASgJQge6SARyAhggSAGIAQFCDwoNX2Rpc3BsYXlfbmFtZUINCgtfYm9qX2hhbmRsZSI5ChVVcGRhdGVQcm9maWxlUmVzcG9uc2USIAoEdXNlchgBIAEoCzISLnB1cmkudXNlci52MS5Vc2VyImwKCVJhbmtFbnRyeRIMCgRyYW5rGAEgASgFEg8KB3VzZXJfaWQYAiABKAMSEAoIdXNlcm5hbWUYAyABKAkSFAoMc29sdmVkX2NvdW50GAQgASgFEhgKEHN1Ym1pc3Npb25fY291bnQYBSABKAUiOgoRR2V0UmFua2luZ1JlcXVlc3QSEQoJcGFnZV9zaXplGAEgASgFEhIKCnBhZ2VfdG9rZW4YAiABKAkiVwoSR2V0UmFua2luZ1Jlc3BvbnNlEigKB2VudHJpZXMYASADKAsyFy5wdXJpLnVzZXIudjEuUmFua0VudHJ5EhcKD25leHRfcGFnZV90b2tlbhgCIAEoCTKHBAoLVXNlclNlcnZpY2USUQoIUmVnaXN0ZXISHS5wdXJpLnVzZXIudjEuUmVnaXN0ZXJSZXF1ZXN0Gh4ucHVyaS51c2VyLnYxLlJlZ2lzdGVyUmVzcG9uc2UiBoq1GAIIARJICgVMb2dpbhIaLnB1cmkudXNlci52MS5Mb2dpblJlcXVlc3QaGy5wdXJpLnVzZXIudjEuTG9naW5SZXNwb25zZSIGirUYAggBEksKBkxvZ291dBIbLnB1cmkudXNlci52MS5Mb2dvdXRSZXF1ZXN0GhwucHVyaS51c2VyLnYxLkxvZ291dFJlc3BvbnNlIgaKtRgCCAESVQoKR2V0UHJvZmlsZRIfLnB1cmkudXNlci52MS5HZXRQcm9maWxlUmVxdWVzdBogLnB1cmkudXNlci52MS5HZXRQcm9maWxlUmVzcG9uc2UiBIq1GAASXgoNVXBkYXRlUHJvZmlsZRIiLnB1cmkudXNlci52MS5VcGRhdGVQcm9maWxlUmVxdWVzdBojLnB1cmkudXNlci52MS5VcGRhdGVQcm9maWxlUmVzcG9uc2UiBIq1GAASVwoKR2V0UmFua2luZxIfLnB1cmkudXNlci52MS5HZXRSYW5raW5nUmVxdWVzdBogLnB1cmkudXNlci52MS5HZXRSYW5raW5nUmVzcG9uc2UiBoq1GAIIAUIsWipnaXRodWIuY29tL3B1cmktY3AvcHVyaS9nZW4vdXNlci92MTt1c2VydjFiBnByb3RvMw", [file_buf_validate_validate, file_google_protobuf_timestamp, file_common_v1_endpoint_security]);
+  fileDesc("ChJ1c2VyL3YxL3VzZXIucHJvdG8SDHB1cmkudXNlci52MSLQAQoEVXNlchITCgJpZBgBIAEoA0IHukgEIgIoARIsCgh1c2VybmFtZRgCIAEoCUIaukgXchUQAxggMg9eW2EtekEtWjAtOV9dKyQSGQoFZW1haWwYAyABKAlCCrpIB3IFGMACYAESHQoMZGlzcGxheV9uYW1lGAQgASgJQge6SARyAhhAEhsKCmJval9oYW5kbGUYBSABKAlCB7pIBHICGCASLgoKY3JlYXRlZF9hdBgGIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3RhbXAieAoPUmVnaXN0ZXJSZXF1ZXN0EhkKBWVtYWlsGAEgASgJQgq6SAdyBRjAAmABEiwKCHVzZXJuYW1lGAIgASgJQhq6SBdyFRADGCAyD15bYS16QS1aMC05X10rJBIcCghwYXNzd29yZBgDIAEoCUIKukgHcgUQCBiAASI0ChBSZWdpc3RlclJlc3BvbnNlEiAKBHVzZXIYASABKAsyEi5wdXJpLnVzZXIudjEuVXNlciJaCgxMb2dpblJlcXVlc3QSLAoIdXNlcm5hbWUYASABKAlCGrpIF3IVEAMYIDIPXlthLXpBLVowLTlfXSskEhwKCHBhc3N3b3JkGAIgASgJQgq6SAdyBRAIGIABIjEKDUxvZ2luUmVzcG9uc2USIAoEdXNlchgBIAEoCzISLnB1cmkudXNlci52MS5Vc2VyIg8KDUxvZ291dFJlcXVlc3QiEAoOTG9nb3V0UmVzcG9uc2UiEwoRR2V0UHJvZmlsZVJlcXVlc3QiNgoSR2V0UHJvZmlsZVJlc3BvbnNlEiAKBHVzZXIYASABKAsyEi5wdXJpLnVzZXIudjEuVXNlciJ8ChRVcGRhdGVQcm9maWxlUmVxdWVzdBIiCgxkaXNwbGF5X25hbWUYASABKAlCB7pIBHICGEBIAIgBARIgCgpib2pfaGFuZGxlGAIgASgJQge6SARyAhggSAGIAQFCDwoNX2Rpc3BsYXlfbmFtZUINCgtfYm9qX2hhbmRsZSI5ChVVcGRhdGVQcm9maWxlUmVzcG9uc2USIAoEdXNlchgBIAEoCzISLnB1cmkudXNlci52MS5Vc2VyIkgKGEdldFVzZXJCeVVzZXJuYW1lUmVxdWVzdBIsCgh1c2VybmFtZRgBIAEoCUIaukgXchUQAxggMg9eW2EtekEtWjAtOV9dKyQiPQoZR2V0VXNlckJ5VXNlcm5hbWVSZXNwb25zZRIgCgR1c2VyGAEgASgLMhIucHVyaS51c2VyLnYxLlVzZXIibAoJUmFua0VudHJ5EgwKBHJhbmsYASABKAUSDwoHdXNlcl9pZBgCIAEoAxIQCgh1c2VybmFtZRgDIAEoCRIUCgxzb2x2ZWRfY291bnQYBCABKAUSGAoQc3VibWlzc2lvbl9jb3VudBgFIAEoBSI6ChFHZXRSYW5raW5nUmVxdWVzdBIRCglwYWdlX3NpemUYASABKAUSEgoKcGFnZV90b2tlbhgCIAEoCSJXChJHZXRSYW5raW5nUmVzcG9uc2USKAoHZW50cmllcxgBIAMoCzIXLnB1cmkudXNlci52MS5SYW5rRW50cnkSFwoPbmV4dF9wYWdlX3Rva2VuGAIgASgJMvUECgtVc2VyU2VydmljZRJRCghSZWdpc3RlchIdLnB1cmkudXNlci52MS5SZWdpc3RlclJlcXVlc3QaHi5wdXJpLnVzZXIudjEuUmVnaXN0ZXJSZXNwb25zZSIGirUYAggBEkgKBUxvZ2luEhoucHVyaS51c2VyLnYxLkxvZ2luUmVxdWVzdBobLnB1cmkudXNlci52MS5Mb2dpblJlc3BvbnNlIgaKtRgCCAESSwoGTG9nb3V0EhsucHVyaS51c2VyLnYxLkxvZ291dFJlcXVlc3QaHC5wdXJpLnVzZXIudjEuTG9nb3V0UmVzcG9uc2UiBoq1GAIIARJVCgpHZXRQcm9maWxlEh8ucHVyaS51c2VyLnYxLkdldFByb2ZpbGVSZXF1ZXN0GiAucHVyaS51c2VyLnYxLkdldFByb2ZpbGVSZXNwb25zZSIEirUYABJeCg1VcGRhdGVQcm9maWxlEiIucHVyaS51c2VyLnYxLlVwZGF0ZVByb2ZpbGVSZXF1ZXN0GiMucHVyaS51c2VyLnYxLlVwZGF0ZVByb2ZpbGVSZXNwb25zZSIEirUYABJXCgpHZXRSYW5raW5nEh8ucHVyaS51c2VyLnYxLkdldFJhbmtpbmdSZXF1ZXN0GiAucHVyaS51c2VyLnYxLkdldFJhbmtpbmdSZXNwb25zZSIGirUYAggBEmwKEUdldFVzZXJCeVVzZXJuYW1lEiYucHVyaS51c2VyLnYxLkdldFVzZXJCeVVzZXJuYW1lUmVxdWVzdBonLnB1cmkudXNlci52MS5HZXRVc2VyQnlVc2VybmFtZVJlc3BvbnNlIgaKtRgCCAFCLFoqZ2l0aHViLmNvbS9wdXJpLWNwL3B1cmkvZ2VuL3VzZXIvdjE7dXNlcnYxYgZwcm90bzM", [file_buf_validate_validate, file_google_protobuf_timestamp, file_common_v1_endpoint_security]);
 
 /**
  * @generated from message puri.user.v1.User
@@ -237,6 +237,40 @@ export const UpdateProfileResponseSchema: GenMessage<UpdateProfileResponse> = /*
   messageDesc(file_user_v1_user, 10);
 
 /**
+ * @generated from message puri.user.v1.GetUserByUsernameRequest
+ */
+export type GetUserByUsernameRequest = Message<"puri.user.v1.GetUserByUsernameRequest"> & {
+  /**
+   * @generated from field: string username = 1;
+   */
+  username: string;
+};
+
+/**
+ * Describes the message puri.user.v1.GetUserByUsernameRequest.
+ * Use `create(GetUserByUsernameRequestSchema)` to create a new message.
+ */
+export const GetUserByUsernameRequestSchema: GenMessage<GetUserByUsernameRequest> = /*@__PURE__*/
+  messageDesc(file_user_v1_user, 11);
+
+/**
+ * @generated from message puri.user.v1.GetUserByUsernameResponse
+ */
+export type GetUserByUsernameResponse = Message<"puri.user.v1.GetUserByUsernameResponse"> & {
+  /**
+   * @generated from field: puri.user.v1.User user = 1;
+   */
+  user?: User;
+};
+
+/**
+ * Describes the message puri.user.v1.GetUserByUsernameResponse.
+ * Use `create(GetUserByUsernameResponseSchema)` to create a new message.
+ */
+export const GetUserByUsernameResponseSchema: GenMessage<GetUserByUsernameResponse> = /*@__PURE__*/
+  messageDesc(file_user_v1_user, 12);
+
+/**
  * @generated from message puri.user.v1.RankEntry
  */
 export type RankEntry = Message<"puri.user.v1.RankEntry"> & {
@@ -271,7 +305,7 @@ export type RankEntry = Message<"puri.user.v1.RankEntry"> & {
  * Use `create(RankEntrySchema)` to create a new message.
  */
 export const RankEntrySchema: GenMessage<RankEntry> = /*@__PURE__*/
-  messageDesc(file_user_v1_user, 11);
+  messageDesc(file_user_v1_user, 13);
 
 /**
  * @generated from message puri.user.v1.GetRankingRequest
@@ -293,7 +327,7 @@ export type GetRankingRequest = Message<"puri.user.v1.GetRankingRequest"> & {
  * Use `create(GetRankingRequestSchema)` to create a new message.
  */
 export const GetRankingRequestSchema: GenMessage<GetRankingRequest> = /*@__PURE__*/
-  messageDesc(file_user_v1_user, 12);
+  messageDesc(file_user_v1_user, 14);
 
 /**
  * @generated from message puri.user.v1.GetRankingResponse
@@ -315,7 +349,7 @@ export type GetRankingResponse = Message<"puri.user.v1.GetRankingResponse"> & {
  * Use `create(GetRankingResponseSchema)` to create a new message.
  */
 export const GetRankingResponseSchema: GenMessage<GetRankingResponse> = /*@__PURE__*/
-  messageDesc(file_user_v1_user, 13);
+  messageDesc(file_user_v1_user, 15);
 
 /**
  * @generated from service puri.user.v1.UserService
@@ -368,6 +402,14 @@ export const UserService: GenService<{
     methodKind: "unary";
     input: typeof GetRankingRequestSchema;
     output: typeof GetRankingResponseSchema;
+  },
+  /**
+   * @generated from rpc puri.user.v1.UserService.GetUserByUsername
+   */
+  getUserByUsername: {
+    methodKind: "unary";
+    input: typeof GetUserByUsernameRequestSchema;
+    output: typeof GetUserByUsernameResponseSchema;
   },
 }> = /*@__PURE__*/
   serviceDesc(file_user_v1_user, 0);

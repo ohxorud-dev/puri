@@ -21,6 +21,22 @@ export default defineConfig({
       proxy: {
         '/puri.': 'http://localhost:8080'
       }
-    }
+    },
+    plugins: [
+      {
+        name: 'profile-username-rewrite',
+        configureServer(server) {
+          server.middlewares.use((req, _res, next) => {
+            if (req.url) {
+              const m = req.url.match(/^\/profile\/([^\/\?#]+)\/?(\?.*)?$/);
+              if (m) {
+                req.url = '/profile/' + (m[2] || '');
+              }
+            }
+            next();
+          });
+        }
+      }
+    ]
   }
 });

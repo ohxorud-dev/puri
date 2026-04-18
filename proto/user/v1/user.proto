@@ -25,6 +25,9 @@ service UserService {
   rpc GetRanking(GetRankingRequest) returns (GetRankingResponse) {
     option (puri.common.v1.endpoint_rule) = { isPublic: true };
   }
+  rpc GetUserByUsername(GetUserByUsernameRequest) returns (GetUserByUsernameResponse) {
+    option (puri.common.v1.endpoint_rule) = { isPublic: true };
+  }
 }
 
 message User {
@@ -69,6 +72,13 @@ message UpdateProfileRequest {
 }
 
 message UpdateProfileResponse {
+  User user = 1;
+}
+
+message GetUserByUsernameRequest {
+  string username = 1 [(buf.validate.field).string.min_len = 3, (buf.validate.field).string.max_len = 32, (buf.validate.field).string.pattern = "^[a-zA-Z0-9_]+$"];
+}
+message GetUserByUsernameResponse {
   User user = 1;
 }
 

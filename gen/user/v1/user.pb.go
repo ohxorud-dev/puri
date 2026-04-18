@@ -556,6 +556,94 @@ func (x *UpdateProfileResponse) GetUser() *User {
 	return nil
 }
 
+type GetUserByUsernameRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Username      string                 `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetUserByUsernameRequest) Reset() {
+	*x = GetUserByUsernameRequest{}
+	mi := &file_user_v1_user_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetUserByUsernameRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetUserByUsernameRequest) ProtoMessage() {}
+
+func (x *GetUserByUsernameRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_user_v1_user_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetUserByUsernameRequest.ProtoReflect.Descriptor instead.
+func (*GetUserByUsernameRequest) Descriptor() ([]byte, []int) {
+	return file_user_v1_user_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *GetUserByUsernameRequest) GetUsername() string {
+	if x != nil {
+		return x.Username
+	}
+	return ""
+}
+
+type GetUserByUsernameResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	User          *User                  `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetUserByUsernameResponse) Reset() {
+	*x = GetUserByUsernameResponse{}
+	mi := &file_user_v1_user_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetUserByUsernameResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetUserByUsernameResponse) ProtoMessage() {}
+
+func (x *GetUserByUsernameResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_user_v1_user_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetUserByUsernameResponse.ProtoReflect.Descriptor instead.
+func (*GetUserByUsernameResponse) Descriptor() ([]byte, []int) {
+	return file_user_v1_user_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *GetUserByUsernameResponse) GetUser() *User {
+	if x != nil {
+		return x.User
+	}
+	return nil
+}
+
 type RankEntry struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
 	Rank            int32                  `protobuf:"varint,1,opt,name=rank,proto3" json:"rank,omitempty"`
@@ -569,7 +657,7 @@ type RankEntry struct {
 
 func (x *RankEntry) Reset() {
 	*x = RankEntry{}
-	mi := &file_user_v1_user_proto_msgTypes[11]
+	mi := &file_user_v1_user_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -581,7 +669,7 @@ func (x *RankEntry) String() string {
 func (*RankEntry) ProtoMessage() {}
 
 func (x *RankEntry) ProtoReflect() protoreflect.Message {
-	mi := &file_user_v1_user_proto_msgTypes[11]
+	mi := &file_user_v1_user_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -594,7 +682,7 @@ func (x *RankEntry) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RankEntry.ProtoReflect.Descriptor instead.
 func (*RankEntry) Descriptor() ([]byte, []int) {
-	return file_user_v1_user_proto_rawDescGZIP(), []int{11}
+	return file_user_v1_user_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *RankEntry) GetRank() int32 {
@@ -642,7 +730,7 @@ type GetRankingRequest struct {
 
 func (x *GetRankingRequest) Reset() {
 	*x = GetRankingRequest{}
-	mi := &file_user_v1_user_proto_msgTypes[12]
+	mi := &file_user_v1_user_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -654,7 +742,7 @@ func (x *GetRankingRequest) String() string {
 func (*GetRankingRequest) ProtoMessage() {}
 
 func (x *GetRankingRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_user_v1_user_proto_msgTypes[12]
+	mi := &file_user_v1_user_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -667,7 +755,7 @@ func (x *GetRankingRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetRankingRequest.ProtoReflect.Descriptor instead.
 func (*GetRankingRequest) Descriptor() ([]byte, []int) {
-	return file_user_v1_user_proto_rawDescGZIP(), []int{12}
+	return file_user_v1_user_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *GetRankingRequest) GetPageSize() int32 {
@@ -694,7 +782,7 @@ type GetRankingResponse struct {
 
 func (x *GetRankingResponse) Reset() {
 	*x = GetRankingResponse{}
-	mi := &file_user_v1_user_proto_msgTypes[13]
+	mi := &file_user_v1_user_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -706,7 +794,7 @@ func (x *GetRankingResponse) String() string {
 func (*GetRankingResponse) ProtoMessage() {}
 
 func (x *GetRankingResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_user_v1_user_proto_msgTypes[13]
+	mi := &file_user_v1_user_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -719,7 +807,7 @@ func (x *GetRankingResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetRankingResponse.ProtoReflect.Descriptor instead.
 func (*GetRankingResponse) Descriptor() ([]byte, []int) {
-	return file_user_v1_user_proto_rawDescGZIP(), []int{13}
+	return file_user_v1_user_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *GetRankingResponse) GetEntries() []*RankEntry {
@@ -777,6 +865,10 @@ const file_user_v1_user_proto_rawDesc = "" +
 	"\r_display_nameB\r\n" +
 	"\v_boj_handle\"?\n" +
 	"\x15UpdateProfileResponse\x12&\n" +
+	"\x04user\x18\x01 \x01(\v2\x12.puri.user.v1.UserR\x04user\"R\n" +
+	"\x18GetUserByUsernameRequest\x126\n" +
+	"\busername\x18\x01 \x01(\tB\x1a\xbaH\x17r\x15\x10\x03\x18 2\x0f^[a-zA-Z0-9_]+$R\busername\"C\n" +
+	"\x19GetUserByUsernameResponse\x12&\n" +
 	"\x04user\x18\x01 \x01(\v2\x12.puri.user.v1.UserR\x04user\"\xa2\x01\n" +
 	"\tRankEntry\x12\x12\n" +
 	"\x04rank\x18\x01 \x01(\x05R\x04rank\x12\x17\n" +
@@ -790,7 +882,7 @@ const file_user_v1_user_proto_rawDesc = "" +
 	"page_token\x18\x02 \x01(\tR\tpageToken\"o\n" +
 	"\x12GetRankingResponse\x121\n" +
 	"\aentries\x18\x01 \x03(\v2\x17.puri.user.v1.RankEntryR\aentries\x12&\n" +
-	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken2\x87\x04\n" +
+	"\x0fnext_page_token\x18\x02 \x01(\tR\rnextPageToken2\xf5\x04\n" +
 	"\vUserService\x12Q\n" +
 	"\bRegister\x12\x1d.puri.user.v1.RegisterRequest\x1a\x1e.puri.user.v1.RegisterResponse\"\x06\x8a\xb5\x18\x02\b\x01\x12H\n" +
 	"\x05Login\x12\x1a.puri.user.v1.LoginRequest\x1a\x1b.puri.user.v1.LoginResponse\"\x06\x8a\xb5\x18\x02\b\x01\x12K\n" +
@@ -799,7 +891,8 @@ const file_user_v1_user_proto_rawDesc = "" +
 	"GetProfile\x12\x1f.puri.user.v1.GetProfileRequest\x1a .puri.user.v1.GetProfileResponse\"\x04\x8a\xb5\x18\x00\x12^\n" +
 	"\rUpdateProfile\x12\".puri.user.v1.UpdateProfileRequest\x1a#.puri.user.v1.UpdateProfileResponse\"\x04\x8a\xb5\x18\x00\x12W\n" +
 	"\n" +
-	"GetRanking\x12\x1f.puri.user.v1.GetRankingRequest\x1a .puri.user.v1.GetRankingResponse\"\x06\x8a\xb5\x18\x02\b\x01B,Z*github.com/puri-cp/puri/gen/user/v1;userv1b\x06proto3"
+	"GetRanking\x12\x1f.puri.user.v1.GetRankingRequest\x1a .puri.user.v1.GetRankingResponse\"\x06\x8a\xb5\x18\x02\b\x01\x12l\n" +
+	"\x11GetUserByUsername\x12&.puri.user.v1.GetUserByUsernameRequest\x1a'.puri.user.v1.GetUserByUsernameResponse\"\x06\x8a\xb5\x18\x02\b\x01B,Z*github.com/puri-cp/puri/gen/user/v1;userv1b\x06proto3"
 
 var (
 	file_user_v1_user_proto_rawDescOnce sync.Once
@@ -813,48 +906,53 @@ func file_user_v1_user_proto_rawDescGZIP() []byte {
 	return file_user_v1_user_proto_rawDescData
 }
 
-var file_user_v1_user_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
+var file_user_v1_user_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
 var file_user_v1_user_proto_goTypes = []any{
-	(*User)(nil),                  // 0: puri.user.v1.User
-	(*RegisterRequest)(nil),       // 1: puri.user.v1.RegisterRequest
-	(*RegisterResponse)(nil),      // 2: puri.user.v1.RegisterResponse
-	(*LoginRequest)(nil),          // 3: puri.user.v1.LoginRequest
-	(*LoginResponse)(nil),         // 4: puri.user.v1.LoginResponse
-	(*LogoutRequest)(nil),         // 5: puri.user.v1.LogoutRequest
-	(*LogoutResponse)(nil),        // 6: puri.user.v1.LogoutResponse
-	(*GetProfileRequest)(nil),     // 7: puri.user.v1.GetProfileRequest
-	(*GetProfileResponse)(nil),    // 8: puri.user.v1.GetProfileResponse
-	(*UpdateProfileRequest)(nil),  // 9: puri.user.v1.UpdateProfileRequest
-	(*UpdateProfileResponse)(nil), // 10: puri.user.v1.UpdateProfileResponse
-	(*RankEntry)(nil),             // 11: puri.user.v1.RankEntry
-	(*GetRankingRequest)(nil),     // 12: puri.user.v1.GetRankingRequest
-	(*GetRankingResponse)(nil),    // 13: puri.user.v1.GetRankingResponse
-	(*timestamppb.Timestamp)(nil), // 14: google.protobuf.Timestamp
+	(*User)(nil),                      // 0: puri.user.v1.User
+	(*RegisterRequest)(nil),           // 1: puri.user.v1.RegisterRequest
+	(*RegisterResponse)(nil),          // 2: puri.user.v1.RegisterResponse
+	(*LoginRequest)(nil),              // 3: puri.user.v1.LoginRequest
+	(*LoginResponse)(nil),             // 4: puri.user.v1.LoginResponse
+	(*LogoutRequest)(nil),             // 5: puri.user.v1.LogoutRequest
+	(*LogoutResponse)(nil),            // 6: puri.user.v1.LogoutResponse
+	(*GetProfileRequest)(nil),         // 7: puri.user.v1.GetProfileRequest
+	(*GetProfileResponse)(nil),        // 8: puri.user.v1.GetProfileResponse
+	(*UpdateProfileRequest)(nil),      // 9: puri.user.v1.UpdateProfileRequest
+	(*UpdateProfileResponse)(nil),     // 10: puri.user.v1.UpdateProfileResponse
+	(*GetUserByUsernameRequest)(nil),  // 11: puri.user.v1.GetUserByUsernameRequest
+	(*GetUserByUsernameResponse)(nil), // 12: puri.user.v1.GetUserByUsernameResponse
+	(*RankEntry)(nil),                 // 13: puri.user.v1.RankEntry
+	(*GetRankingRequest)(nil),         // 14: puri.user.v1.GetRankingRequest
+	(*GetRankingResponse)(nil),        // 15: puri.user.v1.GetRankingResponse
+	(*timestamppb.Timestamp)(nil),     // 16: google.protobuf.Timestamp
 }
 var file_user_v1_user_proto_depIdxs = []int32{
-	14, // 0: puri.user.v1.User.created_at:type_name -> google.protobuf.Timestamp
+	16, // 0: puri.user.v1.User.created_at:type_name -> google.protobuf.Timestamp
 	0,  // 1: puri.user.v1.RegisterResponse.user:type_name -> puri.user.v1.User
 	0,  // 2: puri.user.v1.LoginResponse.user:type_name -> puri.user.v1.User
 	0,  // 3: puri.user.v1.GetProfileResponse.user:type_name -> puri.user.v1.User
 	0,  // 4: puri.user.v1.UpdateProfileResponse.user:type_name -> puri.user.v1.User
-	11, // 5: puri.user.v1.GetRankingResponse.entries:type_name -> puri.user.v1.RankEntry
-	1,  // 6: puri.user.v1.UserService.Register:input_type -> puri.user.v1.RegisterRequest
-	3,  // 7: puri.user.v1.UserService.Login:input_type -> puri.user.v1.LoginRequest
-	5,  // 8: puri.user.v1.UserService.Logout:input_type -> puri.user.v1.LogoutRequest
-	7,  // 9: puri.user.v1.UserService.GetProfile:input_type -> puri.user.v1.GetProfileRequest
-	9,  // 10: puri.user.v1.UserService.UpdateProfile:input_type -> puri.user.v1.UpdateProfileRequest
-	12, // 11: puri.user.v1.UserService.GetRanking:input_type -> puri.user.v1.GetRankingRequest
-	2,  // 12: puri.user.v1.UserService.Register:output_type -> puri.user.v1.RegisterResponse
-	4,  // 13: puri.user.v1.UserService.Login:output_type -> puri.user.v1.LoginResponse
-	6,  // 14: puri.user.v1.UserService.Logout:output_type -> puri.user.v1.LogoutResponse
-	8,  // 15: puri.user.v1.UserService.GetProfile:output_type -> puri.user.v1.GetProfileResponse
-	10, // 16: puri.user.v1.UserService.UpdateProfile:output_type -> puri.user.v1.UpdateProfileResponse
-	13, // 17: puri.user.v1.UserService.GetRanking:output_type -> puri.user.v1.GetRankingResponse
-	12, // [12:18] is the sub-list for method output_type
-	6,  // [6:12] is the sub-list for method input_type
-	6,  // [6:6] is the sub-list for extension type_name
-	6,  // [6:6] is the sub-list for extension extendee
-	0,  // [0:6] is the sub-list for field type_name
+	0,  // 5: puri.user.v1.GetUserByUsernameResponse.user:type_name -> puri.user.v1.User
+	13, // 6: puri.user.v1.GetRankingResponse.entries:type_name -> puri.user.v1.RankEntry
+	1,  // 7: puri.user.v1.UserService.Register:input_type -> puri.user.v1.RegisterRequest
+	3,  // 8: puri.user.v1.UserService.Login:input_type -> puri.user.v1.LoginRequest
+	5,  // 9: puri.user.v1.UserService.Logout:input_type -> puri.user.v1.LogoutRequest
+	7,  // 10: puri.user.v1.UserService.GetProfile:input_type -> puri.user.v1.GetProfileRequest
+	9,  // 11: puri.user.v1.UserService.UpdateProfile:input_type -> puri.user.v1.UpdateProfileRequest
+	14, // 12: puri.user.v1.UserService.GetRanking:input_type -> puri.user.v1.GetRankingRequest
+	11, // 13: puri.user.v1.UserService.GetUserByUsername:input_type -> puri.user.v1.GetUserByUsernameRequest
+	2,  // 14: puri.user.v1.UserService.Register:output_type -> puri.user.v1.RegisterResponse
+	4,  // 15: puri.user.v1.UserService.Login:output_type -> puri.user.v1.LoginResponse
+	6,  // 16: puri.user.v1.UserService.Logout:output_type -> puri.user.v1.LogoutResponse
+	8,  // 17: puri.user.v1.UserService.GetProfile:output_type -> puri.user.v1.GetProfileResponse
+	10, // 18: puri.user.v1.UserService.UpdateProfile:output_type -> puri.user.v1.UpdateProfileResponse
+	15, // 19: puri.user.v1.UserService.GetRanking:output_type -> puri.user.v1.GetRankingResponse
+	12, // 20: puri.user.v1.UserService.GetUserByUsername:output_type -> puri.user.v1.GetUserByUsernameResponse
+	14, // [14:21] is the sub-list for method output_type
+	7,  // [7:14] is the sub-list for method input_type
+	7,  // [7:7] is the sub-list for extension type_name
+	7,  // [7:7] is the sub-list for extension extendee
+	0,  // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_user_v1_user_proto_init() }
@@ -869,7 +967,7 @@ func file_user_v1_user_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_user_v1_user_proto_rawDesc), len(file_user_v1_user_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   14,
+			NumMessages:   16,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

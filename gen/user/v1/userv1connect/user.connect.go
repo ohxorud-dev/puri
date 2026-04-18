@@ -46,6 +46,9 @@ const (
 	UserServiceUpdateProfileProcedure = "/puri.user.v1.UserService/UpdateProfile"
 	// UserServiceGetRankingProcedure is the fully-qualified name of the UserService's GetRanking RPC.
 	UserServiceGetRankingProcedure = "/puri.user.v1.UserService/GetRanking"
+	// UserServiceGetUserByUsernameProcedure is the fully-qualified name of the UserService's
+	// GetUserByUsername RPC.
+	UserServiceGetUserByUsernameProcedure = "/puri.user.v1.UserService/GetUserByUsername"
 )
 
 // UserServiceClient is a client for the puri.user.v1.UserService service.
@@ -56,6 +59,7 @@ type UserServiceClient interface {
 	GetProfile(context.Context, *connect.Request[v1.GetProfileRequest]) (*connect.Response[v1.GetProfileResponse], error)
 	UpdateProfile(context.Context, *connect.Request[v1.UpdateProfileRequest]) (*connect.Response[v1.UpdateProfileResponse], error)
 	GetRanking(context.Context, *connect.Request[v1.GetRankingRequest]) (*connect.Response[v1.GetRankingResponse], error)
+	GetUserByUsername(context.Context, *connect.Request[v1.GetUserByUsernameRequest]) (*connect.Response[v1.GetUserByUsernameResponse], error)
 }
 
 // NewUserServiceClient constructs a client for the puri.user.v1.UserService service. By default, it
@@ -105,17 +109,24 @@ func NewUserServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			connect.WithSchema(userServiceMethods.ByName("GetRanking")),
 			connect.WithClientOptions(opts...),
 		),
+		getUserByUsername: connect.NewClient[v1.GetUserByUsernameRequest, v1.GetUserByUsernameResponse](
+			httpClient,
+			baseURL+UserServiceGetUserByUsernameProcedure,
+			connect.WithSchema(userServiceMethods.ByName("GetUserByUsername")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // userServiceClient implements UserServiceClient.
 type userServiceClient struct {
-	register      *connect.Client[v1.RegisterRequest, v1.RegisterResponse]
-	login         *connect.Client[v1.LoginRequest, v1.LoginResponse]
-	logout        *connect.Client[v1.LogoutRequest, v1.LogoutResponse]
-	getProfile    *connect.Client[v1.GetProfileRequest, v1.GetProfileResponse]
-	updateProfile *connect.Client[v1.UpdateProfileRequest, v1.UpdateProfileResponse]
-	getRanking    *connect.Client[v1.GetRankingRequest, v1.GetRankingResponse]
+	register          *connect.Client[v1.RegisterRequest, v1.RegisterResponse]
+	login             *connect.Client[v1.LoginRequest, v1.LoginResponse]
+	logout            *connect.Client[v1.LogoutRequest, v1.LogoutResponse]
+	getProfile        *connect.Client[v1.GetProfileRequest, v1.GetProfileResponse]
+	updateProfile     *connect.Client[v1.UpdateProfileRequest, v1.UpdateProfileResponse]
+	getRanking        *connect.Client[v1.GetRankingRequest, v1.GetRankingResponse]
+	getUserByUsername *connect.Client[v1.GetUserByUsernameRequest, v1.GetUserByUsernameResponse]
 }
 
 // Register calls puri.user.v1.UserService.Register.
@@ -148,6 +159,11 @@ func (c *userServiceClient) GetRanking(ctx context.Context, req *connect.Request
 	return c.getRanking.CallUnary(ctx, req)
 }
 
+// GetUserByUsername calls puri.user.v1.UserService.GetUserByUsername.
+func (c *userServiceClient) GetUserByUsername(ctx context.Context, req *connect.Request[v1.GetUserByUsernameRequest]) (*connect.Response[v1.GetUserByUsernameResponse], error) {
+	return c.getUserByUsername.CallUnary(ctx, req)
+}
+
 // UserServiceHandler is an implementation of the puri.user.v1.UserService service.
 type UserServiceHandler interface {
 	Register(context.Context, *connect.Request[v1.RegisterRequest]) (*connect.Response[v1.RegisterResponse], error)
@@ -156,6 +172,7 @@ type UserServiceHandler interface {
 	GetProfile(context.Context, *connect.Request[v1.GetProfileRequest]) (*connect.Response[v1.GetProfileResponse], error)
 	UpdateProfile(context.Context, *connect.Request[v1.UpdateProfileRequest]) (*connect.Response[v1.UpdateProfileResponse], error)
 	GetRanking(context.Context, *connect.Request[v1.GetRankingRequest]) (*connect.Response[v1.GetRankingResponse], error)
+	GetUserByUsername(context.Context, *connect.Request[v1.GetUserByUsernameRequest]) (*connect.Response[v1.GetUserByUsernameResponse], error)
 }
 
 // NewUserServiceHandler builds an HTTP handler from the service implementation. It returns the path
@@ -201,6 +218,12 @@ func NewUserServiceHandler(svc UserServiceHandler, opts ...connect.HandlerOption
 		connect.WithSchema(userServiceMethods.ByName("GetRanking")),
 		connect.WithHandlerOptions(opts...),
 	)
+	userServiceGetUserByUsernameHandler := connect.NewUnaryHandler(
+		UserServiceGetUserByUsernameProcedure,
+		svc.GetUserByUsername,
+		connect.WithSchema(userServiceMethods.ByName("GetUserByUsername")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/puri.user.v1.UserService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case UserServiceRegisterProcedure:
@@ -215,6 +238,8 @@ func NewUserServiceHandler(svc UserServiceHandler, opts ...connect.HandlerOption
 			userServiceUpdateProfileHandler.ServeHTTP(w, r)
 		case UserServiceGetRankingProcedure:
 			userServiceGetRankingHandler.ServeHTTP(w, r)
+		case UserServiceGetUserByUsernameProcedure:
+			userServiceGetUserByUsernameHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -246,4 +271,8 @@ func (UnimplementedUserServiceHandler) UpdateProfile(context.Context, *connect.R
 
 func (UnimplementedUserServiceHandler) GetRanking(context.Context, *connect.Request[v1.GetRankingRequest]) (*connect.Response[v1.GetRankingResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("puri.user.v1.UserService.GetRanking is not implemented"))
+}
+
+func (UnimplementedUserServiceHandler) GetUserByUsername(context.Context, *connect.Request[v1.GetUserByUsernameRequest]) (*connect.Response[v1.GetUserByUsernameResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("puri.user.v1.UserService.GetUserByUsername is not implemented"))
 }

@@ -43,7 +43,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         const rankClass = e.rank <= 3 ? `rank-top rank-${e.rank}` : '';
         return `<tr>
           <td><span class="rank-badge ${rankClass}">${e.rank}</span></td>
-          <td><span class="user-link">${e.username}</span></td>
+          <td><a href="/profile/${encodeURIComponent(e.username)}" class="user-link">${e.username}</a></td>
           <td><span class="score">${e.solvedCount}</span></td>
           <td>${e.submissionCount}</td>
         </tr>`;

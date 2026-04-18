@@ -123,6 +123,22 @@ func (h *UserServiceHandler) UpdateProfile(ctx context.Context, req *connect.Req
 	return connect.NewResponse(&userv1.UpdateProfileResponse{User: toProtoUser(user)}), nil
 }
 
+func (h *UserServiceHandler) GetUserByUsername(ctx context.Context, req *connect.Request[userv1.GetUserByUsernameRequest]) (*connect.Response[userv1.GetUserByUsernameResponse], error) {
+	user, err := h.repo.GetByUsername(ctx, req.Msg.Username)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("database error"))
+	}
+	if user == nil {
+		return nil, connect.NewError(connect.CodeNotFound, fmt.Errorf("user not found"))
+	}
+
+	proto := toProtoUser(user)
+	if viewerID, ok := auth.UserIDFromContext(ctx); !ok || viewerID != user.ID {
+		proto.Email = ""
+	}
+	return connect.NewResponse(&userv1.GetUserByUsernameResponse{User: proto}), nil
+}
+
 func (h *UserServiceHandler) GetRanking(ctx context.Context, req *connect.Request[userv1.GetRankingRequest]) (*connect.Response[userv1.GetRankingResponse], error) {
 	limit := req.Msg.PageSize
 	if limit == 0 {
