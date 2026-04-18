@@ -50,6 +50,8 @@ jobs:
           context: .
           file: services/api/Dockerfile
           push: true
+          provenance: false
+          sbom: false
           tags: |
             ${{ env.IMAGE }}:latest
             ${{ steps.meta.outputs.image_ref }}
@@ -103,3 +105,17 @@ jobs:
 
             sudo docker compose -f docker-compose.prod.yml up -d --no-build api
             sudo docker image prune -f
+
+  cleanup:
+    needs: deploy
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+    steps:
+      - name: Cleanup old package versions
+        uses: dataaxiom/ghcr-cleanup-action@v1
+        with:
+          package: puri-api
+          keep-n-tagged: 1
+          delete-untagged: true
+          exclude-tags: buildcache
