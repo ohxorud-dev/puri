@@ -3,14 +3,17 @@ package executor
 import (
 	"context"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 	"unicode/utf8"
 
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/client"
 )
@@ -24,36 +27,36 @@ type LanguageConfig struct {
 
 var languageConfigs = map[string]LanguageConfig{
 	"LANGUAGE_CPP": {
-		Image:    "gcc:13",
+		Image:    "gcc:14",
 		FileName: "main.cpp",
-		BuildCmd: "g++ -O2 -o main main.cpp",
+		BuildCmd: "g++ -std=c++20 -O2 -o main main.cpp",
 		RunCmd:   "./main",
 	},
 	"LANGUAGE_PYTHON": {
-		Image:    "python:3.11-slim",
+		Image:    "python:3.13-slim",
 		FileName: "main.py",
 		RunCmd:   "python main.py",
 	},
 	"LANGUAGE_JAVA": {
-		Image:    "openjdk:17-slim",
+		Image:    "amazoncorretto:21",
 		FileName: "Main.java",
 		BuildCmd: "javac Main.java",
 		RunCmd:   "java Main",
 	},
 	"LANGUAGE_GO": {
-		Image:    "golang:1.23",
+		Image:    "golang:1.26",
 		FileName: "main.go",
 		RunCmd:   "go run main.go",
 	},
 	"LANGUAGE_JAVASCRIPT": {
-		Image:    "node:20-slim",
+		Image:    "node:22-slim",
 		FileName: "main.js",
 		RunCmd:   "node main.js",
 	},
 	"LANGUAGE_RUST": {
-		Image:    "rust:1.75",
+		Image:    "rust:1.95-slim-trixie",
 		FileName: "main.rs",
-		BuildCmd: "rustc main.rs",
+		BuildCmd: "rustc -O main.rs",
 		RunCmd:   "./main",
 	},
 }
@@ -67,7 +70,9 @@ type Result struct {
 }
 
 type DockerRunner struct {
-	cli *client.Client
+	cli        *client.Client
+	pullLocks  sync.Map // imageName -> *sync.Mutex (one pull at a time per image)
+	pulledOnce sync.Map // imageName -> struct{} (cached after successful verify)
 }
 
 func NewDockerRunner() (*DockerRunner, error) {
@@ -85,10 +90,46 @@ func NewDockerRunner() (*DockerRunner, error) {
 	return &DockerRunner{cli: cli}, nil
 }
 
+func (r *DockerRunner) ensureImage(ctx context.Context, img string) error {
+	if _, ok := r.pulledOnce.Load(img); ok {
+		return nil
+	}
+	lockIface, _ := r.pullLocks.LoadOrStore(img, &sync.Mutex{})
+	lock := lockIface.(*sync.Mutex)
+	lock.Lock()
+	defer lock.Unlock()
+
+	if _, ok := r.pulledOnce.Load(img); ok {
+		return nil
+	}
+
+	if _, _, err := r.cli.ImageInspectWithRaw(ctx, img); err == nil {
+		r.pulledOnce.Store(img, struct{}{})
+		return nil
+	}
+
+	pullCtx, cancel := context.WithTimeout(ctx, 5*time.Minute)
+	defer cancel()
+	rc, err := r.cli.ImagePull(pullCtx, img, image.PullOptions{})
+	if err != nil {
+		return fmt.Errorf("image pull %s: %w", img, err)
+	}
+	defer rc.Close()
+	if _, err := io.Copy(io.Discard, rc); err != nil {
+		return fmt.Errorf("image pull drain %s: %w", img, err)
+	}
+	r.pulledOnce.Store(img, struct{}{})
+	return nil
+}
+
 func (r *DockerRunner) Run(ctx context.Context, language, sourceCode, input, timeLimit, memoryLimit string) Result {
 	langCfg, ok := languageConfigs[language]
 	if !ok {
 		return Result{Result: "COMPILATION_ERROR", Error: fmt.Errorf("unsupported language: %s", language)}
+	}
+
+	if err := r.ensureImage(ctx, langCfg.Image); err != nil {
+		return Result{Result: "INTERNAL_ERROR", Error: err}
 	}
 
 	// Use /tmp/puri-runs so path is shared with host when running inside Docker
