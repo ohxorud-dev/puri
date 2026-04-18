@@ -1,17 +1,19 @@
 ---
-import { getCollection } from 'astro:content';
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import ProblemList from '../../components/ProblemList.astro';
+import { getCollection } from "astro:content";
+import ProblemList from "../../components/ProblemList.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
 
-const allProblems = await getCollection('problems');
-const problems = allProblems.map(p => ({
-  data: p.data,
-  frontmatter: p.data,
-  url: `/problems/${p.id.split('/')[0]}`,
-  id: p.id.split('/')[0] || ''
-})).sort((a, b) => {
-  return parseInt(a.id) - parseInt(b.id);
-});
+const allProblems = await getCollection("problems");
+const problems = allProblems
+  .map((p) => ({
+    data: p.data,
+    frontmatter: p.data,
+    url: `/problems/${p.id.split("/")[0]}`,
+    id: p.id.split("/")[0] || "",
+  }))
+  .sort((a, b) => {
+    return parseInt(a.id) - parseInt(b.id);
+  });
 ---
 
 <BaseLayout title="모든 문제 - Puri">

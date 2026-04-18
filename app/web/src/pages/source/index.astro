@@ -1,9 +1,9 @@
 ---
-import { getCollection } from 'astro:content';
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import ProblemTable from '../../components/ProblemTable.astro';
+import { getCollection } from "astro:content";
+import ProblemTable from "../../components/ProblemTable.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
 
-const allProblems = await getCollection('problems');
+const allProblems = await getCollection("problems");
 
 // Build tree from source paths
 interface SourceNode {
@@ -13,10 +13,11 @@ interface SourceNode {
 }
 
 function buildTree(problems: any[]): SourceNode {
-  const root: SourceNode = { name: '', children: new Map(), problems: [] };
+  const root: SourceNode = { name: "", children: new Map(), problems: [] };
 
   for (const p of problems) {
-    const rawSource = p.data.source; const source = rawSource ? (Array.isArray(rawSource) ? rawSource : [rawSource]) : undefined;
+    const rawSource = p.data.source;
+    const source = rawSource ? (Array.isArray(rawSource) ? rawSource : [rawSource]) : undefined;
     if (!source || source.length === 0) continue;
 
     let node = root;
@@ -29,8 +30,8 @@ function buildTree(problems: any[]): SourceNode {
     node.problems.push({
       data: p.data,
       frontmatter: p.data,
-      url: `/problems/${p.id.split('/')[0]}`,
-      id: p.id.split('/')[0] || '',
+      url: `/problems/${p.id.split("/")[0]}`,
+      id: p.id.split("/")[0] || "",
     });
   }
 
@@ -49,14 +50,19 @@ function getNodeCounts(node: SourceNode): number {
   return count;
 }
 
-function treeToList(node: SourceNode, path: string[] = []): { name: string; path: string[]; count: number; children: any[] }[] {
+function treeToList(
+  node: SourceNode,
+  path: string[] = [],
+): { name: string; path: string[]; count: number; children: any[] }[] {
   const result: any[] = [];
-  for (const [key, child] of [...node.children.entries()].sort((a, b) => a[0].localeCompare(b[0]))) {
+  for (const [key, child] of [...node.children.entries()].sort((a, b) =>
+    a[0].localeCompare(b[0]),
+  )) {
     const childPath = [...path, key];
     result.push({
       name: key,
       path: childPath,
-      slug: childPath.join('/'),
+      slug: childPath.join("/"),
       count: getNodeCounts(child),
       hasChildren: child.children.size > 0,
       problems: child.problems,

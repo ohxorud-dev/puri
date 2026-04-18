@@ -1,0 +1,41 @@
+version: "2"
+
+run:
+  timeout: 5m
+  tests: true
+
+linters:
+  default: none
+  enable:
+    - errcheck
+    - gosec
+    - govet
+    - ineffassign
+    - misspell
+    - revive
+    - staticcheck
+    - unconvert
+    - unparam
+    - unused
+  settings:
+    gosec:
+      excludes:
+        - G104
+    revive:
+      rules:
+        - name: var-naming
+        - name: exported
+          disabled: true
+  exclusions:
+    rules:
+      - path: gen/
+        linters:
+          - gosec
+          - revive
+          - staticcheck
+          - errcheck
+          - unused
+
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0

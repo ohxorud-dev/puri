@@ -3,7 +3,7 @@ const { tier } = Astro.props;
 
 let baseClass = "tier-unrated";
 if (tier) {
-  const t = tier.split(' ')[0].toLowerCase();
+  const t = tier.split(" ")[0].toLowerCase();
   baseClass = `tier-${t}`;
 }
 ---

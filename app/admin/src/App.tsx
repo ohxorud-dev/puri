@@ -1,11 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { submissionClient, userClient } from "./api";
-import type { User } from "./gen/user/v1/user_pb";
+import { Language, SubmissionStatus } from "./gen/common/v1/types_pb";
 import type { Submission } from "./gen/submission/v1/submission_pb";
-import {
-  Language,
-  SubmissionStatus,
-} from "./gen/common/v1/types_pb";
+import type { User } from "./gen/user/v1/user_pb";
 
 type AuthState =
   | { status: "loading" }
@@ -185,10 +182,7 @@ function ActionMenu({ items }: { items: MenuItem[] }) {
   useEffect(() => {
     if (!open) return;
     const handler = (e: MouseEvent) => {
-      if (
-        btnRef.current?.contains(e.target as Node) ||
-        ddRef.current?.contains(e.target as Node)
-      )
+      if (btnRef.current?.contains(e.target as Node) || ddRef.current?.contains(e.target as Node))
         return;
       setOpen(false);
     };
@@ -296,10 +290,7 @@ function UsersPanel({ self }: { self: User }) {
   const reload = () => loadPage(currentToken);
 
   const handleBan = async (u: User) => {
-    const reason = prompt(
-      `"${u.username}" 유저 차단 사유 (비워두면 "부정 사용"):`,
-      "",
-    );
+    const reason = prompt(`"${u.username}" 유저 차단 사유 (비워두면 "부정 사용"):`, "");
     if (reason == null) return;
     setActingId(u.id);
     try {
@@ -357,9 +348,7 @@ function UsersPanel({ self }: { self: User }) {
   };
 
   const filtered = filter
-    ? users.filter((u) =>
-        u.username.toLowerCase().includes(filter.toLowerCase()),
-      )
+    ? users.filter((u) => u.username.toLowerCase().includes(filter.toLowerCase()))
     : users;
 
   return (
@@ -380,9 +369,7 @@ function UsersPanel({ self }: { self: User }) {
 
       <div className="table-wrap">
         {filtered.length === 0 ? (
-          <div className="empty">
-            {loading ? "불러오는 중..." : "유저 없음"}
-          </div>
+          <div className="empty">{loading ? "불러오는 중..." : "유저 없음"}</div>
         ) : (
           <table>
             <thead>
@@ -402,13 +389,7 @@ function UsersPanel({ self }: { self: User }) {
                   <td>{u.username}</td>
                   <td>{u.email}</td>
                   <td>
-                    <span
-                      className={
-                        u.role === "admin"
-                          ? "badge badge-admin"
-                          : "badge badge-user"
-                      }
-                    >
+                    <span className={u.role === "admin" ? "badge badge-admin" : "badge badge-user"}>
                       {u.role || "user"}
                     </span>
                   </td>
@@ -455,16 +436,9 @@ function UsersPanel({ self }: { self: User }) {
                                 },
                               ]),
                           {
-                            label:
-                              u.role === "admin"
-                                ? "일반 유저로 변경"
-                                : "관리자로 변경",
+                            label: u.role === "admin" ? "일반 유저로 변경" : "관리자로 변경",
                             disabled: actingId === u.id,
-                            onClick: () =>
-                              handleSetRole(
-                                u,
-                                u.role === "admin" ? "user" : "admin",
-                              ),
+                            onClick: () => handleSetRole(u, u.role === "admin" ? "user" : "admin"),
                           },
                         ]}
                       />
@@ -570,9 +544,7 @@ function SubmissionsPanel() {
 
       <div className="table-wrap">
         {submissions.length === 0 ? (
-          <div className="empty">
-            {loading ? "불러오는 중..." : "제출 없음"}
-          </div>
+          <div className="empty">{loading ? "불러오는 중..." : "제출 없음"}</div>
         ) : (
           <table>
             <thead>
@@ -598,14 +570,10 @@ function SubmissionsPanel() {
                   </td>
                   <td>{languageLabel(s.language)}</td>
                   <td>
-                    <span className={statusClass(s.status)}>
-                      {statusLabel(s.status)}
-                    </span>
+                    <span className={statusClass(s.status)}>{statusLabel(s.status)}</span>
                   </td>
                   <td>{s.executionTimeMs > 0 ? `${s.executionTimeMs}ms` : "-"}</td>
-                  <td>
-                    {s.memoryUsageKb > 0 ? `${s.memoryUsageKb}KB` : "-"}
-                  </td>
+                  <td>{s.memoryUsageKb > 0 ? `${s.memoryUsageKb}KB` : "-"}</td>
                   <td>
                     <ActionMenu
                       items={[
@@ -636,23 +604,12 @@ function SubmissionsPanel() {
         loadPage={loadPage}
       />
 
-      {selected && (
-        <SubmissionModal
-          submission={selected}
-          onClose={() => setSelected(null)}
-        />
-      )}
+      {selected && <SubmissionModal submission={selected} onClose={() => setSelected(null)} />}
     </>
   );
 }
 
-function SubmissionModal({
-  submission,
-  onClose,
-}: {
-  submission: Submission;
-  onClose: () => void;
-}) {
+function SubmissionModal({ submission, onClose }: { submission: Submission; onClose: () => void }) {
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -678,7 +635,8 @@ function SubmissionModal({
         <header className="modal-header">
           <div>
             <div className="modal-title">
-              제출 #{submission.id.toString()} — {submission.username || submission.userId.toString()}
+              제출 #{submission.id.toString()} —{" "}
+              {submission.username || submission.userId.toString()}
             </div>
             <div className="modal-sub">
               문제 {submission.problemId}
@@ -792,7 +750,6 @@ function statusLabel(s: SubmissionStatus): string {
 
 function statusClass(s: SubmissionStatus): string {
   if (s === SubmissionStatus.ACCEPTED) return "status-active";
-  if (s === SubmissionStatus.PENDING || s === SubmissionStatus.JUDGING)
-    return "status-muted";
+  if (s === SubmissionStatus.PENDING || s === SubmissionStatus.JUDGING) return "status-muted";
   return "status-banned";
 }

@@ -1,29 +1,29 @@
 ---
-import { getCollection } from 'astro:content';
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import ProblemList from '../../components/ProblemList.astro';
-import { steps, stepMap } from '../../lib/steps';
+import { getCollection } from "astro:content";
+import ProblemList from "../../components/ProblemList.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { stepMap, steps } from "../../lib/steps";
 
 export function getStaticPaths() {
-  return steps.map(s => ({ params: { id: s.id } }));
+  return steps.map((s) => ({ params: { id: s.id } }));
 }
 
 const { id } = Astro.params;
 
-const allProblemsDocs = await getCollection('problems');
+const allProblemsDocs = await getCollection("problems");
 
 const problems = allProblemsDocs
-  .filter(p => p.data.step === id)
-  .map(p => ({
+  .filter((p) => p.data.step === id)
+  .map((p) => ({
     frontmatter: p.data,
     data: p.data,
-    url: `/problems/${p.id.split('/')[0]}`,
-    id: p.id.split('/')[0] || ''
+    url: `/problems/${p.id.split("/")[0]}`,
+    id: p.id.split("/")[0] || "",
   }))
   .sort((a, b) => parseInt(a.id) - parseInt(b.id));
 
 const step = stepMap[id!];
-const stepIndex = steps.findIndex(s => s.id === id);
+const stepIndex = steps.findIndex((s) => s.id === id);
 ---
 
 <BaseLayout title={`단계 ${stepIndex + 1}: ${step?.name} - Puri`}>

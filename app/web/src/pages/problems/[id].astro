@@ -1,11 +1,11 @@
 ---
-import { getCollection, render } from 'astro:content';
-import ProblemLayout from '../../layouts/ProblemLayout.astro';
+import { getCollection, render } from "astro:content";
+import ProblemLayout from "../../layouts/ProblemLayout.astro";
 
 export async function getStaticPaths() {
-  const problems = await getCollection('problems');
-  return problems.map(entry => ({
-    params: { id: entry.id.split('/')[0] },
+  const problems = await getCollection("problems");
+  return problems.map((entry) => ({
+    params: { id: entry.id.split("/")[0] },
     props: { entry },
   }));
 }

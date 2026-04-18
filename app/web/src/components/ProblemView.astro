@@ -1,5 +1,5 @@
 ---
-import TierBadge from './TierBadge.astro';
+import TierBadge from "./TierBadge.astro";
 
 interface Example {
   input: string;
@@ -17,18 +17,16 @@ interface Props {
 }
 
 const {
-  problemId = '',
-  title = '',
+  problemId = "",
+  title = "",
   tier,
-  timeLimit = '',
-  memoryLimit = '',
+  timeLimit = "",
+  memoryLimit = "",
   examples = [],
   source,
 } = Astro.props as Props;
 
-const sourceParts = source
-  ? (Array.isArray(source) ? source : [source])
-  : [];
+const sourceParts = source ? (Array.isArray(source) ? source : [source]) : [];
 ---
 <div class="problem-view" data-problem-view>
   <div class="problem-header">

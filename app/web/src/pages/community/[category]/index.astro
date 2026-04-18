@@ -4,11 +4,11 @@ export function getStaticPaths() {
     { params: { category: "notice" } },
     { params: { category: "general" } },
     { params: { category: "qna" } },
-    { params: { category: "tips" } }
+    { params: { category: "tips" } },
   ];
 }
 
-import BaseLayout from '../../../layouts/BaseLayout.astro';
+import BaseLayout from "../../../layouts/BaseLayout.astro";
 
 const { category } = Astro.params;
 
@@ -16,7 +16,7 @@ const categoryMeta: Record<string, { name: string; desc: string }> = {
   notice: { name: "공지사항", desc: "Puri의 새로운 소식과 운영 안내를 확인하세요." },
   general: { name: "자유게시판", desc: "자유롭게 소통하고 개발 이야기를 나누는 공간입니다." },
   qna: { name: "질문/답변", desc: "코딩 중 막히는 부분을 질문하고 함께 해결해보세요." },
-  tips: { name: "알고리즘 팁", desc: "자신만의 풀이 노하우와 코딩 꿀팁을 공유하세요." }
+  tips: { name: "알고리즘 팁", desc: "자신만의 풀이 노하우와 코딩 꿀팁을 공유하세요." },
 };
 const meta = categoryMeta[category!];
 ---

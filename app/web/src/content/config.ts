@@ -1,5 +1,5 @@
-import { defineCollection, z } from 'astro:content';
-import { glob } from 'astro/loaders';
+import { defineCollection, z } from "astro:content";
+import { glob } from "astro/loaders";
 
 const problemsCollection = defineCollection({
   loader: glob({ pattern: "**/*.md", base: "./src/content/problems" }),
@@ -10,13 +10,17 @@ const problemsCollection = defineCollection({
     tier: z.string().optional(),
     step: z.string().optional(),
     source: z.union([z.array(z.string()), z.string()]).optional(),
-    examples: z.array(z.object({
-      input: z.string(),
-      output: z.string()
-    })).optional()
-  })
+    examples: z
+      .array(
+        z.object({
+          input: z.string(),
+          output: z.string(),
+        }),
+      )
+      .optional(),
+  }),
 });
 
 export const collections = {
-  'problems': problemsCollection,
+  problems: problemsCollection,
 };

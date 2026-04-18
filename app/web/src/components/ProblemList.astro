@@ -1,15 +1,19 @@
 ---
-import ProblemTable from './ProblemTable.astro';
-import { getStepName } from '../lib/steps';
+import { getStepName } from "../lib/steps";
+import ProblemTable from "./ProblemTable.astro";
 
 interface Props {
   problems: any[];
 }
 const { problems } = Astro.props;
 
-const tiers = [...new Set(problems.map(p => p.data?.tier || p.frontmatter?.tier).filter(Boolean))].sort();
-const stepIds = [...new Set(problems.map(p => p.data?.step || p.frontmatter?.step).filter(Boolean))].sort();
-const steps = stepIds.map(id => ({ id, name: getStepName(id as string) }));
+const tiers = [
+  ...new Set(problems.map((p) => p.data?.tier || p.frontmatter?.tier).filter(Boolean)),
+].sort();
+const stepIds = [
+  ...new Set(problems.map((p) => p.data?.step || p.frontmatter?.step).filter(Boolean)),
+].sort();
+const steps = stepIds.map((id) => ({ id, name: getStepName(id as string) }));
 ---
 
 <div class="filter-bar">

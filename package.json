@@ -16,9 +16,16 @@
     "build:web": "npm run build -w @mijung/web",
     "build:admin": "npm run build -w @mijung/admin",
     "build:api": "cd services/api && go build -o ../../bin/api .",
-    "build:submission": "cd services/submission && go build -o ../../bin/submission ."
+    "build:submission": "cd services/submission && go build -o ../../bin/submission .",
+    "lint": "npm run lint:ts && npm run lint:astro && npm run lint:admin-tsc && npm run lint:go",
+    "lint:ts": "biome check .",
+    "lint:fix": "biome check --write .",
+    "lint:astro": "npm run check -w @mijung/web",
+    "lint:admin-tsc": "cd app/admin && tsc --noEmit",
+    "lint:go": "cd services/api && go vet ./... && cd ../submission && go vet ./..."
   },
   "devDependencies": {
+    "@biomejs/biome": "2.4.12",
     "concurrently": "^9.1.2"
   },
   "overrides": {

@@ -1,9 +1,10 @@
 ---
-import BaseLayout from './BaseLayout.astro';
-import ProblemView from '../components/ProblemView.astro';
+import ProblemView from "../components/ProblemView.astro";
+import BaseLayout from "./BaseLayout.astro";
+
 const { frontmatter } = Astro.props;
 const problemDesc = `${frontmatter.title} - 시간 제한: ${frontmatter.time_limit}, 메모리 제한: ${frontmatter.memory_limit}`;
-const problemId = Astro.url.pathname.split('/').filter(Boolean).pop();
+const problemId = Astro.url.pathname.split("/").filter(Boolean).pop();
 ---
 <BaseLayout title={`${frontmatter.title} - Puri`} description={problemDesc} ogType="article" fullWidth={true}>
   <div class="workspace-layout">

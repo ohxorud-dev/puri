@@ -80,9 +80,7 @@ export const steps: Step[] = [
   },
 ];
 
-export const stepMap: Record<string, Step> = Object.fromEntries(
-  steps.map(s => [s.id, s])
-);
+export const stepMap: Record<string, Step> = Object.fromEntries(steps.map((s) => [s.id, s]));
 
 export function getStepName(id: string): string {
   return stepMap[id]?.name ?? id;

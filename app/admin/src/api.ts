@@ -1,7 +1,7 @@
 import { createClient } from "@connectrpc/connect";
 import { createConnectTransport } from "@connectrpc/connect-web";
-import { UserService } from "./gen/user/v1/user_pb";
 import { SubmissionService } from "./gen/submission/v1/submission_pb";
+import { UserService } from "./gen/user/v1/user_pb";
 
 const API_BASE_URL = import.meta.env.DEV ? "" : "https://api.puri.ac";
 

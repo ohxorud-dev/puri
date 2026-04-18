@@ -10,11 +10,11 @@ const transport = createConnectTransport({
   fetch: (input, init) => fetch(input, { ...init, credentials: "include" }),
 });
 
-// Import services from unified _pb.ts files (v2)
-import { UserService } from "../gen/user/v1/user_pb";
-import { SubmissionService } from "../gen/submission/v1/submission_pb";
 import { CommunityService } from "../gen/community/v1/community_pb";
 import { ProposalService } from "../gen/proposal/v1/proposal_pb";
+import { SubmissionService } from "../gen/submission/v1/submission_pb";
+// Import services from unified _pb.ts files (v2)
+import { UserService } from "../gen/user/v1/user_pb";
 
 // Create clients
 export const userClient = createClient(UserService, transport);

@@ -1,9 +1,9 @@
 ---
-import { getCollection } from 'astro:content';
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import ProblemTable from '../../components/ProblemTable.astro';
+import { getCollection } from "astro:content";
+import ProblemTable from "../../components/ProblemTable.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
 
-const allProblems = await getCollection('problems');
+const allProblems = await getCollection("problems");
 
 // Build tree
 interface SourceNode {
@@ -13,9 +13,10 @@ interface SourceNode {
 }
 
 function buildTree(problems: any[]): SourceNode {
-  const root: SourceNode = { name: '', children: new Map(), problems: [] };
+  const root: SourceNode = { name: "", children: new Map(), problems: [] };
   for (const p of problems) {
-    const rawSource = p.data.source; const source = rawSource ? (Array.isArray(rawSource) ? rawSource : [rawSource]) : undefined;
+    const rawSource = p.data.source;
+    const source = rawSource ? (Array.isArray(rawSource) ? rawSource : [rawSource]) : undefined;
     if (!source || source.length === 0) continue;
     let node = root;
     for (const segment of source) {
@@ -25,9 +26,10 @@ function buildTree(problems: any[]): SourceNode {
       node = node.children.get(segment)!;
     }
     node.problems.push({
-      data: p.data, frontmatter: p.data,
-      url: `/problems/${p.id.split('/')[0]}`,
-      id: p.id.split('/')[0] || '',
+      data: p.data,
+      frontmatter: p.data,
+      url: `/problems/${p.id.split("/")[0]}`,
+      id: p.id.split("/")[0] || "",
     });
   }
   return root;
@@ -59,28 +61,29 @@ const tree = buildTree(allProblems);
 const allPaths = getAllPaths(tree);
 
 export async function getStaticPaths() {
-  const { getCollection } = await import('astro:content');
-  const allProblems = await getCollection('problems');
+  const { getCollection } = await import("astro:content");
+  const allProblems = await getCollection("problems");
 
   // Collect all unique source path prefixes
   const pathSet = new Set<string>();
   for (const p of allProblems) {
-    const rawSource = p.data.source; const source = rawSource ? (Array.isArray(rawSource) ? rawSource : [rawSource]) : undefined;
+    const rawSource = p.data.source;
+    const source = rawSource ? (Array.isArray(rawSource) ? rawSource : [rawSource]) : undefined;
     if (!source) continue;
     for (let i = 1; i <= source.length; i++) {
-      pathSet.add(source.slice(0, i).join('/'));
+      pathSet.add(source.slice(0, i).join("/"));
     }
   }
 
-  return [...pathSet].map(path => ({ params: { path } }));
+  return [...pathSet].map((path) => ({ params: { path } }));
 }
 
 // Since getStaticPaths returns [], use prerender = false approach
 // Actually for SSG, we need to generate all paths
 // Let's use a different approach: generate from the tree
 
-const pathStr = Astro.params.path || '';
-const segments = pathStr.split('/').filter(Boolean);
+const pathStr = Astro.params.path || "";
+const segments = pathStr.split("/").filter(Boolean);
 
 // Navigate to the node
 let currentNode = tree;
@@ -94,24 +97,31 @@ for (const seg of segments) {
   }
 }
 
-const children = valid ? [...currentNode.children.entries()]
-  .sort((a, b) => a[0].localeCompare(b[0]))
-  .map(([key, child]) => ({
-    name: key,
-    slug: [...segments, key].join('/'),
-    count: getNodeCounts(child),
-    hasChildren: child.children.size > 0,
-  })) : [];
+const children = valid
+  ? [...currentNode.children.entries()]
+      .sort((a, b) => a[0].localeCompare(b[0]))
+      .map(([key, child]) => ({
+        name: key,
+        slug: [...segments, key].join("/"),
+        count: getNodeCounts(child),
+        hasChildren: child.children.size > 0,
+      }))
+  : [];
 
-const problems = valid ? currentNode.problems.sort((a: any, b: any) => parseInt(a.id) - parseInt(b.id)) : [];
-const allSubProblems = valid && children.length > 0 ? getAllProblemsUnder(currentNode).sort((a: any, b: any) => parseInt(a.id) - parseInt(b.id)) : [];
+const problems = valid
+  ? currentNode.problems.sort((a: any, b: any) => parseInt(a.id) - parseInt(b.id))
+  : [];
+const allSubProblems =
+  valid && children.length > 0
+    ? getAllProblemsUnder(currentNode).sort((a: any, b: any) => parseInt(a.id) - parseInt(b.id))
+    : [];
 
 const breadcrumbs = segments.map((seg, i) => ({
   name: seg,
-  path: '/source/' + segments.slice(0, i + 1).join('/'),
+  path: "/source/" + segments.slice(0, i + 1).join("/"),
 }));
 
-const pageTitle = segments.length > 0 ? segments[segments.length - 1] : '출처';
+const pageTitle = segments.length > 0 ? segments[segments.length - 1] : "출처";
 ---
 
 <BaseLayout title={`${pageTitle} - 출처 - Puri`}>
