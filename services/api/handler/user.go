@@ -9,9 +9,9 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	userv1 "github.com/puri-cp/puri/gen/user/v1"
-	"github.com/puri-cp/puri/services/api/auth"
-	"github.com/puri-cp/puri/services/api/repository"
+	userv1 "github.com/ohxorud-dev/puri/gen/go/user/v1"
+	"github.com/ohxorud-dev/puri/services/api/auth"
+	"github.com/ohxorud-dev/puri/services/api/repository"
 )
 
 type UserServiceHandler struct {

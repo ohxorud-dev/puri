@@ -1,4 +1,4 @@
-module github.com/puri-cp/puri
+module github.com/ohxorud-dev/puri
 
 go 1.25.0
 

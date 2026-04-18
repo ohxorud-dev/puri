@@ -14,16 +14,16 @@ import (
 	"github.com/jackc/pgx/v5/stdlib"
 	"github.com/pressly/goose/v3"
 	"github.com/rs/cors"
-	"github.com/puri-cp/puri/services/api/config"
-	"github.com/puri-cp/puri/services/api/db"
-	"github.com/puri-cp/puri/services/api/handler"
-	"github.com/puri-cp/puri/services/api/interceptor"
-	"github.com/puri-cp/puri/services/api/repository"
+	"github.com/ohxorud-dev/puri/services/api/config"
+	"github.com/ohxorud-dev/puri/services/api/db"
+	"github.com/ohxorud-dev/puri/services/api/handler"
+	"github.com/ohxorud-dev/puri/services/api/interceptor"
+	"github.com/ohxorud-dev/puri/services/api/repository"
 
-	communityv1connect "github.com/puri-cp/puri/gen/community/v1/communityv1connect"
-	proposalv1connect "github.com/puri-cp/puri/gen/proposal/v1/proposalv1connect"
-	submissionv1connect "github.com/puri-cp/puri/gen/submission/v1/submissionv1connect"
-	userv1connect "github.com/puri-cp/puri/gen/user/v1/userv1connect"
+	communityv1connect "github.com/ohxorud-dev/puri/gen/go/community/v1/communityv1connect"
+	proposalv1connect "github.com/ohxorud-dev/puri/gen/go/proposal/v1/proposalv1connect"
+	submissionv1connect "github.com/ohxorud-dev/puri/gen/go/submission/v1/submissionv1connect"
+	userv1connect "github.com/ohxorud-dev/puri/gen/go/user/v1/userv1connect"
 )
 
 func main() {

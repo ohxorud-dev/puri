@@ -10,15 +10,15 @@ import (
 	"time"
 
 	"connectrpc.com/connect"
-	"github.com/puri-cp/puri/services/submission/config"
-	"github.com/puri-cp/puri/services/submission/db"
-	"github.com/puri-cp/puri/services/submission/executor"
-	"github.com/puri-cp/puri/services/submission/handler"
-	"github.com/puri-cp/puri/services/submission/interceptor"
-	"github.com/puri-cp/puri/services/submission/queue"
-	"github.com/puri-cp/puri/services/submission/repository"
+	"github.com/ohxorud-dev/puri/services/submission/config"
+	"github.com/ohxorud-dev/puri/services/submission/db"
+	"github.com/ohxorud-dev/puri/services/submission/executor"
+	"github.com/ohxorud-dev/puri/services/submission/handler"
+	"github.com/ohxorud-dev/puri/services/submission/interceptor"
+	"github.com/ohxorud-dev/puri/services/submission/queue"
+	"github.com/ohxorud-dev/puri/services/submission/repository"
 
-	submissionv1connect "github.com/puri-cp/puri/gen/submission/v1/submissionv1connect"
+	submissionv1connect "github.com/ohxorud-dev/puri/gen/go/submission/v1/submissionv1connect"
 )
 
 func main() {

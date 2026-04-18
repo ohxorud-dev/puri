@@ -3,7 +3,7 @@ package handler
 import (
 	"context"
 
-	"github.com/puri-cp/puri/services/api/repository"
+	"github.com/ohxorud-dev/puri/services/api/repository"
 	"github.com/stretchr/testify/mock"
 )
 

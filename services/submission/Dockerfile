@@ -1,7 +1,7 @@
 FROM golang:1.25-alpine AS builder
 WORKDIR /src
 COPY go.mod go.sum ./
-COPY gen/ gen/
+COPY gen/go/ gen/go/
 COPY services/submission/ services/submission/
 WORKDIR /src/services/submission
 RUN go mod download

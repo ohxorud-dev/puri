@@ -11,12 +11,12 @@ import (
 	"connectrpc.com/connect"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	commonv1 "github.com/puri-cp/puri/gen/common/v1"
-	submissionv1 "github.com/puri-cp/puri/gen/submission/v1"
-	"github.com/puri-cp/puri/services/submission/executor"
-	"github.com/puri-cp/puri/services/submission/problem"
-	"github.com/puri-cp/puri/services/submission/queue"
-	"github.com/puri-cp/puri/services/submission/repository"
+	commonv1 "github.com/ohxorud-dev/puri/gen/go/common/v1"
+	submissionv1 "github.com/ohxorud-dev/puri/gen/go/submission/v1"
+	"github.com/ohxorud-dev/puri/services/submission/executor"
+	"github.com/ohxorud-dev/puri/services/submission/problem"
+	"github.com/ohxorud-dev/puri/services/submission/queue"
+	"github.com/ohxorud-dev/puri/services/submission/repository"
 )
 
 type SubmissionServiceHandler struct {

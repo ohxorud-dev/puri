@@ -4,9 +4,9 @@ import (
 	"context"
 	"time"
 
-	"github.com/puri-cp/puri/services/submission/executor"
+	"github.com/ohxorud-dev/puri/services/submission/executor"
 
-	submissionv1 "github.com/puri-cp/puri/gen/submission/v1"
+	submissionv1 "github.com/ohxorud-dev/puri/gen/go/submission/v1"
 )
 
 type examplePair struct {

@@ -11,9 +11,9 @@ import (
 
 	"github.com/rabbitmq/amqp091-go"
 
-	"github.com/puri-cp/puri/services/submission/executor"
-	"github.com/puri-cp/puri/services/submission/problem"
-	"github.com/puri-cp/puri/services/submission/repository"
+	"github.com/ohxorud-dev/puri/services/submission/executor"
+	"github.com/ohxorud-dev/puri/services/submission/problem"
+	"github.com/ohxorud-dev/puri/services/submission/repository"
 )
 
 type Consumer struct {

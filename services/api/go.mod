@@ -1,8 +1,8 @@
-module github.com/puri-cp/puri/services/api
+module github.com/ohxorud-dev/puri/services/api
 
 go 1.25.0
 
-replace github.com/puri-cp/puri => ../../
+replace github.com/ohxorud-dev/puri => ../../
 
 require (
 	buf.build/go/protovalidate v1.1.3
@@ -11,7 +11,7 @@ require (
 	github.com/jackc/pgx/v5 v5.9.1
 	github.com/joho/godotenv v1.5.1
 	github.com/pressly/goose/v3 v3.27.0
-	github.com/puri-cp/puri v0.0.0-00010101000000-000000000000
+	github.com/ohxorud-dev/puri v0.0.0-00010101000000-000000000000
 	github.com/rs/cors v1.11.1
 	github.com/stretchr/testify v1.11.1
 	golang.org/x/crypto v0.50.0

@@ -1,6 +1,5 @@
 syntax = "proto3";
 package puri.community.v1;
-option go_package = "github.com/puri-cp/puri/gen/community/v1;communityv1";
 
 import "buf/validate/validate.proto";
 import "google/protobuf/timestamp.proto";

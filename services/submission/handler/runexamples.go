@@ -6,7 +6,7 @@ import (
 
 	"connectrpc.com/connect"
 
-	submissionv1 "github.com/puri-cp/puri/gen/submission/v1"
+	submissionv1 "github.com/ohxorud-dev/puri/gen/go/submission/v1"
 )
 
 func (h *SubmissionServiceHandler) RunExamples(ctx context.Context, req *connect.Request[submissionv1.RunExamplesRequest]) (*connect.Response[submissionv1.RunExamplesResponse], error) {

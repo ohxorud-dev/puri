@@ -11,9 +11,9 @@ import (
 	"github.com/stretchr/testify/require"
 	"golang.org/x/crypto/bcrypt"
 
-	userv1 "github.com/puri-cp/puri/gen/user/v1"
-	"github.com/puri-cp/puri/services/api/auth"
-	"github.com/puri-cp/puri/services/api/repository"
+	userv1 "github.com/ohxorud-dev/puri/gen/go/user/v1"
+	"github.com/ohxorud-dev/puri/services/api/auth"
+	"github.com/ohxorud-dev/puri/services/api/repository"
 )
 
 const testSecret = "test-secret-key"

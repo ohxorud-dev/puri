@@ -12,9 +12,9 @@ import (
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/types/descriptorpb"
 
-	commonv1 "github.com/puri-cp/puri/gen/common/v1"
-	"github.com/puri-cp/puri/services/api/auth"
-	"github.com/puri-cp/puri/services/api/repository"
+	commonv1 "github.com/ohxorud-dev/puri/gen/go/common/v1"
+	"github.com/ohxorud-dev/puri/services/api/auth"
+	"github.com/ohxorud-dev/puri/services/api/repository"
 )
 
 type LoggingInterceptor struct{}

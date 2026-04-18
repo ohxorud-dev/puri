@@ -1,6 +1,5 @@
 syntax = "proto3";
 package puri.submission.v1;
-option go_package = "github.com/puri-cp/puri/gen/submission/v1;submissionv1";
 
 import "buf/validate/validate.proto";
 import "google/protobuf/timestamp.proto";

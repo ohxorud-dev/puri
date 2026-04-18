@@ -11,8 +11,8 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
-	communityv1 "github.com/puri-cp/puri/gen/community/v1"
-	"github.com/puri-cp/puri/services/api/repository"
+	communityv1 "github.com/ohxorud-dev/puri/gen/go/community/v1"
+	"github.com/ohxorud-dev/puri/services/api/repository"
 )
 
 func newCommunityHandler(repo *MockCommunityRepo, userRepo *MockUserRepo) *CommunityServiceHandler {

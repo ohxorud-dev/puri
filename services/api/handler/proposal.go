@@ -13,12 +13,12 @@ import (
 	"connectrpc.com/connect"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	commonv1 "github.com/puri-cp/puri/gen/common/v1"
-	proposalv1 "github.com/puri-cp/puri/gen/proposal/v1"
-	submissionv1 "github.com/puri-cp/puri/gen/submission/v1"
-	submissionv1connect "github.com/puri-cp/puri/gen/submission/v1/submissionv1connect"
-	"github.com/puri-cp/puri/services/api/auth"
-	"github.com/puri-cp/puri/services/api/repository"
+	commonv1 "github.com/ohxorud-dev/puri/gen/go/common/v1"
+	proposalv1 "github.com/ohxorud-dev/puri/gen/go/proposal/v1"
+	submissionv1 "github.com/ohxorud-dev/puri/gen/go/submission/v1"
+	submissionv1connect "github.com/ohxorud-dev/puri/gen/go/submission/v1/submissionv1connect"
+	"github.com/ohxorud-dev/puri/services/api/auth"
+	"github.com/ohxorud-dev/puri/services/api/repository"
 )
 
 type ProposalServiceHandler struct {

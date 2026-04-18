@@ -10,9 +10,9 @@ import (
 	"connectrpc.com/connect"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	communityv1 "github.com/puri-cp/puri/gen/community/v1"
-	"github.com/puri-cp/puri/services/api/auth"
-	"github.com/puri-cp/puri/services/api/repository"
+	communityv1 "github.com/ohxorud-dev/puri/gen/go/community/v1"
+	"github.com/ohxorud-dev/puri/services/api/auth"
+	"github.com/ohxorud-dev/puri/services/api/repository"
 )
 
 var categoryMap = map[communityv1.Category]string{
