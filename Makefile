@@ -51,7 +51,7 @@ proto:
 	buf generate
 
 clean:
-	rm -rf web/dist app/admin/dist bin/ services/*/bin/
+	rm -rf app/web/dist app/admin/dist bin/ services/*/bin/
 	cd services/api && go clean -cache
 	cd services/submission && go clean -cache
 

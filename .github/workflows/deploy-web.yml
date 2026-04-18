@@ -5,7 +5,7 @@ on:
   push:
     branches: [main]
     paths:
-      - 'web/**'
+      - 'app/web/**'
       - 'problems'
       - '.github/workflows/deploy-web.yml'
 
@@ -36,11 +36,12 @@ jobs:
         run: npm ci
 
       - name: Build web
-        run: npm run build:web
+        working-directory: app/web
+        run: npm run build
 
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy web/dist --project-name=puri --branch=main --commit-dirty=true
+          command: pages deploy app/web/dist --project-name=puri --branch=main --commit-dirty=true

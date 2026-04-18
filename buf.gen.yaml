@@ -14,7 +14,7 @@ plugins:
       - paths=source_relative
 
   - remote: buf.build/bufbuild/es:v2.10.2
-    out: web/src/gen
+    out: app/web/src/gen
     opt: target=ts
     include_imports: true
 
