@@ -18,6 +18,9 @@ on:
 env:
   IMAGE: ghcr.io/${{ github.repository_owner }}/puri-submission
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -33,10 +36,10 @@ jobs:
           submodules: false
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
 
       - name: Log in to GHCR
-        uses: docker/login-action@v3
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -47,7 +50,7 @@ jobs:
         run: echo "image_ref=${IMAGE}:${GITHUB_SHA::12}" >> "$GITHUB_OUTPUT"
 
       - name: Build and push
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
         with:
           context: .
           file: services/submission/Dockerfile
@@ -65,7 +68,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Deploy to server
-        uses: appleboy/ssh-action@v1
+        uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2 # v1
         env:
           IMAGE_REF: ${{ needs.build.outputs.image_ref }}
         with:
@@ -115,7 +118,7 @@ jobs:
       packages: write
     steps:
       - name: Cleanup old package versions
-        uses: dataaxiom/ghcr-cleanup-action@v1
+        uses: dataaxiom/ghcr-cleanup-action@cd0cdb900b5dbf3a6f2cc869f0dbb0b8211f50c4 # v1
         with:
           package: puri-submission
           keep-n-tagged: 1

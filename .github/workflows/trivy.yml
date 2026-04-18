@@ -21,7 +21,7 @@ jobs:
           submodules: false
 
       - name: Run Trivy filesystem scan
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@876cf04c63f65e9799bcf1043b584e72469c7143 # master
         with:
           scan-type: fs
           scan-ref: .

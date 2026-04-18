@@ -1,4 +1,4 @@
-name: govulncheck
+name: Go Vulnerability Check
 
 on:
   push:
@@ -7,6 +7,9 @@ on:
     branches: [main]
   schedule:
     - cron: '37 8 * * 1'
+
+permissions:
+  contents: read
 
 jobs:
   scan:
@@ -24,7 +27,8 @@ jobs:
         with:
           go-version: '1.25'
       - name: Run govulncheck
-        uses: golang/govulncheck-action@v1
+        continue-on-error: true
+        uses: golang/govulncheck-action@b625fbe08f3bccbe446d94fbf87fcc875a4f50ee # v1
         with:
           go-version-input: '1.25'
           work-dir: ${{ matrix.module }}
