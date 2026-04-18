@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -119,6 +120,17 @@ func (r *DockerRunner) ensureImage(ctx context.Context, img string) error {
 		return fmt.Errorf("image pull drain %s: %w", img, err)
 	}
 	r.pulledOnce.Store(img, struct{}{})
+	return nil
+}
+
+func (r *DockerRunner) PrewarmImages(ctx context.Context) error {
+	for lang, cfg := range languageConfigs {
+		log.Printf("[Prewarm] ensuring image for %s: %s", lang, cfg.Image)
+		if err := r.ensureImage(ctx, cfg.Image); err != nil {
+			return fmt.Errorf("prewarm %s (%s): %w", lang, cfg.Image, err)
+		}
+	}
+	log.Printf("[Prewarm] all %d language images ready", len(languageConfigs))
 	return nil
 }
 

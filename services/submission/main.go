@@ -44,6 +44,14 @@ func main() {
 		os.Exit(1)
 	}
 
+	prewarmCtx, prewarmCancel := context.WithTimeout(context.Background(), 15*time.Minute)
+	if err := runner.PrewarmImages(prewarmCtx); err != nil {
+		prewarmCancel()
+		fmt.Fprintf(os.Stderr, "failed to prewarm docker images: %v\n", err)
+		os.Exit(1)
+	}
+	prewarmCancel()
+
 	publisher, err := queue.NewPublisher(cfg.RabbitMQURL)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "failed to connect to rabbitmq publisher: %v\n", err)

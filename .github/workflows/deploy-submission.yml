@@ -1,20 +1,22 @@
-name: Deploy API
+name: Deploy Submission
 
 on:
   workflow_dispatch:
   push:
     branches: [main]
     paths:
-      - 'services/api/**'
+      - 'services/submission/**'
       - 'gen/**'
       - 'db/**'
+      - 'problems'
+      - 'testcases'
       - 'go.mod'
       - 'go.sum'
       - 'docker-compose.prod.yml'
-      - '.github/workflows/deploy-api.yml'
+      - '.github/workflows/deploy-submission.yml'
 
 env:
-  IMAGE: ghcr.io/${{ github.repository_owner }}/puri-api
+  IMAGE: ghcr.io/${{ github.repository_owner }}/puri-submission
 
 jobs:
   build:
@@ -48,7 +50,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: services/api/Dockerfile
+          file: services/submission/Dockerfile
           push: true
           tags: |
             ${{ env.IMAGE }}:latest
@@ -99,7 +101,7 @@ jobs:
             echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" > .env
 
             sudo docker pull "$IMAGE_REF"
-            sudo docker tag "$IMAGE_REF" ghcr.io/ohxorud-dev/puri-api:latest
+            sudo docker tag "$IMAGE_REF" ghcr.io/ohxorud-dev/puri-submission:latest
 
-            sudo docker compose -f docker-compose.prod.yml up -d --no-build api
+            sudo docker compose -f docker-compose.prod.yml up -d --no-build submission
             sudo docker image prune -f

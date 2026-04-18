@@ -17,9 +17,8 @@ services:
     restart: unless-stopped
 
   api:
-    build:
-      context: .
-      dockerfile: services/api/Dockerfile
+    image: ghcr.io/ohxorud-dev/puri-api:latest
+    pull_policy: always
     ports:
       - "39291:8080"
     environment:
@@ -33,9 +32,8 @@ services:
     restart: unless-stopped
 
   submission:
-    build:
-      context: .
-      dockerfile: services/submission/Dockerfile
+    image: ghcr.io/ohxorud-dev/puri-submission:latest
+    pull_policy: always
     environment:
       DATABASE_URL: postgres://postgres:postgres@postgres:5432/puri?sslmode=disable
       RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
