@@ -62,6 +62,15 @@ func (r *SubmissionRepository) GetByID(ctx context.Context, id int64) (*Submissi
 	return &s, nil
 }
 
+func (r *SubmissionRepository) GetUsername(ctx context.Context, userID int64) (string, error) {
+	var username string
+	err := r.pool.QueryRow(ctx, `SELECT username FROM users WHERE id = $1`, userID).Scan(&username)
+	if err == pgx.ErrNoRows {
+		return "", nil
+	}
+	return username, err
+}
+
 func (r *SubmissionRepository) UpdateStatus(ctx context.Context, id int64, status string, result string, executionTimeMs int32, memoryUsageKb int32) error {
 	_, err := r.pool.Exec(ctx,
 		`UPDATE submissions SET status = $2, result = $3, execution_time_ms = $4, memory_usage_kb = $5 WHERE id = $1`,
