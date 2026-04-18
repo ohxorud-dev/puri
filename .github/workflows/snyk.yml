@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: false
       - name: Check token
@@ -51,10 +51,10 @@ jobs:
       matrix:
         module: [services/api, services/submission]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: false
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v6
         with:
           go-version: '1.25'
       - name: Check token
@@ -81,7 +81,7 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: false
       - name: Check token
