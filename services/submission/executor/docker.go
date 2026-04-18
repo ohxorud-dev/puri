@@ -193,6 +193,7 @@ exit $EXIT
 		Cmd:             []string{"sh", "-c", cmd},
 		WorkingDir:      "/workspace",
 		User:            "nobody",
+		Env:             []string{"HOME=/tmp"},
 		AttachStdout:    true,
 		AttachStderr:    true,
 		Tty:             false,
