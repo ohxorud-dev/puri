@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"connectrpc.com/connect"
@@ -19,11 +20,16 @@ import (
 	"github.com/puri-cp/puri/services/submission/repository"
 )
 
+const submissionCooldown = 5 * time.Second
+
 type SubmissionServiceHandler struct {
 	repo         *repository.SubmissionRepository
 	runner       *executor.DockerRunner
 	publisher    *queue.Publisher
 	problemsPath string
+
+	lastSubmitMu sync.Mutex
+	lastSubmit   map[int64]time.Time
 }
 
 func NewSubmissionServiceHandler(repo *repository.SubmissionRepository, runner *executor.DockerRunner, publisher *queue.Publisher, problemsPath string) *SubmissionServiceHandler {
@@ -32,7 +38,21 @@ func NewSubmissionServiceHandler(repo *repository.SubmissionRepository, runner *
 		runner:       runner,
 		publisher:    publisher,
 		problemsPath: problemsPath,
+		lastSubmit:   make(map[int64]time.Time),
 	}
+}
+
+func (h *SubmissionServiceHandler) checkSubmissionCooldown(userID int64) error {
+	h.lastSubmitMu.Lock()
+	defer h.lastSubmitMu.Unlock()
+	now := time.Now()
+	if last, ok := h.lastSubmit[userID]; ok {
+		if remaining := submissionCooldown - now.Sub(last); remaining > 0 {
+			return fmt.Errorf("please wait %.1fs before submitting again", remaining.Seconds())
+		}
+	}
+	h.lastSubmit[userID] = now
+	return nil
 }
 
 func languageToString(l commonv1.Language) string {
@@ -58,6 +78,10 @@ func (h *SubmissionServiceHandler) CreateSubmission(ctx context.Context, req *co
 	userID, err := userIDFromHeader(req.Header())
 	if err != nil {
 		return nil, connect.NewError(connect.CodeUnauthenticated, fmt.Errorf("missing user id"))
+	}
+
+	if err := h.checkSubmissionCooldown(userID); err != nil {
+		return nil, connect.NewError(connect.CodeResourceExhausted, err)
 	}
 
 	sub, err := h.repo.Create(ctx, userID, req.Msg.ProblemId, languageToString(req.Msg.Language), req.Msg.SourceCode)
