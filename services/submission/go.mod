@@ -8,7 +8,7 @@ require (
 	buf.build/go/protovalidate v1.1.3
 	connectrpc.com/connect v1.19.1
 	github.com/docker/docker v28.5.2+incompatible
-	github.com/jackc/pgx/v5 v5.9.1
+	github.com/jackc/pgx/v5 v5.9.2
 	github.com/joho/godotenv v1.5.1
 	github.com/ohxorud-dev/puri v0.0.0-00010101000000-000000000000
 	github.com/rabbitmq/amqp091-go v1.10.0
